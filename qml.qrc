@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>MainForm.ui.qml</file>
+        <file>assets/CircleObstacle.png</file>
+        <file>assets/leaf.png</file>
+        <file>assets/background.jpg</file>
+    </qresource>
+</RCC>
