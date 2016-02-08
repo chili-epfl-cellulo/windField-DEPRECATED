@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
+import QtQuick.Controls.Styles 1.4
 
 ApplicationWindow {
     visible: true
@@ -10,6 +11,11 @@ ApplicationWindow {
     title: qsTr("Hello World")
     visibility:"FullScreen"
 
+    Image {
+        id: background
+        anchors.fill: parent
+        source: "assets/background.jpg"
+    }
     Canvas {
         id: windField
         anchors.fill: parent
@@ -20,6 +26,18 @@ ApplicationWindow {
         //Right now I have the leaf following whatever the wind flow is, should I add inertia? If so I need
         //a velocity and acceleration of the leaf as well
 
+        //Game interaction variables
+        property bool paused: false
+        property bool drawPressureGrid: true
+        property bool drawForceGrid: true
+        property bool drawLeafVelocityVector: true
+        property bool drawLeafForceVectors: true
+        property int ticks: 0
+        property int currentAction: 0
+
+        //Pressure state
+        property int maxHighPressurePoints: 10
+        property int maxLowPressurePoints: 10
         property variant pressureGrid: []
 
         //TODO: Create some kind of structure for the leaf/robot
@@ -35,32 +53,59 @@ ApplicationWindow {
         property double leafMass: 1
         property double leafSize: 0
 
-        //Global Constants
+        //Pressure points
+        property variant highPressurePoints: []
+        property variant lowPressurePoints: []
+        property variant pressureDragInput: []
+
+        //Global ontants
         property double pressureToForceMultiplier: 1
         property double pressureTransferRate: .5
         property double maxForce: 15.0
         property double dragCoefficient: .05
         property double maxVelocity: maxForce/dragCoefficient
         property double timeStep: .25
-        property int gridDensity: 1
+        property int gridDensity: 1 //Preferably an odd number to have nice vector spacing
         property int numCols: 26*gridDensity
         property int numRows: 16*gridDensity
 
         onPaint: {
             var ctx = getContext("2d")
-            ctx.strokeStyle = "black"
             ctx.clearRect(0,0, width, height);
-            ctx.drawImage("assets/background.jpg", 0,0, width, height)
             drawPressureFields(ctx)
-            drawForceVectors(ctx, gridDensity)
+            drawPressureCellInput(ctx)
+            drawForceField(ctx, gridDensity)
             drawLeafVectors(ctx)
             ctx.drawImage("assets/leaf.png", leafX-leafSize/2,leafY-leafSize/2, leafSize, leafSize)
         }
-        /*MouseArea {
-            id: fieldInteraction
-        }*/
 
-        function initializePressureGrid() {
+        function togglePaused() {
+            paused = !paused
+            if (paused)
+                pause.text = 'Resume'
+            else
+                pause.text = 'Pause'
+        }
+
+        function toggleDisplaySetting(setting) {
+            switch(setting){
+            case 1:
+                drawPressureGrid = pressureGridCheck.checked
+                break;
+            case 2:
+                drawForceGrid = forceGridCheck.checked
+                break;
+            case 3:
+                drawLeafVelocityVector = leafVelocityCheck.checked
+                break;
+            case 4:
+                drawLeafForceVectors = leafForceCheck.checked
+                break;
+            }
+            requestPaint()
+        }
+
+        function initializeWindField() {
             var xGridSpacing = (robotMaxX/numCols)
             var yGridSpacing = (robotMaxY/numRows)
             var rows = new Array(numRows)
@@ -81,29 +126,53 @@ ApplicationWindow {
                 rows[i]=column
             }
             pressureGrid = rows
-            setInitialPressures()
+
+            highPressurePoints = new Array(maxHighPressurePoints);
+            lowPressurePoints = new Array(maxHighPressurePoints);
+            highPressurePoints[0] = Qt.point(0,0)
+            highPressurePoints[1] = Qt.point(15,0)
+            highPressurePoints[2] = Qt.point(0,25)
+            highPressurePoints[3] = Qt.point(15,25)
+
+            lowPressurePoints[0] = Qt.point(7,12)
+            lowPressurePoints[1] = Qt.point(8,12)
+            lowPressurePoints[2] = Qt.point(7,13)
+            lowPressurePoints[3] = Qt.point(8,13)
+
+            pressureDragInput = new Array(touchArea.maximumTouchPoints)
+            setObstacles()
+            setPressurePoints()
             setInitialLeafInfo()
         }
+
         Component.onCompleted: {
-            windField.initializePressureGrid()
+            windField.initializeWindField()
             loadImage("assets/leaf.png")
         }
 
-        function setInitialPressures() {
-            pressureGrid[0][0][4] = 100;
-            pressureGrid[15][0][4] = 100.0;
-            pressureGrid[0][25][4] = 100.0;
-            pressureGrid[15][25][4] = 100.0;
+        function setObstacles() {
+            pressureGrid[13][24][6] = 0
+            pressureGrid[13][23][6] = 0
+            pressureGrid[14][23][6] = 0
+            pressureGrid[14][24][6] = 0
+        }
 
-            pressureGrid[7][12][4] = 0.0;
-            pressureGrid[8][12][4] = 0.0;
-            pressureGrid[7][13][4] = 0.0;
-            pressureGrid[8][13][4] = 0.0;
+        function setPressurePoints() {
+            for (var i = 0; i < maxHighPressurePoints; i++) {
+                if (!highPressurePoints[i])
+                    continue
+                var row = highPressurePoints[i].x
+                var col = highPressurePoints[i].y
+                pressureGrid[row][col][4] = 100.0
+            }
 
-            pressureGrid[13][24][6] = 0;
-            pressureGrid[13][23][6] = 0;
-            pressureGrid[14][23][6] = 0;
-            pressureGrid[14][24][6] = 0;
+            for (var i = 0; i < maxLowPressurePoints; i++) {
+                if (!lowPressurePoints[i])
+                    continue
+                var row = lowPressurePoints[i].x
+                var col = lowPressurePoints[i].y
+                pressureGrid[row][col][4] = 0.0
+            }
         }
 
         function setInitialLeafInfo() {
@@ -116,13 +185,76 @@ ApplicationWindow {
             calculateForcesAtLeaf()
         }
 
+        function removePressurePoint(r,c) {
+            for (var i = 0; i < maxHighPressurePoints; i++) {
+                if (!highPressurePoints[i])
+                    continue
+                var row = highPressurePoints[i].x
+                var col = highPressurePoints[i].y
+                if (r == row && c == col)
+                    highPressurePoints[i] = 0
+            }
+
+            for (var i = 0; i < maxLowPressurePoints; i++) {
+                if (!lowPressurePoints[i])
+                    continue
+                var row = lowPressurePoints[i].x
+                var col = lowPressurePoints[i].y
+                if (r == row && c == col)
+                    lowPressurePoints[i] = 0
+            }
+        }
+
+        function addPressurePoint(r,c,highPressure) {
+            //First make sure the point doesn't already exist, do nothing if it already does
+            for (var p = 0; p < maxHighPressurePoints; p++) {
+                if (highPressurePoints[p]) {
+                    var row = highPressurePoints[p].x
+                    var col = highPressurePoints[p].y
+                    if (row == r && col == c) {
+                        return;
+                    }
+                }
+            }
+            for (var p = 0; p < maxLowPressurePoints; p++) {
+                if (lowPressurePoints[p]) {
+                    var row = lowPressurePoints[p].x
+                    var col = lowPressurePoints[p].y
+                    if (row == r && col == c) {
+                        return;
+                    }
+                }
+            }
+            //Actually add the pressure cell
+            if (highPressure) {
+                for (var p = 0; p < maxHighPressurePoints; p++) {
+                    if (!highPressurePoints[p]) {
+                        highPressurePoints[p] = Qt.point(r,c)
+                        return
+                    }
+                }
+            } else {
+                for (var p = 0; p < maxLowPressurePoints; p++) {
+                    if (!lowPressurePoints[p]) {
+                        lowPressurePoints[p] = Qt.point(r,c)
+                        return
+                    }
+                }
+            }
+        }
+
         /***STATE UPDATE METHODS***/
         function updateField() {
-            setInitialPressures()
+            if (paused)
+                return;
             calculateForceVectors()
             updateLeaf()
+
             updatePressureGrid()
+            setPressurePoints()
             requestPaint()
+
+            ticks++
         }
 
         //deflections, channels
@@ -191,6 +323,8 @@ ApplicationWindow {
         }
 
         function calculateForceVectors() {
+            if (!drawLeafForceVectors)
+                return;
             for (var row = 0; row < numRows; row++) {
                 for (var col = 0; col < numCols; col++) {
                     var curPressure = pressureGrid[row][col][4]
@@ -316,12 +450,14 @@ ApplicationWindow {
 
         /***DRAWING METHODS***/
         function drawPressureFields(ctx) {
+            if (!drawPressureGrid)
+                return
             var xGridSpacing = (robotMaxX/numCols)
             var yGridSpacing = (robotMaxY/numRows)
             for (var row = 0; row < numRows; row++) {
                 for (var col = 0; col < numCols; col++) {
                     if (!pressureGrid[row][col][6]) {
-                        ctx.fillStyle = 'black'
+                        ctx.fillStyle = Qt.rgba(0,0,0,.75)
                     } else {
                         var pressure = pressureGrid[row][col][4];
                         ctx.fillStyle = Qt.rgba(pressure/100.0, 0, (100-pressure)/100.0, .75)
@@ -331,26 +467,71 @@ ApplicationWindow {
             }
         }
 
-        function drawLeafVectors(ctx) {
-            //TODO: these scaling factors for drawing should be based on the level of zoom in the app (to be dealt with later)
-            // Draw velocity vector
-            var vectorDrawX = leafXV*5
-            var vectorDrawY = leafYV*5
-            drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "white", 50.0/maxVelocity, leafSize, leafSize/2)
+        function drawPressureCellInput(ctx) {
+            var xGridSpacing = (robotMaxX/numCols)
+            var yGridSpacing = (robotMaxY/numRows)
 
-            //Draw force vector
-            vectorDrawX = 400*leafXF/maxForce
-            vectorDrawY = 400*leafYF/maxForce
-            drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "yellow", 1.0/maxForce, leafSize, leafSize/2)
+            for (var i = 0; i < maxHighPressurePoints; i++) {
+                if (!highPressurePoints[i])
+                    continue
+                var row = highPressurePoints[i].x
+                var col = highPressurePoints[i].y
+                ctx.lineWidth = 5
+                ctx.strokeStyle = Qt.rgba(1,.5,0,1)
+                ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
+            }
 
-            //Draw drag vector
-            vectorDrawX = 400*leafXFDrag/maxForce
-            vectorDrawY = 400*leafYFDrag/maxForce
-            drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "red", 1.0/maxForce, leafSize, leafSize/2)
+            for (var i = 0; i < maxLowPressurePoints; i++) {
+                if (!lowPressurePoints[i])
+                    continue
+                var row = lowPressurePoints[i].x
+                var col = lowPressurePoints[i].y
+                ctx.lineWidth = 5
+                ctx.strokeStyle = Qt.rgba(0,0,.5,1)
+                ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
+            }
+
+            //Draw the selection rect
+            for (var i = 0; i < pressureDragInput.length; i++) {
+                if (!pressureDragInput[i])
+                    continue
+                var row = pressureDragInput[i].x
+                var col = pressureDragInput[i].y
+                ctx.lineWidth = 5
+                if (i < maxHighPressurePoints)
+                    ctx.strokeStyle = Qt.rgba(1,1,0,.75)
+                else
+                    ctx.strokeStyle = Qt.rgba(0,1,1,.75)
+                ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
+            }
         }
 
-        //todo: average of force vectors when frequency > 1?
-        function drawForceVectors(ctx, gridDensity) {
+        function drawLeafVectors(ctx) {
+            //TODO: these scaling factors for drawing should be based on the level of zoom in the app (to be dealt with later)
+            if (drawLeafVelocityVector) {
+                // Draw velocity vector
+                var vectorDrawX = leafXV*5
+                var vectorDrawY = leafYV*5
+                drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "white", 50.0/maxVelocity, leafSize, leafSize/2)
+            }
+
+            if (drawLeafForceVectors) {
+                //Draw force vector
+                vectorDrawX = 400*leafXF/maxForce
+                vectorDrawY = 400*leafYF/maxForce
+                drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "yellow", 1.0/maxForce, leafSize, leafSize/2)
+
+                //Draw drag vector
+                vectorDrawX = 400*leafXFDrag/maxForce
+                vectorDrawY = 400*leafYFDrag/maxForce
+                drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "red", 1.0/maxForce, leafSize, leafSize/2)
+            }
+        }
+
+        //todo: gaussian average of force vectors when frequency > 1?
+        function drawForceField(ctx, gridDensity) {
+            if (!drawForceGrid)
+                return
             var xGridSpacing = robotMaxX/numCols
             var yGridSpacing = robotMaxY/numRows
             for (var row = Math.floor(gridDensity/2); row < numRows; row+=gridDensity) {
@@ -360,15 +541,15 @@ ApplicationWindow {
 
                     var forceX = pressureGrid[row][col][2]
                     var forceY = pressureGrid[row][col][3]
-                    var forceMagnitude = Math.sqrt(forceX*forceX+forceY*forceY)
 
                     var centerX = xGridSpacing/2+col*xGridSpacing;
                     var centerY = yGridSpacing/2+row*yGridSpacing;
 
-                    var windVectorX = 50.0*forceX/maxForce
-                    var windVectorY = 50.0*forceY/maxForce
+                    var forceScaling = 50.0/maxForce
+                    var windVectorX = forceX*forceScaling
+                    var windVectorY = forceY*forceScaling
 
-                    drawVector(ctx, centerX, centerY, windVectorX, windVectorY, "black", 5.0/maxForce, 10.0 ,0)
+                    drawVector(ctx, centerX, centerY, windVectorX, windVectorY, Qt.rgba(0,0,0,1), 5.0/maxForce, 10.0 ,0)
                 }
             }
         }
@@ -410,11 +591,308 @@ ApplicationWindow {
         /***PAINT LOOP TIMER***/
         Timer {
             id: paintTimer
-            interval: 1
+            interval: 10
             repeat: true
             running: true
             triggeredOnStart: true
             onTriggered: windField.updateField()
+        }
+
+        /***Canvas touch interations***/
+        MultiPointTouchArea {
+            id: touchArea
+            anchors.fill: parent
+            maximumTouchPoints: windField.maxLowPressurePoints + windField.maxHighPressurePoints
+
+            function changingPressureCells() {
+                var length = windField.pressureDragInput.length
+                for (var i = 0; i < length; i++) {
+                    if (windField.pressureDragInput[i])
+                        return true
+                }
+                return false
+            }
+
+            onReleased: {
+                var xGridSpacing = (windField.robotMaxX/windField.numCols)
+                var yGridSpacing = (windField.robotMaxY/windField.numRows)
+                var length = touchPoints.length
+                for (var t = 0; t < length; t++) {
+                    var row = Math.floor(touchPoints[t].y/yGridSpacing)
+                    var col = Math.floor(touchPoints[t].x/xGridSpacing)
+                    switch(windField.currentAction) {
+                    case 1:
+                        if (windField.pressureGrid[row][col][6])
+                            windField.addPressurePoint(row, col, true)
+                        //Remove the cell input box
+                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                            if (windField.pressureDragInput[i]) {
+                                if (windField.pressureDragInput[i].x == row && windField.pressureDragInput[i].y == col) {
+                                     windField.pressureDragInput[i] = 0
+                                     break;
+                                }
+                            }
+                        }
+                        break;
+                    case 2:
+                        if (windField.pressureGrid[row][col][6])
+                            windField.addPressurePoint(row, col, false)
+                        //Remove the cell input box
+                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
+                            if (windField.pressureDragInput[i+windField.maxHighPressurePoints].x == row &&
+                                    windField.pressureDragInput[i+windField.maxHighPressurePoints].y == col) {
+                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = 0
+                                break;
+                            }
+                        }
+                        break;
+                    case 3:
+                        windField.removePressurePoint(row, col)
+                        break;
+                    case 0:
+                        var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
+                        var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
+                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                            if (!windField.highPressurePoints[i])
+                                continue
+                            var cellRow = windField.highPressurePoints[i].x
+                            var cellCol = windField.highPressurePoints[i].y
+                            if (startRow == cellRow && startCol == cellCol) {
+                                windField.pressureDragInput[i] = 0
+                                if (!windField.pressureGrid[row][col][6])
+                                    return
+                                windField.highPressurePoints[i].x = row
+                                windField.highPressurePoints[i].y = col
+                            }
+                        }
+
+                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
+                            if (!windField.lowPressurePoints[i])
+                                continue
+                            var cellRow = windField.lowPressurePoints[i].x
+                            var cellCol = windField.lowPressurePoints[i].y
+                            if (startRow == cellRow && startCol == cellCol) {
+                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = 0
+                                if (!windField.pressureGrid[row][col][6])
+                                    return
+                                windField.lowPressurePoints[i].x = row
+                                windField.lowPressurePoints[i].y = col
+                            }
+                        }
+                        break;
+                    }
+                    actionMenu.enabled = !changingPressureCells()
+                    windField.requestPaint()
+                }
+            }
+
+            onPressed:  {
+                var xGridSpacing = (windField.robotMaxX/windField.numCols)
+                var yGridSpacing = (windField.robotMaxY/windField.numRows)
+                var length = touchPoints.length
+                for (var t = 0; t < length; t++) {
+                    var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
+                    var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
+                    switch (windField.currentAction) {
+                    case 1:
+                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                            if (!windField.pressureDragInput[i]) {
+                                windField.pressureDragInput[i] = Qt.point(startRow, startCol)
+                                break;
+                            }
+                        }
+                        break;
+                    case 2:
+                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
+                            if (!windField.pressureDragInput[i+windField.maxHighPressurePoints]) {
+                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(startRow, startCol)
+                                break;
+                            }
+                        }
+                        break;
+                    case 3:
+                        break;
+                    case 0:
+                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                            if (!windField.highPressurePoints[i])
+                                continue
+                            var cellRow = windField.highPressurePoints[i].x
+                            var cellCol = windField.highPressurePoints[i].y
+                            if (startRow == cellRow && startCol == cellCol) {
+                                 windField.pressureDragInput[i] = Qt.point(startRow,startCol)
+                            }
+                        }
+
+                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
+                            if (!windField.lowPressurePoints[i])
+                                continue
+                            var cellRow = windField.lowPressurePoints[i].x
+                            var cellCol = windField.lowPressurePoints[i].y
+                            if (startRow == cellRow && startCol == cellCol) {
+                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(startRow,startCol)
+                            }
+                        }
+                        break;
+                    }
+                }
+                actionMenu.enabled = !changingPressureCells()
+                windField.requestPaint()
+            }
+
+            onUpdated: {
+               var xGridSpacing = (windField.robotMaxX/windField.numCols)
+               var yGridSpacing = (windField.robotMaxY/windField.numRows)
+               var length = touchPoints.length
+               for (var t = 0; t < length; t++) {
+                   var row = Math.floor(touchPoints[t].y/yGridSpacing)
+                   var col = Math.floor(touchPoints[t].x/xGridSpacing)
+                   var prevRow = Math.floor(touchPoints[t].previousY/yGridSpacing)
+                   var prevCol = Math.floor(touchPoints[t].previousX/xGridSpacing)
+                   switch (windField.currentAction) {
+                   case 1:
+                       for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                           if (windField.pressureDragInput[i]) {
+                               if (windField.pressureDragInput[i].x == prevRow && windField.pressureDragInput[i].y == prevCol) {
+                                    windField.pressureDragInput[i] = Qt.point(row, col)
+                                    break;
+                               }
+                           }
+                       }
+                       break;
+                   case 2:
+                       for (var i = 0; i < windField.maxLowPressurePoints; i++) {
+                           if (windField.pressureDragInput[i+windField.maxHighPressurePoints].x == prevRow &&
+                                   windField.pressureDragInput[i+windField.maxHighPressurePoints].y == prevCol) {
+                               windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(row, col)
+                               break;
+                           }
+                       }
+                       break;
+                   case 3:
+                       break;
+                   case 0:
+                       var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
+                       var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
+                       for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                           if (!windField.highPressurePoints[i])
+                               continue
+                           var cellRow = windField.highPressurePoints[i].x
+                           var cellCol = windField.highPressurePoints[i].y
+                           if (startRow == cellRow && startCol == cellCol) {
+                                windField.pressureDragInput[i] = Qt.point(row,col)
+                           }
+                       }
+
+                       for (var i = 0; i < windField.maxLowPressurePoints; i++) {
+                           if (!windField.lowPressurePoints[i])
+                               continue
+                           var cellRow = windField.lowPressurePoints[i].x
+                           var cellCol = windField.lowPressurePoints[i].y
+                           if (startRow == cellRow && startCol == cellCol) {
+                               windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(row,col)
+                           }
+                       }
+                       break;
+                    }
+                }
+                windField.requestPaint()
+           }
+        }
+    }
+
+    Row {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: parent.top
+        spacing: 5
+        Column {
+            id:menu
+            z: 100
+            spacing:0
+            Button {
+                id: pause
+                text: qsTr("Pause")
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: windField.togglePaused()
+                style:     ButtonStyle {
+                    id: buttonStyle
+                    background: Rectangle {
+                        implicitWidth: 100
+                        implicitHeight: 25
+                        border.width: control.activeFocus ? 2 : 1
+                        border.color: "#888"
+                        radius: 4
+                        gradient: Gradient {
+                            GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
+                            GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+                        }
+                    }
+                }
+            }
+            Button {
+                id: reset
+                text: qsTr("Reset")
+                anchors.horizontalCenter: parent.horizontalCenter
+                style: pause.style
+                onClicked: windField.initializeWindField()
+            }
+        }
+        Column {
+            CheckBox {
+                id: pressureGridCheck
+                checked: windField.drawPressureGrid
+                text: "Pressure Gradient"
+                onClicked: windField.toggleDisplaySetting(1)
+            }
+            CheckBox {
+                id: forceGridCheck
+                checked: windField.drawForceGrid
+                text: "Force Vectors"
+                onClicked: windField.toggleDisplaySetting(2)
+            }
+            CheckBox {
+                id: leafVelocityCheck
+                checked: windField.drawLeafVelocityVector
+                text: "Leaf Velocity"
+                onClicked: windField.toggleDisplaySetting(3)
+            }
+            CheckBox {
+                id: leafForceCheck
+                checked: windField.drawLeafForceVectors
+                text: "Forces on Leaf"
+                onClicked: windField.toggleDisplaySetting(4)
+            }
+        }
+        Column {
+            Text {
+                text: " Action Menu: "
+            }
+            ComboBox {
+                id: actionMenu
+                currentIndex: 0
+                style: ComboBoxStyle {
+                    background: Rectangle {
+                        implicitWidth: 300
+                        implicitHeight: 50
+                        border.width: control.activeFocus ? 2 : 1
+                        border.color: "#888"
+                        radius: 4
+                        gradient: Gradient {
+                            GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
+                            GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+                        }
+                    }
+                }
+                model: ListModel {
+                    id: cbItems
+                    ListElement { text: "Move Pressure"; color: "White" }
+                    ListElement { text: "Add High Pressure"; color: "White" }
+                    ListElement { text: "Add Low Pressure"; color: "White" }
+                    ListElement { text: "Remove Pressure"; color: "White" }
+                }
+                onCurrentIndexChanged: {
+                    windField.currentAction = currentIndex;
+                }
+            }
         }
     }
 }
