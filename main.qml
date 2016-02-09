@@ -36,8 +36,6 @@ ApplicationWindow {
         property int currentAction: 0
 
         //Pressure state
-        property int maxHighPressurePoints: 10
-        property int maxLowPressurePoints: 10
         property variant pressureGrid: []
 
         //TODO: Create some kind of structure for the leaf/robot
@@ -54,8 +52,8 @@ ApplicationWindow {
         property double leafSize: 0
 
         //Pressure points
-        property variant highPressurePoints: []
-        property variant lowPressurePoints: []
+        property int maxPressurePointPairs: 10
+        property variant pressurePoints: []
         property variant pressureDragInput: []
 
         //Global ontants
@@ -122,22 +120,19 @@ ApplicationWindow {
                     cellArray[6] = 1.0 //0: obstacle 1:valid cell
                     column[j] = cellArray
                 }
-
                 rows[i]=column
             }
             pressureGrid = rows
 
-            highPressurePoints = new Array(maxHighPressurePoints);
-            lowPressurePoints = new Array(maxHighPressurePoints);
-            highPressurePoints[0] = Qt.point(0,0)
-            highPressurePoints[1] = Qt.point(15,0)
-            highPressurePoints[2] = Qt.point(0,25)
-            highPressurePoints[3] = Qt.point(15,25)
-
-            lowPressurePoints[0] = Qt.point(7,12)
-            lowPressurePoints[1] = Qt.point(8,12)
-            lowPressurePoints[2] = Qt.point(7,13)
-            lowPressurePoints[3] = Qt.point(8,13)
+            pressurePoints = new Array(maxPressurePointPairs*2);
+            addPressurePoint(0,0,true)
+            addPressurePoint(15,0,true)
+            addPressurePoint(0,25,true)
+            addPressurePoint(15,25,true)
+            addPressurePoint(7,12,false)
+            addPressurePoint(8,12,false)
+            addPressurePoint(7,13,false)
+            addPressurePoint(8,13,false)
 
             pressureDragInput = new Array(touchArea.maximumTouchPoints)
             setObstacles()
@@ -158,20 +153,15 @@ ApplicationWindow {
         }
 
         function setPressurePoints() {
-            for (var i = 0; i < maxHighPressurePoints; i++) {
-                if (!highPressurePoints[i])
+            for (var i = 0; i < maxPressurePointPairs*2; i++) {
+                if (!pressurePoints[i])
                     continue
-                var row = highPressurePoints[i].x
-                var col = highPressurePoints[i].y
-                pressureGrid[row][col][4] = 100.0
-            }
-
-            for (var i = 0; i < maxLowPressurePoints; i++) {
-                if (!lowPressurePoints[i])
-                    continue
-                var row = lowPressurePoints[i].x
-                var col = lowPressurePoints[i].y
-                pressureGrid[row][col][4] = 0.0
+                var row = pressurePoints[i].x
+                var col = pressurePoints[i].y
+                if (i < maxPressurePointPairs)
+                    pressureGrid[row][col][4] = 100.0
+                else
+                    pressureGrid[row][col][4] = 0.0
             }
         }
 
@@ -186,40 +176,22 @@ ApplicationWindow {
         }
 
         function removePressurePoint(r,c) {
-            for (var i = 0; i < maxHighPressurePoints; i++) {
-                if (!highPressurePoints[i])
+            for (var i = 0; i < maxPressurePointPairs*2; i++) {
+                if (!pressurePoints[i])
                     continue
-                var row = highPressurePoints[i].x
-                var col = highPressurePoints[i].y
+                var row = pressurePoints[i].x
+                var col = pressurePoints[i].y
                 if (r == row && c == col)
-                    highPressurePoints[i] = 0
-            }
-
-            for (var i = 0; i < maxLowPressurePoints; i++) {
-                if (!lowPressurePoints[i])
-                    continue
-                var row = lowPressurePoints[i].x
-                var col = lowPressurePoints[i].y
-                if (r == row && c == col)
-                    lowPressurePoints[i] = 0
+                    pressurePoints[i] = 0
             }
         }
 
         function addPressurePoint(r,c,highPressure) {
             //First make sure the point doesn't already exist, do nothing if it already does
-            for (var p = 0; p < maxHighPressurePoints; p++) {
-                if (highPressurePoints[p]) {
-                    var row = highPressurePoints[p].x
-                    var col = highPressurePoints[p].y
-                    if (row == r && col == c) {
-                        return;
-                    }
-                }
-            }
-            for (var p = 0; p < maxLowPressurePoints; p++) {
-                if (lowPressurePoints[p]) {
-                    var row = lowPressurePoints[p].x
-                    var col = lowPressurePoints[p].y
+            for (var p = 0; p < maxPressurePointPairs*2; p++) {
+                if (pressurePoints[p]) {
+                    var row = pressurePoints[p].x
+                    var col = pressurePoints[p].y
                     if (row == r && col == c) {
                         return;
                     }
@@ -227,16 +199,16 @@ ApplicationWindow {
             }
             //Actually add the pressure cell
             if (highPressure) {
-                for (var p = 0; p < maxHighPressurePoints; p++) {
-                    if (!highPressurePoints[p]) {
-                        highPressurePoints[p] = Qt.point(r,c)
+                for (var p = 0; p < maxPressurePointPairs; p++) {
+                    if (!pressurePoints[p]) {
+                        pressurePoints[p] = Qt.point(r,c)
                         return
                     }
                 }
             } else {
-                for (var p = 0; p < maxLowPressurePoints; p++) {
-                    if (!lowPressurePoints[p]) {
-                        lowPressurePoints[p] = Qt.point(r,c)
+                for (var p = maxPressurePointPairs; p < maxPressurePointPairs*2; p++) {
+                    if (!pressurePoints[p]) {
+                        pressurePoints[p] = Qt.point(r,c)
                         return
                     }
                 }
@@ -256,10 +228,6 @@ ApplicationWindow {
 
             ticks++
         }
-
-        //deflections, channels
-        //how does speed affect pressure
-        //model forces, at each time step take current forces and calculate resulting displacement from timestep
 
         function updatePressureGrid() {
             for (var row = 0; row < numRows; row++) {
@@ -471,43 +439,38 @@ ApplicationWindow {
             var xGridSpacing = (robotMaxX/numCols)
             var yGridSpacing = (robotMaxY/numRows)
 
-            for (var i = 0; i < maxHighPressurePoints; i++) {
-                if (!highPressurePoints[i])
+            //Draw outlines for existing pressure points
+            for (var i = 0; i < maxPressurePointPairs*2; i++) {
+                if (!pressurePoints[i])
                     continue
-                var row = highPressurePoints[i].x
-                var col = highPressurePoints[i].y
+                var row = pressurePoints[i].x
+                var col = pressurePoints[i].y
                 ctx.lineWidth = 5
-                ctx.strokeStyle = Qt.rgba(1,.5,0,1)
+                if (i < maxPressurePointPairs)
+                    ctx.strokeStyle = Qt.rgba(1,.5,0,1)
+                else
+                    ctx.strokeStyle = Qt.rgba(0,0,.5,1)
                 ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
             }
 
-            for (var i = 0; i < maxLowPressurePoints; i++) {
-                if (!lowPressurePoints[i])
-                    continue
-                var row = lowPressurePoints[i].x
-                var col = lowPressurePoints[i].y
-                ctx.lineWidth = 5
-                ctx.strokeStyle = Qt.rgba(0,0,.5,1)
-                ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
-            }
-
-            //Draw the selection rect
+            //Draw the pressure cell selection outline rects
             for (var i = 0; i < pressureDragInput.length; i++) {
                 if (!pressureDragInput[i])
                     continue
                 var row = pressureDragInput[i].x
                 var col = pressureDragInput[i].y
                 ctx.lineWidth = 5
-                if (i < maxHighPressurePoints)
+                if (row < 0)
+                    ctx.strokeStyle = Qt.rgba(.25,.25,.25,.75)
+                else if (i < maxPressurePointPairs)
                     ctx.strokeStyle = Qt.rgba(1,1,0,.75)
-                else
+                else if (i >= maxPressurePointPairs)
                     ctx.strokeStyle = Qt.rgba(0,1,1,.75)
                 ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
             }
         }
 
         function drawLeafVectors(ctx) {
-            //TODO: these scaling factors for drawing should be based on the level of zoom in the app (to be dealt with later)
             if (drawLeafVelocityVector) {
                 // Draw velocity vector
                 var vectorDrawX = leafXV*5
@@ -602,7 +565,7 @@ ApplicationWindow {
         MultiPointTouchArea {
             id: touchArea
             anchors.fill: parent
-            maximumTouchPoints: windField.maxLowPressurePoints + windField.maxHighPressurePoints
+            maximumTouchPoints: windField.maxPressurePointPairs
 
             function changingPressureCells() {
                 var length = windField.pressureDragInput.length
@@ -616,6 +579,7 @@ ApplicationWindow {
             onReleased: {
                 var xGridSpacing = (windField.robotMaxX/windField.numCols)
                 var yGridSpacing = (windField.robotMaxY/windField.numRows)
+                var maxPointPairs = windField.maxPressurePointPairs
                 var length = touchPoints.length
                 for (var t = 0; t < length; t++) {
                     var row = Math.floor(touchPoints[t].y/yGridSpacing)
@@ -625,7 +589,7 @@ ApplicationWindow {
                         if (windField.pressureGrid[row][col][6])
                             windField.addPressurePoint(row, col, true)
                         //Remove the cell input box
-                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                        for (var i = 0; i < maxPointPairs; i++) {
                             if (windField.pressureDragInput[i]) {
                                 if (windField.pressureDragInput[i].x == row && windField.pressureDragInput[i].y == col) {
                                      windField.pressureDragInput[i] = 0
@@ -638,10 +602,10 @@ ApplicationWindow {
                         if (windField.pressureGrid[row][col][6])
                             windField.addPressurePoint(row, col, false)
                         //Remove the cell input box
-                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
-                            if (windField.pressureDragInput[i+windField.maxHighPressurePoints].x == row &&
-                                    windField.pressureDragInput[i+windField.maxHighPressurePoints].y == col) {
-                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = 0
+                        for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
+                            if (windField.pressureDragInput[i+maxPointPairs].x == row &&
+                                    windField.pressureDragInput[i+maxPointPairs].y == col) {
+                                windField.pressureDragInput[i+maxPointPairs] = 0
                                 break;
                             }
                         }
@@ -652,31 +616,17 @@ ApplicationWindow {
                     case 0:
                         var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                         var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
-                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
-                            if (!windField.highPressurePoints[i])
+                        for (var i = 0; i < maxPointPairs*2; i++) {
+                            if (!windField.pressurePoints[i])
                                 continue
-                            var cellRow = windField.highPressurePoints[i].x
-                            var cellCol = windField.highPressurePoints[i].y
+                            var cellRow = windField.pressurePoints[i].x
+                            var cellCol = windField.pressurePoints[i].y
                             if (startRow == cellRow && startCol == cellCol) {
                                 windField.pressureDragInput[i] = 0
                                 if (!windField.pressureGrid[row][col][6])
                                     return
-                                windField.highPressurePoints[i].x = row
-                                windField.highPressurePoints[i].y = col
-                            }
-                        }
-
-                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
-                            if (!windField.lowPressurePoints[i])
-                                continue
-                            var cellRow = windField.lowPressurePoints[i].x
-                            var cellCol = windField.lowPressurePoints[i].y
-                            if (startRow == cellRow && startCol == cellCol) {
-                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = 0
-                                if (!windField.pressureGrid[row][col][6])
-                                    return
-                                windField.lowPressurePoints[i].x = row
-                                windField.lowPressurePoints[i].y = col
+                                windField.pressurePoints[i].x = row
+                                windField.pressurePoints[i].y = col
                             }
                         }
                         break;
@@ -689,13 +639,14 @@ ApplicationWindow {
             onPressed:  {
                 var xGridSpacing = (windField.robotMaxX/windField.numCols)
                 var yGridSpacing = (windField.robotMaxY/windField.numRows)
+                var maxPointPairs = windField.maxPressurePointPairs
                 var length = touchPoints.length
                 for (var t = 0; t < length; t++) {
                     var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                     var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
                     switch (windField.currentAction) {
                     case 1:
-                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                        for (var i = 0; i < maxPointPairs; i++) {
                             if (!windField.pressureDragInput[i]) {
                                 windField.pressureDragInput[i] = Qt.point(startRow, startCol)
                                 break;
@@ -703,9 +654,9 @@ ApplicationWindow {
                         }
                         break;
                     case 2:
-                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
-                            if (!windField.pressureDragInput[i+windField.maxHighPressurePoints]) {
-                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(startRow, startCol)
+                        for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
+                            if (!windField.pressureDragInput[i+maxPointPairs]) {
+                                windField.pressureDragInput[i+maxPointPairs] = Qt.point(startRow, startCol)
                                 break;
                             }
                         }
@@ -713,23 +664,13 @@ ApplicationWindow {
                     case 3:
                         break;
                     case 0:
-                        for (var i = 0; i < windField.maxHighPressurePoints; i++) {
-                            if (!windField.highPressurePoints[i])
+                        for (var i = 0; i < maxPointPairs*2; i++) {
+                            if (!windField.pressurePoints[i])
                                 continue
-                            var cellRow = windField.highPressurePoints[i].x
-                            var cellCol = windField.highPressurePoints[i].y
+                            var cellRow = windField.pressurePoints[i].x
+                            var cellCol = windField.pressurePoints[i].y
                             if (startRow == cellRow && startCol == cellCol) {
                                  windField.pressureDragInput[i] = Qt.point(startRow,startCol)
-                            }
-                        }
-
-                        for (var i = 0; i < windField.maxLowPressurePoints; i++) {
-                            if (!windField.lowPressurePoints[i])
-                                continue
-                            var cellRow = windField.lowPressurePoints[i].x
-                            var cellCol = windField.lowPressurePoints[i].y
-                            if (startRow == cellRow && startCol == cellCol) {
-                                windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(startRow,startCol)
                             }
                         }
                         break;
@@ -742,6 +683,7 @@ ApplicationWindow {
             onUpdated: {
                var xGridSpacing = (windField.robotMaxX/windField.numCols)
                var yGridSpacing = (windField.robotMaxY/windField.numRows)
+                var maxPointPairs = windField.maxPressurePointPairs
                var length = touchPoints.length
                for (var t = 0; t < length; t++) {
                    var row = Math.floor(touchPoints[t].y/yGridSpacing)
@@ -750,7 +692,7 @@ ApplicationWindow {
                    var prevCol = Math.floor(touchPoints[t].previousX/xGridSpacing)
                    switch (windField.currentAction) {
                    case 1:
-                       for (var i = 0; i < windField.maxHighPressurePoints; i++) {
+                       for (var i = 0; i < maxPointPairs; i++) {
                            if (windField.pressureDragInput[i]) {
                                if (windField.pressureDragInput[i].x == prevRow && windField.pressureDragInput[i].y == prevCol) {
                                     windField.pressureDragInput[i] = Qt.point(row, col)
@@ -760,10 +702,10 @@ ApplicationWindow {
                        }
                        break;
                    case 2:
-                       for (var i = 0; i < windField.maxLowPressurePoints; i++) {
-                           if (windField.pressureDragInput[i+windField.maxHighPressurePoints].x == prevRow &&
-                                   windField.pressureDragInput[i+windField.maxHighPressurePoints].y == prevCol) {
-                               windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(row, col)
+                       for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
+                           if (windField.pressureDragInput[i+maxPointPairs].x == prevRow &&
+                                   windField.pressureDragInput[i+maxPointPairs].y == prevCol) {
+                               windField.pressureDragInput[i+maxPointPairs] = Qt.point(row, col)
                                break;
                            }
                        }
@@ -773,23 +715,13 @@ ApplicationWindow {
                    case 0:
                        var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                        var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
-                       for (var i = 0; i < windField.maxHighPressurePoints; i++) {
-                           if (!windField.highPressurePoints[i])
+                       for (var i = 0; i < maxPointPairs*2; i++) {
+                           if (!windField.pressurePoints[i])
                                continue
-                           var cellRow = windField.highPressurePoints[i].x
-                           var cellCol = windField.highPressurePoints[i].y
+                           var cellRow = windField.pressurePoints[i].x
+                           var cellCol = windField.pressurePoints[i].y
                            if (startRow == cellRow && startCol == cellCol) {
                                 windField.pressureDragInput[i] = Qt.point(row,col)
-                           }
-                       }
-
-                       for (var i = 0; i < windField.maxLowPressurePoints; i++) {
-                           if (!windField.lowPressurePoints[i])
-                               continue
-                           var cellRow = windField.lowPressurePoints[i].x
-                           var cellCol = windField.lowPressurePoints[i].y
-                           if (startRow == cellRow && startCol == cellCol) {
-                               windField.pressureDragInput[i+windField.maxHighPressurePoints] = Qt.point(row,col)
                            }
                        }
                        break;
@@ -896,4 +828,3 @@ ApplicationWindow {
         }
     }
 }
-
