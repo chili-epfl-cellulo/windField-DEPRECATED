@@ -3,6 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
+import Cellulo 1.0
 
 ApplicationWindow {
     visible: true
@@ -19,12 +20,12 @@ ApplicationWindow {
     Canvas {
         id: windField
         anchors.fill: parent
-        //width: 2560, height 1600
-        property int robotMaxY: 1600.0 //reset this, for now assume that it is the same as the context dimensions
-        // can always scale robot coordinates down later to fit into screen.
-        property int robotMaxX: 2560.0 //reset this
-        //Right now I have the leaf following whatever the wind flow is, should I add inertia? If so I need
-        //a velocity and acceleration of the leaf as well
+        property int robotMaxY: 1600.0
+        property int robotMaxX: 2560.0
+        property int numCols: 26*gridDensity
+        property int numRows: 16*gridDensity
+        property double xGridSpacing: (robotMaxX/numCols)
+        property double yGridSpacing: (robotMaxY/numRows)
 
         //Game interaction variables
         property bool paused: false
@@ -50,13 +51,15 @@ ApplicationWindow {
         property double leafYFDrag: 0
         property double leafMass: 1
         property double leafSize: 0
+        property double collisionForceX: 0
+        property double collisionForceY: 0
 
         //Pressure points
         property int maxPressurePointPairs: 10
         property variant pressurePoints: []
         property variant pressureDragInput: []
 
-        //Global ontants
+        //Global Constants
         property double pressureToForceMultiplier: 1
         property double pressureTransferRate: .5
         property double maxForce: 15.0
@@ -64,8 +67,7 @@ ApplicationWindow {
         property double maxVelocity: maxForce/dragCoefficient
         property double timeStep: .25
         property int gridDensity: 1 //Preferably an odd number to have nice vector spacing
-        property int numCols: 26*gridDensity
-        property int numRows: 16*gridDensity
+        property int collisionSearchRadius: 1*gridDensity
 
         onPaint: {
             var ctx = getContext("2d")
@@ -104,8 +106,6 @@ ApplicationWindow {
         }
 
         function initializeWindField() {
-            var xGridSpacing = (robotMaxX/numCols)
-            var yGridSpacing = (robotMaxY/numRows)
             var rows = new Array(numRows)
             for (var i = 0; i < numRows; i++) {
                 var column = new Array(numCols)
@@ -138,6 +138,7 @@ ApplicationWindow {
             setObstacles()
             setPressurePoints()
             setInitialLeafInfo()
+            requestPaint()
         }
 
         Component.onCompleted: {
@@ -150,6 +151,12 @@ ApplicationWindow {
             pressureGrid[13][23][6] = 0
             pressureGrid[14][23][6] = 0
             pressureGrid[14][24][6] = 0
+
+            pressureGrid[5][7][6] = 0
+            pressureGrid[5][8][6] = 0
+            pressureGrid[6][7][6] = 0
+            pressureGrid[6][8][6] = 0
+            pressureGrid[6][6][6] = 0
         }
 
         function setPressurePoints() {
@@ -323,7 +330,7 @@ ApplicationWindow {
                     nFY /= validNeighbours
                     nFX /= validNeighbours
 
-                    //todo gotta do something about this max
+                    //TODO: maxForce is subject to change, maybe should not be capped
                     var forceMagScale = Math.sqrt(nFX*nFX+nFY*nFY)/maxForce
                     if (forceMagScale > 1)  {
                         nFX /= forceMagScale
@@ -338,9 +345,6 @@ ApplicationWindow {
 
         function calculateForcesAtLeaf() {
             //Calculate force acting on the leaf at current pressure conditions
-            var xGridSpacing = (robotMaxX/numCols)
-            var yGridSpacing = (robotMaxY/numRows)
-
             var rowIndex = Math.floor(leafY/yGridSpacing)
             var colIndex = Math.floor(leafX/xGridSpacing)
 
@@ -397,6 +401,11 @@ ApplicationWindow {
         function updateLeaf() {
             var netForceX = leafXF + leafXFDrag
             var netForceY = leafYF + leafYFDrag
+            //Ignore pressure cell forces when simulating the collision impulse
+            if (collisionForceX || collisionForceY) {
+                netForceX = collisionForceX
+                netForceY = collisionForceY
+            }
             //update position from one time step given current velocity and current force
             var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
             var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
@@ -405,13 +414,100 @@ ApplicationWindow {
             leafX += deltaX
             leafY += deltaY
             if (leafX > robotMaxX-leafSize/2 || leafX < 0) {
-                leafXV = 0;
                 leafX = Math.max(Math.min(leafX, robotMaxX-leafSize/2), 0.0)
+                var reflectDirection;
+                if (leafX  > robotMaxX-leafSize/2)
+                    reflectDirection = -1
+                else
+                    reflectDirection = 1
+                leafXV = leafXV - 2*leafXV*reflectDirection*reflectDirection
             } else if (leafY > robotMaxY-leafSize/2 || leafY < 0) {
-                leafYV = 0;
                 leafY = Math.max(Math.min(leafY, robotMaxY-leafSize/2), 0.0)
-            }
+                var reflectDirection;
+                if (leafY  > robotMaxY-leafSize/2)
+                    reflectDirection = -1
+                else
+                    reflectDirection = 1
+                var vdotn = leafYV*reflectDirection
+                leafYV = leafYV - 2*leafYV*reflectDirection*reflectDirection
+            } else {
+                var leafRow = Math.floor(leafY/yGridSpacing)
+                var leafCol = Math.floor(leafX/xGridSpacing)
+                //Handle obstacle collision
+                var startX = leafX - deltaX
+                var startY = leafY - deltaY
+                var deltaMag = Math.sqrt(deltaX*deltaX+deltaY*deltaY)
+                //Search along deltaX and deltaY to determine whether or not a collision will occur
+                var stepSize = Math.min(xGridSpacing, yGridSpacing)/5
+                var stepX = deltaX/deltaMag*stepSize
+                var stepY = deltaY/deltaMag*stepSize
+                var previousCellRow = Math.floor(startY/yGridSpacing)
+                var previousCellCol = Math.floor(startX/xGridSpacing)
+                var step = 0
+                var collisionFound = false
+                for (step = 0; step < Math.ceil(deltaMag/stepSize); step++) {
+                    var currentRow = Math.floor((startY+stepY)/yGridSpacing)
+                    var currentCol = Math.floor((startX+stepX)/xGridSpacing)
+                    if (!pressureGrid[currentRow][currentCol][6]) {
+                        collisionFound = true
+                        break
+                    }
+                    previousCellRow = currentRow
+                    previousCellCol = currentCol
+                }
+                //PreviousCellRow/Col now locates the cell right before collision with obstacle, call it cell P
+                //Next we search for all obstacles cells within a radius of this cell and average their direction vectors to P
+                //We do this by searching in a predefined grid size around P and for each cell for which the magnitude of the vector
+                //between the cell and P is < the radius, we use the corresponding unit vector in our averaging
+                //Note: we can actually just search a grid around P, it's technically more accurate to do a radius search but
+                //but assuming we actually use the squared radius to search but that means two more subtractions, at assuming
+                //we use the squared radius, another addition and two more multiplications, per grid cell, a.k.a not worth it
+                if (collisionFound) {
+                    var netX = 0
+                    var netY = 0
+                    var radius = collisionSearchRadius;
+                    var totalVecsAdded = 0
+                    for (var rowOffset = -radius; rowOffset <= radius; rowOffset++) {
+                        for (var colOffset = -radius; colOffset <= radius; colOffset++) {
+                            var searchRow = previousCellRow + rowOffset
+                            var searchCol = previousCellCol + colOffset
+                            //Out of bounds, try the next cell
+                            if (searchRow < 0 || searchRow > numRows || searchCol < 0 || searchCol > numCols)
+                                continue;
+                            if (!pressureGrid[searchRow][searchCol][6]) {
+                                var yDiff = previousCellRow - searchRow
+                                var xDiff = previousCellCol - searchCol
+                                var diffMag = Math.sqrt(xDiff*xDiff+yDiff*yDiff)
+                                netX += xDiff/diffMag
+                                netY += yDiff/diffMag
+                                totalVecsAdded++
+                            }
+                        }
+                    }
+                    netX /= totalVecsAdded
+                    netY /= totalVecsAdded
+                    //<netX,netY> is a unit vector
 
+                    //Once we have this approximate perpendicular direction of the force, we can reflect the incoming object based off of it
+                    leafX = startX + step*stepX
+                    leafY = startY + step*stepY
+                    if (collisionForceX == 0 && collisionForceY == 0) {
+                        var vdotn = leafXV*netX+leafYV*netY
+                        leafXV = leafXV - 2*vdotn*netX
+                        leafYV = leafYV - 2*vdotn*netY
+                    }
+
+                    var speed2 = leafXV*leafXV+leafYV*leafYV
+                    //TODO: scaling factor here is subject to change based on the grid setup (density, speed of the leaf, etc)
+                    //We also need to make the velocity vector converge the the original desired velocity, which gets hairy
+                    //Maybe something better to do here would be to approximate the obstacles continuously but that becomes a huge hassle
+                    collisionForceX += netX*speed2/10.0
+                    collisionForceY += netY*speed2/10.0
+                } else {
+                    collisionForceX = 0.0
+                    collisionForceY = 0.0
+                }
+            }
             //Calculate forces at leaf at the new position so we can draw them now
             calculateForcesAtLeaf()
         }
@@ -420,8 +516,6 @@ ApplicationWindow {
         function drawPressureFields(ctx) {
             if (!drawPressureGrid)
                 return
-            var xGridSpacing = (robotMaxX/numCols)
-            var yGridSpacing = (robotMaxY/numRows)
             for (var row = 0; row < numRows; row++) {
                 for (var col = 0; col < numCols; col++) {
                     if (!pressureGrid[row][col][6]) {
@@ -436,9 +530,6 @@ ApplicationWindow {
         }
 
         function drawPressureCellInput(ctx) {
-            var xGridSpacing = (robotMaxX/numCols)
-            var yGridSpacing = (robotMaxY/numRows)
-
             //Draw outlines for existing pressure points
             for (var i = 0; i < maxPressurePointPairs*2; i++) {
                 if (!pressurePoints[i])
@@ -460,9 +551,7 @@ ApplicationWindow {
                 var row = pressureDragInput[i].x
                 var col = pressureDragInput[i].y
                 ctx.lineWidth = 5
-                if (row < 0)
-                    ctx.strokeStyle = Qt.rgba(.25,.25,.25,.75)
-                else if (i < maxPressurePointPairs)
+                if (i < maxPressurePointPairs)
                     ctx.strokeStyle = Qt.rgba(1,1,0,.75)
                 else if (i >= maxPressurePointPairs)
                     ctx.strokeStyle = Qt.rgba(0,1,1,.75)
@@ -491,12 +580,10 @@ ApplicationWindow {
             }
         }
 
-        //todo: gaussian average of force vectors when frequency > 1?
+        //TODO: gaussian average of force vectors when frequency > 1?
         function drawForceField(ctx, gridDensity) {
             if (!drawForceGrid)
                 return
-            var xGridSpacing = robotMaxX/numCols
-            var yGridSpacing = robotMaxY/numRows
             for (var row = Math.floor(gridDensity/2); row < numRows; row+=gridDensity) {
                 for (var col = Math.floor(gridDensity/2); col < numCols; col+=gridDensity) {
                     if (!pressureGrid[row][col][6])
@@ -577,13 +664,11 @@ ApplicationWindow {
             }
 
             onReleased: {
-                var xGridSpacing = (windField.robotMaxX/windField.numCols)
-                var yGridSpacing = (windField.robotMaxY/windField.numRows)
                 var maxPointPairs = windField.maxPressurePointPairs
                 var length = touchPoints.length
                 for (var t = 0; t < length; t++) {
-                    var row = Math.floor(touchPoints[t].y/yGridSpacing)
-                    var col = Math.floor(touchPoints[t].x/xGridSpacing)
+                    var row = Math.floor(touchPoints[t].y/windField.yGridSpacing)
+                    var col = Math.floor(touchPoints[t].x/windField.xGridSpacing)
                     switch(windField.currentAction) {
                     case 1:
                         if (windField.pressureGrid[row][col][6])
@@ -614,8 +699,8 @@ ApplicationWindow {
                         windField.removePressurePoint(row, col)
                         break;
                     case 0:
-                        var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
-                        var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
+                        var startRow = Math.floor(touchPoints[t].startY/windField.yGridSpacing)
+                        var startCol = Math.floor(touchPoints[t].startX/windField.xGridSpacing)
                         for (var i = 0; i < maxPointPairs*2; i++) {
                             if (!windField.pressurePoints[i])
                                 continue
@@ -637,13 +722,11 @@ ApplicationWindow {
             }
 
             onPressed:  {
-                var xGridSpacing = (windField.robotMaxX/windField.numCols)
-                var yGridSpacing = (windField.robotMaxY/windField.numRows)
                 var maxPointPairs = windField.maxPressurePointPairs
                 var length = touchPoints.length
                 for (var t = 0; t < length; t++) {
-                    var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
-                    var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
+                    var startRow = Math.floor(touchPoints[t].startY/windField.yGridSpacing)
+                    var startCol = Math.floor(touchPoints[t].startX/windField.xGridSpacing)
                     switch (windField.currentAction) {
                     case 1:
                         for (var i = 0; i < maxPointPairs; i++) {
@@ -681,15 +764,13 @@ ApplicationWindow {
             }
 
             onUpdated: {
-               var xGridSpacing = (windField.robotMaxX/windField.numCols)
-               var yGridSpacing = (windField.robotMaxY/windField.numRows)
-                var maxPointPairs = windField.maxPressurePointPairs
+               var maxPointPairs = windField.maxPressurePointPairs
                var length = touchPoints.length
                for (var t = 0; t < length; t++) {
-                   var row = Math.floor(touchPoints[t].y/yGridSpacing)
-                   var col = Math.floor(touchPoints[t].x/xGridSpacing)
-                   var prevRow = Math.floor(touchPoints[t].previousY/yGridSpacing)
-                   var prevCol = Math.floor(touchPoints[t].previousX/xGridSpacing)
+                   var row = Math.floor(touchPoints[t].y/windField.yGridSpacing)
+                   var col = Math.floor(touchPoints[t].x/windField.xGridSpacing)
+                   var prevRow = Math.floor(touchPoints[t].previousY/windField.yGridSpacing)
+                   var prevCol = Math.floor(touchPoints[t].previousX/windField.xGridSpacing)
                    switch (windField.currentAction) {
                    case 1:
                        for (var i = 0; i < maxPointPairs; i++) {
@@ -713,8 +794,8 @@ ApplicationWindow {
                    case 3:
                        break;
                    case 0:
-                       var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
-                       var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
+                       var startRow = Math.floor(touchPoints[t].startY/windField.yGridSpacing)
+                       var startCol = Math.floor(touchPoints[t].startX/windField.xGridSpacing)
                        for (var i = 0; i < maxPointPairs*2; i++) {
                            if (!windField.pressurePoints[i])
                                continue
