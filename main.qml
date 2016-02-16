@@ -33,6 +33,7 @@ ApplicationWindow {
         property bool drawForceGrid: true
         property bool drawLeafVelocityVector: true
         property bool drawLeafForceVectors: true
+        property bool drawPrediction: false
         property int ticks: 0
         property int currentAction: 0
 
@@ -77,6 +78,10 @@ ApplicationWindow {
             drawForceField(ctx, gridDensity)
             drawLeafVectors(ctx)
             ctx.drawImage("assets/leaf.png", leafX-leafSize/2,leafY-leafSize/2, leafSize, leafSize)
+            if (paused && drawPrediction) {
+                drawPredictedPath(ctx)
+                drawPrediction = false
+            }
         }
 
         function togglePaused() {
@@ -85,6 +90,12 @@ ApplicationWindow {
                 pause.text = 'Resume'
             else
                 pause.text = 'Pause'
+            pathUpdate.enabled = paused
+        }
+
+        function togglePathDraw() {
+            drawPrediction = true
+            requestPaint()
         }
 
         function toggleDisplaySetting(setting) {
@@ -144,6 +155,7 @@ ApplicationWindow {
         Component.onCompleted: {
             windField.initializeWindField()
             loadImage("assets/leaf.png")
+            robotComm.macAddr = "00:06:66:74:43:01"
         }
 
         function setObstacles() {
@@ -224,6 +236,7 @@ ApplicationWindow {
 
         /***STATE UPDATE METHODS***/
         function updateField() {
+            //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
             if (paused)
                 return;
             calculateForceVectors()
@@ -508,11 +521,42 @@ ApplicationWindow {
                     collisionForceY = 0.0
                 }
             }
+            //TESTING
+            //leafX = (robotComm.y/575)*robotMaxX
+            //leafY = robotMaxY-(robotComm.x/400)*robotMaxY
             //Calculate forces at leaf at the new position so we can draw them now
             calculateForcesAtLeaf()
         }
 
         /***DRAWING METHODS***/
+        function drawPredictedPath(ctx) {
+            var origLeafX = leafX
+            var origLeafY = leafY
+            var origLeafXV = leafXV
+            var origLeafYV = leafYV
+            var origLeafXF = leafXF
+            var origLeafYF = leafYF
+            var origLeafXDrag = leafXFDrag
+            var origLeafYDrag = leafYFDrag
+            var origCollisionX = collisionForceX
+            var origCollisionY = collisionForceY
+            for (var i = 0; i < 1800; i++){
+                updateLeaf()
+                ctx.fillStyle = Qt.rgba(1,1,1,1)
+                ctx.fillRect(leafX, leafY, 5, 5)
+            }
+            leafX = origLeafX
+            leafY = origLeafY
+            leafXV = origLeafXV
+            leafYV = origLeafYV
+            leafXF = origLeafXF
+            leafYF = origLeafYF
+            leafXFDrag = origLeafXDrag
+            leafYFDrag = origLeafYDrag
+            collisionForceX = origCollisionX
+            collisionForceY = origCollisionY
+        }
+
         function drawPressureFields(ctx) {
             if (!drawPressureGrid)
                 return
@@ -813,13 +857,42 @@ ApplicationWindow {
         }
     }
 
+    //Cellulo
+    CelluloBluetooth{
+        id: robotComm
+    }
+
+    //UI
     Row {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: parent.top
         spacing: 5
         Column {
+            Button {
+                id: pathUpdate
+                text: qsTr("Calculate path")
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: windField.togglePathDraw()
+                enabled: windField.paused
+                style: ButtonStyle {
+                    id: buttonStyle
+                    background: Rectangle {
+                        implicitWidth: 100
+                        implicitHeight: 100
+                        border.width: control.activeFocus ? 2 : 1
+                        border.color: "#888"
+                        radius: 4
+                        gradient: Gradient {
+                            GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
+                            GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+                        }
+                    }
+                }
+            }
+        }
+
+        Column {
             id:menu
-            z: 100
             spacing:0
             Button {
                 id: pause
