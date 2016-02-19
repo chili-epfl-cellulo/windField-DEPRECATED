@@ -32,7 +32,6 @@ ApplicationWindow {
         property bool drawLeafVelocityVector: true
         property bool drawLeafForceVectors: true
         property bool drawPrediction: false
-        property int ticks: 0
         property int currentAction: 0
 
         //Pressure state
@@ -67,6 +66,7 @@ ApplicationWindow {
         property double timeStep: .25
         property int gridDensity: 1 //Preferably an odd number to have nice vector spacing
         property int collisionSearchRadius: 1*gridDensity
+        property int convergenceIterations: 50
 
         //GL variables
         property variant gl: null
@@ -128,13 +128,15 @@ ApplicationWindow {
 
         // Emitted each time Canvas3D is ready for a new frame
         onPaintGL: {
+            if (!paused)
+                updateLeaf()
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             gl.clearColor(1, 1, 1, 1);
 
             //scene camera setup
             var projectionMatrix = GLMAT.mat4.create()
             GLMAT.mat4.ortho(projectionMatrix, 0, width, 0, height, 0.1, 5000.0)
-            //GLMAT.mat4.perspective(projectionMatrix, Math.PI/4, width / height, 0.1, 500.0);
+            //GLMAT.mat4.perspective(projectionMatrix, Math.PI/4, width / height, 0.1, 5000.0);
             var viewMatrix = GLMAT.mat4.create()
             GLMAT.mat4.identity(viewMatrix);
             GLMAT.mat4.rotate(viewMatrix, viewMatrix, -Math.PI/2*(sceneRotation.maximumValue-sceneRotation.value)/sceneRotation.maximumValue, [1, 0, 0]);
@@ -186,20 +188,20 @@ ApplicationWindow {
                 ]);
 
             //A simple unit sphere
-            sphereVertexBufferObject = gl.createTexture()
+            sphereVertexBufferObject = gl.createBuffer()
             sphereVertexBufferObject.name = "sphereVertexBuffer"
-            sphereTextureCoordBufferObject = gl.createTexture()
+            sphereTextureCoordBufferObject = gl.createBuffer()
             sphereTextureCoordBufferObject.name = "sphereTexCoordBuffer"
-            sphereNormalBufferObject = gl.createTexture()
+            sphereNormalBufferObject = gl.createBuffer()
             sphereNormalBufferObject.name = "sphereNormalBuffer"
-            sphereIndexBufferObject = gl.createTexture()
+            sphereIndexBufferObject = gl.createBuffer()
             sphereIndexBufferObject.name = "sphereIndexBuffer"
 
-            var radius = .5
-            sphereVertexBuffer = new Float32Array(10*10*3)
-            sphereTextureCoordsBuffer = new Float32Array(10*10*2)
-            sphereNormalBuffer = new Float32Array(10*10*3)
-            sphereIndexBuffer = new Float32Array(10*10)
+            var radius = leafSize/2
+            sphereVertexBuffer = new Float32Array(11*11*3)
+            sphereTextureCoordsBuffer = new Float32Array(11*11*2)
+            sphereNormalBuffer = new Float32Array(11*11*3)
+            sphereIndexBuffer = new Uint16Array(10*10*3*2)
 
             var index = 0
            for (var latNumber = 0; latNumber <= 10; latNumber++) {
@@ -237,7 +239,7 @@ ApplicationWindow {
                  var second = first + 10 + 1;
                  sphereIndexBuffer[6*index] = first;
                  sphereIndexBuffer[6*index+1] = second;
-                 sphereIndexBuffer[6*index+2] = (first + 1);
+                 sphereIndexBuffer[6*index+2] = first+1;
 
                  sphereIndexBuffer[6*index+3] = second;
                  sphereIndexBuffer[6*index+4] = (second + 1);
@@ -290,8 +292,6 @@ ApplicationWindow {
             var solidShaderVert =
             "
             attribute highp vec3 aVertexPosition;                       \
-            attribute highp vec3 aNormalVector;                         \
-            attribute highp vec2 aTextureCoord;                         \
             uniform mat4 cameraMatrix;                                  \
             uniform mat4 modelMatrix;                                   \
                                                                         \
@@ -303,7 +303,7 @@ ApplicationWindow {
             var solidShaderFrag =
             "
             void main(void) {                              \
-                gl_FragColor = vec4(1.0,0.0,0.0,1.0);      \
+                gl_FragColor = vec4(0.0,1.0,0.0,1.0);      \
             }
             "
 
@@ -390,6 +390,7 @@ ApplicationWindow {
             }
         }
 
+        //Simulation Logic
         function initializeWindField() {
             var rows = new Array(numRows)
             for (var i = 0; i < numRows; i++) {
@@ -423,6 +424,8 @@ ApplicationWindow {
             setObstacles()
             setPressurePoints()
             setInitialLeafInfo()
+
+            updateField()
         }
 
         Component.onCompleted: {
@@ -473,8 +476,10 @@ ApplicationWindow {
                     continue
                 var row = pressurePoints[i].x
                 var col = pressurePoints[i].y
-                if (r == row && c == col)
+                if (r == row && c == col) {
                     pressurePoints[i] = 0
+                    updateField()
+                }
             }
         }
 
@@ -494,6 +499,7 @@ ApplicationWindow {
                 for (var p = 0; p < maxPressurePointPairs; p++) {
                     if (!pressurePoints[p]) {
                         pressurePoints[p] = Qt.point(r,c)
+                        updateField()
                         return
                     }
                 }
@@ -501,6 +507,7 @@ ApplicationWindow {
                 for (var p = maxPressurePointPairs; p < maxPressurePointPairs*2; p++) {
                     if (!pressurePoints[p]) {
                         pressurePoints[p] = Qt.point(r,c)
+                        updateField()
                         return
                     }
                 }
@@ -510,13 +517,11 @@ ApplicationWindow {
         /***STATE UPDATE METHODS***/
         function updateField() {
             //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
-            updatePressureGrid()
-            setPressurePoints()
-            calculateForceVectors()
-            if (paused)
-                return;
-            updateLeaf()
-            ticks++
+            for (var i = 0; i < convergenceIterations; i++) {
+                updatePressureGrid()
+                setPressurePoints()
+                calculateForceVectors()
+            }
         }
 
         function updatePressureGrid() {
@@ -905,7 +910,7 @@ ApplicationWindow {
             gl.uniformMatrix4fv(gl.getUniformLocation(textureShaderProgram, "cameraMatrix"), false, cameraMatrix);
             var modelMatrix = GLMAT.mat4.create()
             GLMAT.mat4.identity(modelMatrix)
-            GLMAT.mat4.translate(modelMatrix, modelMatrix, [0, 0, 100])
+            GLMAT.mat4.translate(modelMatrix, modelMatrix, [0, 0, 200])
             gl.uniformMatrix4fv(gl.getUniformLocation(textureShaderProgram, "modelMatrix"), false, modelMatrix);
 
             var opacity = .75*Math.max(0.0, (sceneRotation.value - sceneRotation.maximumValue*.75)/(sceneRotation.maximumValue*.25))
@@ -926,7 +931,6 @@ ApplicationWindow {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndexBufferObject);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quadIndexBuffer, gl.STATIC_DRAW);
 
-            //TODO:  make texture
             gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
         }
 
@@ -961,18 +965,12 @@ ApplicationWindow {
         }
 
         function drawLeaf(gl) {
-            //TODO: this needs to change to a phong lighting model
             gl.useProgram(solidShaderProgram)
-            // Bind background texture (no texture for now)
-            //gl.activeTexture(gl.TEXTURE0);
-            //gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
-            //gl.uniform1i(gl.getUniformLocation(textureShaderProgram, "textureSampler"), gl.TEXTURE0);
-
             gl.uniformMatrix4fv(gl.getUniformLocation(solidShaderProgram, "cameraMatrix"), false, cameraMatrix);
 
             var modelMatrix = GLMAT.mat4.create()
             GLMAT.mat4.identity(modelMatrix)
-            GLMAT.mat4.scale(modelMatrix, modelMatrix, 1000)
+            GLMAT.mat4.translate(modelMatrix, modelMatrix, [leafX,robotMaxY-leafY,300])
             gl.uniformMatrix4fv(gl.getUniformLocation(solidShaderProgram, "modelMatrix"), false, modelMatrix);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexBufferObject);
@@ -981,22 +979,10 @@ ApplicationWindow {
             gl.enableVertexAttribArray(vertexPositionAttribute);
             gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, sphereNormalBufferObject);
-            gl.bufferData(gl.ARRAY_BUFFER, sphereNormalBuffer, gl.STATIC_DRAW);
-            var normalVectorAttribute = gl.getAttribLocation(solidShaderProgram, "aNormalVector");
-            gl.enableVertexAttribArray(normalVectorAttribute);
-            gl.vertexAttribPointer(normalVectorAttribute, 3, gl.FLOAT, false, 0, 0);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, sphereTextureCoordBufferObject);
-            gl.bufferData(gl.ARRAY_BUFFER, sphereTextureCoordsBuffer, gl.STATIC_DRAW);
-            var textureCoordAttribute = gl.getAttribLocation(solidShaderProgram, "aTextureCoord");
-            gl.enableVertexAttribArray(textureCoordAttribute);
-            gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
-
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBufferObject);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer, gl.STATIC_DRAW);
 
-            gl.drawElements(gl.TRIANGLES, 10*10*3*2, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.TRIANGLES, 10*10*6, gl.UNSIGNED_SHORT, 0);
         }
 
         function drawLeafVectors(gl) {
@@ -1142,6 +1128,7 @@ ApplicationWindow {
                                     return
                                 windField.pressurePoints[i].x = row
                                 windField.pressurePoints[i].y = col
+                                windField.updateField()
                             }
                         }
                         break;
@@ -1238,15 +1225,6 @@ ApplicationWindow {
                 }
            }
         }
-    }
-
-    Timer {
-         id: paintTimer
-         interval: 100
-         repeat: true
-         running: true
-         triggeredOnStart: true
-         onTriggered: windField.updateField()
     }
 
     //Cellulo
