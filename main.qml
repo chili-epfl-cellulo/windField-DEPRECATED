@@ -3,7 +3,10 @@ import QtQuick.Controls 1.4
 import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
+import QtCanvas3D 1.0
 import Cellulo 1.0
+
+import "glmatrix.js" as GLMAT
 
 ApplicationWindow {
     visible: true
@@ -12,12 +15,7 @@ ApplicationWindow {
     title: qsTr("Hello World")
     visibility:"FullScreen"
 
-    Image {
-        id: background
-        anchors.fill: parent
-        source: "assets/background.jpg"
-    }
-    Canvas {
+    Canvas3D {
         id: windField
         anchors.fill: parent
         property int robotMaxY: 1600.0
@@ -70,19 +68,297 @@ ApplicationWindow {
         property int gridDensity: 1 //Preferably an odd number to have nice vector spacing
         property int collisionSearchRadius: 1*gridDensity
 
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0,0, width, height);
-            drawPressureFields(ctx)
-            drawPressureCellInput(ctx)
-            drawForceField(ctx, gridDensity)
-            drawLeafVectors(ctx)
-            ctx.drawImage("assets/leaf.png", leafX-leafSize/2,leafY-leafSize/2, leafSize, leafSize)
+        //GL variables
+        property variant gl: null
+        property variant m_program: null
+        property variant backgroundTexture: null
+        property variant textureShaderProgram: null
+        property variant solidShaderProgram: null
+
+        //TODO: Currently I init buffers once and then bind them when I draw
+        //This means I have to keep all these variables around
+        //Might make more sense just to initialize and bind on every paint loop
+        property variant quadVertexBufferObject: null
+        property variant quadTextureCoordBufferObject: null
+        property variant quadNormalBufferObject: null
+        property variant quadIndexBufferObject: null
+
+        property variant quadVertexBuffer: []
+        property variant quadTextureCoordsBuffer: []
+        property variant quadNormalBuffer: []
+        property variant quadIndexBuffer: []
+
+        property variant sphereVertexBufferObject: null
+        property variant sphereTextureCoordBufferObject: null
+        property variant sphereNormalBufferObject: null
+        property variant sphereIndexBufferObject: null
+
+        property variant sphereVertexBuffer: []
+        property variant sphereTextureCoordsBuffer: []
+        property variant sphereNormalBuffer: []
+        property variant sphereIndexBuffer: []
+
+
+
+        property variant cameraMatrix: []
+
+        // Emitted when one time initializations should happen
+        onInitializeGL: {
+            console.log("init gl")
+            gl = windField.getContext("canvas3d", {depth:true, antialias:true, alpha:true});
+            gl.enable(gl.DEPTH_TEST);
+            gl.depthFunc(gl.LESS);
+            gl.enable(gl.CULL_FACE);
+            gl.cullFace(gl.BACK);
+            gl.clearColor(0.98, 0.98, 0.98, 1.0);
+            gl.clearDepth(1.0);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+            gl.enable(gl.BLEND)
+            gl.blendEquation(gl.FUNC_ADD)
+            gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
+            //// Set viewport
+            gl.viewport(0, 0, width, height);
+            //Initialize textures
+            initTextures()
+            // Initialize the shader program
+            initShaders();
+            // Initialize vertex and color buffers
+            initBuffers();
+        }
+
+        // Emitted each time Canvas3D is ready for a new frame
+        onPaintGL: {
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.clearColor(1, 1, 1, 1);
+
+            //scene camera setup
+            var projectionMatrix = GLMAT.mat4.create()
+            GLMAT.mat4.ortho(projectionMatrix, 0, width, 0, height, 0.1, 5000.0)
+            //GLMAT.mat4.perspective(projectionMatrix, Math.PI/4, width / height, 0.1, 500.0);
+            var viewMatrix = GLMAT.mat4.create()
+            GLMAT.mat4.identity(viewMatrix);
+            GLMAT.mat4.rotate(viewMatrix, viewMatrix, -Math.PI/2*(sceneRotation.maximumValue-sceneRotation.value)/sceneRotation.maximumValue, [1, 0, 0]);
+            GLMAT.mat4.translate(viewMatrix, viewMatrix, [0, 0, -robotMaxY])
+            cameraMatrix = GLMAT.mat4.create()
+            GLMAT.mat4.multiply(cameraMatrix, projectionMatrix, viewMatrix);
+
+            drawBackground(gl)
+            drawPressureFields(gl)
+            drawLeaf(gl)
+        }
+
+        function initBuffers() {
+            //buffers needed for a quad
+            quadVertexBufferObject = gl.createBuffer();
+            quadVertexBufferObject.name = "quadVertexPositionBuffer";
+            quadVertexBuffer = new Float32Array([// Front face
+                         0.0, 0.0,  1.0,
+                         width, 0.0,  1.0,
+                         width, height,  1.0,
+                         0.0,  height,  1.0,
+                ])
+
+            quadIndexBufferObject = gl.createBuffer();
+            quadIndexBufferObject.name = "quadVertexIndexBuffer";
+            quadIndexBuffer = new Uint16Array([
+                      0,  1,  2,      0,  2,  3,    // front
+                  ])
+
+
+            quadTextureCoordBufferObject = gl.createBuffer();
+            quadTextureCoordBufferObject.name = "quadVerticesTextureCoordBuffer";
+            quadTextureCoordsBuffer =  new Float32Array([
+                        // Front
+                        0.0,  1.0,
+                        1.0,  1.0,
+                        1.0,  0.0,
+                        0.0,  0.0,
+                    ]);
+
+            quadNormalBufferObject = gl.createBuffer();
+            quadNormalBufferObject.name = "quadVerticesNormalBuffer";
+            quadNormalBuffer = new Float32Array([
+                    // Front
+                    0.0,  0.0,  1.0,
+                    0.0,  0.0,  1.0,
+                    0.0,  0.0,  1.0,
+                    0.0,  0.0,  1.0,
+                ]);
+
+            //A simple unit sphere
+            sphereVertexBufferObject = gl.createTexture()
+            sphereVertexBufferObject.name = "sphereVertexBuffer"
+            sphereTextureCoordBufferObject = gl.createTexture()
+            sphereTextureCoordBufferObject.name = "sphereTexCoordBuffer"
+            sphereNormalBufferObject = gl.createTexture()
+            sphereNormalBufferObject.name = "sphereNormalBuffer"
+            sphereIndexBufferObject = gl.createTexture()
+            sphereIndexBufferObject.name = "sphereIndexBuffer"
+
+            var radius = .5
+            sphereVertexBuffer = new Float32Array(10*10*3)
+            sphereTextureCoordsBuffer = new Float32Array(10*10*2)
+            sphereNormalBuffer = new Float32Array(10*10*3)
+            sphereIndexBuffer = new Float32Array(10*10)
+
+            var index = 0
+           for (var latNumber = 0; latNumber <= 10; latNumber++) {
+             var theta = latNumber * Math.PI / 10;
+             var sinTheta = Math.sin(theta);
+             var cosTheta = Math.cos(theta);
+
+             for (var longNumber = 0; longNumber <= 10; longNumber++) {
+                var phi = longNumber * 2 * Math.PI / 10;
+                var sinPhi = Math.sin(phi);
+                var cosPhi = Math.cos(phi);
+
+                var x = cosPhi * sinTheta;
+                var y = cosTheta;
+                var z = sinPhi * sinTheta;
+                var u = 1 - (longNumber / 10);
+                var v = 1 - (latNumber / 10);
+
+                sphereNormalBuffer[3*index] = x;
+                sphereNormalBuffer[3*index+1] = y;
+                sphereNormalBuffer[3*index+2] = z;
+                sphereTextureCoordsBuffer[2*index] = u;
+                sphereTextureCoordsBuffer[2*index+1] = v;
+                sphereVertexBuffer[3*index] = radius * x;
+                sphereVertexBuffer[3*index+1] = radius * y;
+                sphereVertexBuffer[3*index+2] = radius * z;
+                index++
+             }
+           }
+
+           index = 0
+           for (var latNumber = 0; latNumber < 10; latNumber++) {
+             for (var longNumber = 0; longNumber < 10; longNumber++) {
+                 var first = (latNumber * (10 + 1)) + longNumber;
+                 var second = first + 10 + 1;
+                 sphereIndexBuffer[6*index] = first;
+                 sphereIndexBuffer[6*index+1] = second;
+                 sphereIndexBuffer[6*index+2] = (first + 1);
+
+                 sphereIndexBuffer[6*index+3] = second;
+                 sphereIndexBuffer[6*index+4] = (second + 1);
+                 sphereIndexBuffer[6*index+5] = (first + 1);
+                 index++
+              }
+           }
+        }
+
+        function initShaders() {
+            console.log("Initializing shaders")
+            var textureShaderVert =
+            "
+            attribute highp vec3 aVertexPosition;                                           \
+            attribute highp vec2 aTextureCoord;                                             \
+            uniform mat4 cameraMatrix;                                                      \
+            uniform mat4 modelMatrix;                                                       \
+            uniform highp float texopacity;                                                 \
+                                                                                            \
+            varying highp vec2 vTextureCoord;                                               \
+            varying highp float vOpacity;                                                   \
+                                                                                            \
+            void main(void) {                                                               \
+                vOpacity = texopacity;                                                      \
+                vTextureCoord = aTextureCoord;                                              \
+                gl_Position = cameraMatrix * modelMatrix * vec4(aVertexPosition, 1.0);      \
+            }
+            "
+
+            var textureShaderFrag =
+            "
+            varying highp vec2 vTextureCoord;                                                                    \
+            varying highp float vOpacity;                                                                      \                                                                 \
+            uniform sampler2D textureSampler;                                                                    \
+                                                                                                                 \
+            void main(void) {                                                                                    \
+                mediump vec3 texelColor = texture2D(textureSampler, vec2(vTextureCoord.s, vTextureCoord.t)).rgb; \
+                gl_FragColor = vec4(texelColor, vOpacity);                                                        \
+            }
+            "
+
+            var vertexShader = getShader(gl,textureShaderVert, gl.VERTEX_SHADER)
+            var fragmentShader = getShader(gl,textureShaderFrag, gl.FRAGMENT_SHADER)
+            textureShaderProgram = gl.createProgram()
+            textureShaderProgram.name = "TextureShaderProgram"
+            gl.attachShader(textureShaderProgram, vertexShader);
+            gl.attachShader(textureShaderProgram, fragmentShader);
+            gl.linkProgram(textureShaderProgram);
+
+            var solidShaderVert =
+            "
+            attribute highp vec3 aVertexPosition;                       \
+            attribute highp vec3 aNormalVector;                         \
+            attribute highp vec2 aTextureCoord;                         \
+            uniform mat4 cameraMatrix;                                  \
+            uniform mat4 modelMatrix;                                   \
+                                                                        \
+            void main(void) {                                           \
+              gl_Position = cameraMatrix * modelMatrix * vec4(aVertexPosition, 1.0);  \
+            }
+            "
+
+            var solidShaderFrag =
+            "
+            void main(void) {                              \
+                gl_FragColor = vec4(1.0,0.0,0.0,1.0);      \
+            }
+            "
+
+            vertexShader = getShader(gl,solidShaderVert, gl.VERTEX_SHADER)
+            fragmentShader = getShader(gl,solidShaderFrag, gl.FRAGMENT_SHADER)
+            solidShaderProgram = gl.createProgram()
+            solidShaderProgram.name = "SolidShaderProgram"
+            gl.attachShader(solidShaderProgram, vertexShader);
+            gl.attachShader(solidShaderProgram, fragmentShader);
+            gl.linkProgram(solidShaderProgram);
+        }
+
+        function initTextures() {
+          backgroundTexture = gl.createTexture();
+          var backgroundImage = TextureImageFactory.newTexImage();
+          backgroundImage.imageLoaded.connect(function() { handleTextureLoaded(backgroundImage, backgroundTexture);})
+          backgroundImage.src = "assets/background.jpg";
+        }
+
+        function handleTextureLoaded(image, texture) {
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+          gl.generateMipmap(gl.TEXTURE_2D);
+          gl.bindTexture(gl.TEXTURE_2D, null);
+          console.log("texture loaded")
+        }
+
+        function getShader(gl, str, type) {
+            var shader = gl.createShader(type);
+            gl.shaderSource(shader, str);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.log("JS:Shader compile failed");
+                console.log(gl.getShaderInfoLog(shader));
+                return null;
+            }
+
+            return shader;
+        }
+
+        /*onPaint: {
+            gl.clearRect(0,0, width, height);
+            drawPressureFields(gl)
+            drawPressureCellInput(gl)
+            drawForceField(gl, gridDensity)
+            drawLeafVectors(gl)
+            gl.drawImage("assets/leaf.png", leafX-leafSize/2,leafY-leafSize/2, leafSize, leafSize)
             if (paused && drawPrediction) {
-                drawPredictedPath(ctx)
+                drawPredictedPath(gl)
                 drawPrediction = false
             }
-        }
+        }*/
 
         function togglePaused() {
             paused = !paused
@@ -95,7 +371,6 @@ ApplicationWindow {
 
         function togglePathDraw() {
             drawPrediction = true
-            requestPaint()
         }
 
         function toggleDisplaySetting(setting) {
@@ -113,7 +388,6 @@ ApplicationWindow {
                 drawLeafForceVectors = leafForceCheck.checked
                 break;
             }
-            requestPaint()
         }
 
         function initializeWindField() {
@@ -149,12 +423,11 @@ ApplicationWindow {
             setObstacles()
             setPressurePoints()
             setInitialLeafInfo()
-            requestPaint()
         }
 
         Component.onCompleted: {
             windField.initializeWindField()
-            loadImage("assets/leaf.png")
+            //loadImage("assets/leaf.png")
             robotComm.macAddr = "00:06:66:74:43:01"
         }
 
@@ -237,15 +510,12 @@ ApplicationWindow {
         /***STATE UPDATE METHODS***/
         function updateField() {
             //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
-            if (paused)
-                return;
-            calculateForceVectors()
-            updateLeaf()
-
             updatePressureGrid()
             setPressurePoints()
-            requestPaint()
-
+            calculateForceVectors()
+            if (paused)
+                return;
+            updateLeaf()
             ticks++
         }
 
@@ -325,7 +595,7 @@ ApplicationWindow {
                         for (var colOffset = -1; colOffset <= 1; colOffset++) {
                             var rowIndex = row+rowOffset
                             var colIndex = col+colOffset
-                            if ((!rowOffset && !colOffset) || colIndex >= numCols || colIndex < 0 || (!pressureGrid[rowIndex][colIndex][6]))
+                            if (colIndex >= numCols || colIndex < 0 || (!pressureGrid[rowIndex][colIndex][6]))
                                 continue;
                             var pressureGradient = (curPressure - pressureGrid[rowIndex][colIndex][4])*gridDensity
 
@@ -344,7 +614,7 @@ ApplicationWindow {
                     nFX /= validNeighbours
 
                     //TODO: maxForce is subject to change, maybe should not be capped
-                    var forceMagScale = Math.sqrt(nFX*nFX+nFY*nFY)/maxForce
+                    var forceMagScale = nFX*nFX+nFY*nFY/(maxForce*maxForce)
                     if (forceMagScale > 1)  {
                         nFX /= forceMagScale
                         nFY /= forceMagScale
@@ -529,7 +799,39 @@ ApplicationWindow {
         }
 
         /***DRAWING METHODS***/
-        function drawPredictedPath(ctx) {
+        function drawBackground(gl) {
+            gl.useProgram(textureShaderProgram)
+            // Bind background texture
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
+            gl.uniform1i(gl.getUniformLocation(textureShaderProgram, "textureSampler"), gl.TEXTURE0);
+
+            var modelMatrix = GLMAT.mat4.create()
+            GLMAT.mat4.identity(modelMatrix)
+            gl.uniformMatrix4fv(gl.getUniformLocation(textureShaderProgram, "modelMatrix"), false, modelMatrix);
+            gl.uniformMatrix4fv(gl.getUniformLocation(textureShaderProgram, "cameraMatrix"), false, cameraMatrix);
+
+            gl.uniform1f(gl.getUniformLocation(textureShaderProgram, "texopacity"), 1.0)
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, quadVertexBuffer, gl.STATIC_DRAW);
+            var vertexPositionAttribute = gl.getAttribLocation(textureShaderProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(vertexPositionAttribute);
+            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, quadTextureCoordBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, quadTextureCoordsBuffer, gl.STATIC_DRAW);
+            var textureCoordAttribute = gl.getAttribLocation(textureShaderProgram, "aTextureCoord");
+            gl.enableVertexAttribArray(textureCoordAttribute);
+            gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndexBufferObject);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quadIndexBuffer, gl.STATIC_DRAW);
+
+            gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+        }
+
+        function drawPredictedPath(gl) {
             var origLeafX = leafX
             var origLeafY = leafY
             var origLeafXV = leafXV
@@ -542,8 +844,8 @@ ApplicationWindow {
             var origCollisionY = collisionForceY
             for (var i = 0; i < 1800; i++){
                 updateLeaf()
-                ctx.fillStyle = Qt.rgba(1,1,1,1)
-                ctx.fillRect(leafX, leafY, 5, 5)
+                gl.fillStyle = Qt.rgba(1,1,1,1)
+                gl.fillRect(leafX, leafY, 5, 5)
             }
             leafX = origLeafX
             leafY = origLeafY
@@ -557,35 +859,90 @@ ApplicationWindow {
             collisionForceY = origCollisionY
         }
 
-        function drawPressureFields(ctx) {
-            if (!drawPressureGrid)
+        function textureFromPixelArray(gl, data, type, width, height) {
+            //Setup texture from data array
+            var texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, type, width, height, 0, type, gl.UNSIGNED_BYTE, data);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            return texture;
+        }
+
+        function drawPressureFields(gl) {
+            if (!drawPressureGrid || sceneRotation.value < sceneRotation.maximumValue*.75)
                 return
+
+            var data = new Uint8Array(numRows*numCols*4);
+            var index = 0
             for (var row = 0; row < numRows; row++) {
                 for (var col = 0; col < numCols; col++) {
                     if (!pressureGrid[row][col][6]) {
-                        ctx.fillStyle = Qt.rgba(0,0,0,.75)
+                        data[index] = 0
+                        data[index+1] = 0
+                        data[index+2] = 0
+                        data[index+3] = 255
                     } else {
                         var pressure = pressureGrid[row][col][4];
-                        ctx.fillStyle = Qt.rgba(pressure/100.0, 0, (100-pressure)/100.0, .75)
+                        data[index] = pressure/100.0*255
+                        data[index+1] = 0
+                        data[index+2] = (100-pressure)/100.0*255
+                        data[index+3] = 255
                     }
-                    ctx.fillRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
+                    index+=4
                 }
             }
+            var pressureTexture = textureFromPixelArray(gl, data, gl.RGBA, numCols, numRows);
+
+            gl.useProgram(textureShaderProgram)
+            // Bind background texture
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, pressureTexture);
+            gl.uniform1i(gl.getUniformLocation(textureShaderProgram, "textureSampler"), gl.TEXTURE0);
+
+            // Set the uniforms and attributes
+            gl.uniformMatrix4fv(gl.getUniformLocation(textureShaderProgram, "cameraMatrix"), false, cameraMatrix);
+            var modelMatrix = GLMAT.mat4.create()
+            GLMAT.mat4.identity(modelMatrix)
+            GLMAT.mat4.translate(modelMatrix, modelMatrix, [0, 0, 100])
+            gl.uniformMatrix4fv(gl.getUniformLocation(textureShaderProgram, "modelMatrix"), false, modelMatrix);
+
+            var opacity = .75*Math.max(0.0, (sceneRotation.value - sceneRotation.maximumValue*.75)/(sceneRotation.maximumValue*.25))
+            gl.uniform1f(gl.getUniformLocation(textureShaderProgram, "texopacity"), opacity)
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, quadVertexBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, quadVertexBuffer, gl.STATIC_DRAW);
+            var vertexPositionAttribute = gl.getAttribLocation(textureShaderProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(vertexPositionAttribute);
+            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, quadTextureCoordBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, quadTextureCoordsBuffer, gl.STATIC_DRAW);
+            var textureCoordAttribute = gl.getAttribLocation(textureShaderProgram, "aTextureCoord");
+            gl.enableVertexAttribArray(textureCoordAttribute);
+            gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndexBufferObject);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quadIndexBuffer, gl.STATIC_DRAW);
+
+            //TODO:  make texture
+            gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
         }
 
-        function drawPressureCellInput(ctx) {
+        function drawPressureCellInput(gl) {
             //Draw outlines for existing pressure points
             for (var i = 0; i < maxPressurePointPairs*2; i++) {
                 if (!pressurePoints[i])
                     continue
                 var row = pressurePoints[i].x
                 var col = pressurePoints[i].y
-                ctx.lineWidth = 5
+                gl.lineWidth = 5
                 if (i < maxPressurePointPairs)
-                    ctx.strokeStyle = Qt.rgba(1,.5,0,1)
+                    gl.strokeStyle = Qt.rgba(1,.5,0,1)
                 else
-                    ctx.strokeStyle = Qt.rgba(0,0,.5,1)
-                ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
+                    gl.strokeStyle = Qt.rgba(0,0,.5,1)
+                gl.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
             }
 
             //Draw the pressure cell selection outline rects
@@ -594,38 +951,77 @@ ApplicationWindow {
                     continue
                 var row = pressureDragInput[i].x
                 var col = pressureDragInput[i].y
-                ctx.lineWidth = 5
+                gl.lineWidth = 5
                 if (i < maxPressurePointPairs)
-                    ctx.strokeStyle = Qt.rgba(1,1,0,.75)
+                    gl.strokeStyle = Qt.rgba(1,1,0,.75)
                 else if (i >= maxPressurePointPairs)
-                    ctx.strokeStyle = Qt.rgba(0,1,1,.75)
-                ctx.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
+                    gl.strokeStyle = Qt.rgba(0,1,1,.75)
+                gl.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
             }
         }
 
-        function drawLeafVectors(ctx) {
+        function drawLeaf(gl) {
+            //TODO: this needs to change to a phong lighting model
+            gl.useProgram(solidShaderProgram)
+            // Bind background texture (no texture for now)
+            //gl.activeTexture(gl.TEXTURE0);
+            //gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
+            //gl.uniform1i(gl.getUniformLocation(textureShaderProgram, "textureSampler"), gl.TEXTURE0);
+
+            gl.uniformMatrix4fv(gl.getUniformLocation(solidShaderProgram, "cameraMatrix"), false, cameraMatrix);
+
+            var modelMatrix = GLMAT.mat4.create()
+            GLMAT.mat4.identity(modelMatrix)
+            GLMAT.mat4.scale(modelMatrix, modelMatrix, 1000)
+            gl.uniformMatrix4fv(gl.getUniformLocation(solidShaderProgram, "modelMatrix"), false, modelMatrix);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, sphereVertexBuffer, gl.STATIC_DRAW);
+            var vertexPositionAttribute = gl.getAttribLocation(solidShaderProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(vertexPositionAttribute);
+            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, sphereNormalBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, sphereNormalBuffer, gl.STATIC_DRAW);
+            var normalVectorAttribute = gl.getAttribLocation(solidShaderProgram, "aNormalVector");
+            gl.enableVertexAttribArray(normalVectorAttribute);
+            gl.vertexAttribPointer(normalVectorAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, sphereTextureCoordBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, sphereTextureCoordsBuffer, gl.STATIC_DRAW);
+            var textureCoordAttribute = gl.getAttribLocation(solidShaderProgram, "aTextureCoord");
+            gl.enableVertexAttribArray(textureCoordAttribute);
+            gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBufferObject);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer, gl.STATIC_DRAW);
+
+            gl.drawElements(gl.TRIANGLES, 10*10*3*2, gl.UNSIGNED_SHORT, 0);
+        }
+
+        function drawLeafVectors(gl) {
             if (drawLeafVelocityVector) {
                 // Draw velocity vector
                 var vectorDrawX = leafXV*5
                 var vectorDrawY = leafYV*5
-                drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "white", 50.0/maxVelocity, leafSize, leafSize/2)
+                drawVector(gl, leafX, leafY, vectorDrawX, vectorDrawY, "white", 50.0/maxVelocity, leafSize, leafSize/2)
             }
 
             if (drawLeafForceVectors) {
                 //Draw force vector
                 vectorDrawX = 400*leafXF/maxForce
                 vectorDrawY = 400*leafYF/maxForce
-                drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "yellow", 1.0/maxForce, leafSize, leafSize/2)
+                drawVector(gl, leafX, leafY, vectorDrawX, vectorDrawY, "yellow", 1.0/maxForce, leafSize, leafSize/2)
 
                 //Draw drag vector
                 vectorDrawX = 400*leafXFDrag/maxForce
                 vectorDrawY = 400*leafYFDrag/maxForce
-                drawVector(ctx, leafX, leafY, vectorDrawX, vectorDrawY, "red", 1.0/maxForce, leafSize, leafSize/2)
+                drawVector(gl, leafX, leafY, vectorDrawX, vectorDrawY, "red", 1.0/maxForce, leafSize, leafSize/2)
             }
         }
 
         //TODO: gaussian average of force vectors when frequency > 1?
-        function drawForceField(ctx, gridDensity) {
+        function drawForceField(gl, gridDensity) {
             if (!drawForceGrid)
                 return
             for (var row = Math.floor(gridDensity/2); row < numRows; row+=gridDensity) {
@@ -643,53 +1039,43 @@ ApplicationWindow {
                     var windVectorX = forceX*forceScaling
                     var windVectorY = forceY*forceScaling
 
-                    drawVector(ctx, centerX, centerY, windVectorX, windVectorY, Qt.rgba(0,0,0,1), 5.0/maxForce, 10.0 ,0)
+                    drawVector(gl, centerX, centerY, windVectorX, windVectorY, Qt.rgba(0,0,0,1), 5.0/maxForce, 10.0 ,0)
                 }
             }
         }
 
-        function drawVector(ctx, cX, cY, vX, vY, color, widthScaling, widthMax, centerOffset) {
-            ctx.strokeStyle = color
-            ctx.fillStyle = color
+        function drawVector(gl, cX, cY, vX, vY, color, widthScaling, widthMax, centerOffset) {
+            gl.strokeStyle = color
+            gl.fillStyle = color
 
             var vecMagnitude = Math.sqrt(vX*vX+vY*vY)
             var vectorOffsetFactor = centerOffset/vecMagnitude
 
             var vecX = vX + vectorOffsetFactor*vX
             var vecY = vY + vectorOffsetFactor*vY
-            ctx.lineWidth = Math.min(widthMax, Math.max(2,widthScaling*vecMagnitude))
+            gl.lineWidth = Math.min(widthMax, Math.max(2,widthScaling*vecMagnitude))
 
             var vectorTipX = cX+vecX
             var vectorTipY = cY+vecY
             var vectorUnitX = vX/vecMagnitude
             var vectorUnitY = vY/vecMagnitude
-            var arrowHeadSizeX = vectorUnitX*ctx.lineWidth*1.5
-            var arrowHeadSizeY = vectorUnitY*ctx.lineWidth*1.5
+            var arrowHeadSizeX = vectorUnitX*gl.lineWidth*1.5
+            var arrowHeadSizeY = vectorUnitY*gl.lineWidth*1.5
             var perpVecX = -arrowHeadSizeY
             var perpVecY = arrowHeadSizeX
 
-            ctx.beginPath()
-            ctx.moveTo(cX, cY)
+            gl.beginPath()
+            gl.moveTo(cX, cY)
             //Make arrow shaft overlap with arrowhead slightly for floating point drawing seam errors
-            ctx.lineTo(vectorTipX-arrowHeadSizeX*.95, vectorTipY-arrowHeadSizeY*.95)
-            ctx.stroke()
+            gl.lineTo(vectorTipX-arrowHeadSizeX*.95, vectorTipY-arrowHeadSizeY*.95)
+            gl.stroke()
 
-            ctx.beginPath()
-            ctx.moveTo(vectorTipX, vectorTipY)
-            ctx.lineTo(vectorTipX-arrowHeadSizeX + perpVecX, vectorTipY-arrowHeadSizeY + perpVecY)
-            ctx.lineTo(vectorTipX-arrowHeadSizeX - perpVecX, vectorTipY-arrowHeadSizeY - perpVecY)
-            ctx.closePath()
-            ctx.fill()
-        }
-
-        /***PAINT LOOP TIMER***/
-        Timer {
-            id: paintTimer
-            interval: 10
-            repeat: true
-            running: true
-            triggeredOnStart: true
-            onTriggered: windField.updateField()
+            gl.beginPath()
+            gl.moveTo(vectorTipX, vectorTipY)
+            gl.lineTo(vectorTipX-arrowHeadSizeX + perpVecX, vectorTipY-arrowHeadSizeY + perpVecY)
+            gl.lineTo(vectorTipX-arrowHeadSizeX - perpVecX, vectorTipY-arrowHeadSizeY - perpVecY)
+            gl.closePath()
+            gl.fill()
         }
 
         /***Canvas touch interations***/
@@ -761,7 +1147,6 @@ ApplicationWindow {
                         break;
                     }
                     actionMenu.enabled = !changingPressureCells()
-                    windField.requestPaint()
                 }
             }
 
@@ -804,7 +1189,6 @@ ApplicationWindow {
                     }
                 }
                 actionMenu.enabled = !changingPressureCells()
-                windField.requestPaint()
             }
 
             onUpdated: {
@@ -852,9 +1236,17 @@ ApplicationWindow {
                        break;
                     }
                 }
-                windField.requestPaint()
            }
         }
+    }
+
+    Timer {
+         id: paintTimer
+         interval: 100
+         repeat: true
+         running: true
+         triggeredOnStart: true
+         onTriggered: windField.updateField()
     }
 
     //Cellulo
@@ -863,6 +1255,19 @@ ApplicationWindow {
     }
 
     //UI
+    Column {
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: parent.right
+        Slider {
+            id: sceneRotation
+            orientation: Qt.Vertical
+            height: 500
+            minimumValue: 0
+            maximumValue: 100
+            value: 100
+        }
+    }
+
     Row {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: parent.top
