@@ -105,6 +105,8 @@ function paintGL(canvas) {
     leaf.position.x = windField.leafX;
     leaf.position.y = windField.robotMaxY - windField.leafY;
 
+    pressureField.material.opacity = .75*Math.max(0.0, (sceneRotation.value - sceneRotation.maximumValue*.75)/(sceneRotation.maximumValue*.25));
+
     //Render the scene
     renderer.render(scene, camera);
 }
