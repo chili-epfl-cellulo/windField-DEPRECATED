@@ -5,6 +5,7 @@
         <file>assets/CircleObstacle.png</file>
         <file>assets/leaf.png</file>
         <file>assets/background.jpg</file>
-        <file>glmatrix.js</file>
+        <file>three.js</file>
+        <file>renderer.js</file>
     </qresource>
 </RCC>
