@@ -7,5 +7,8 @@
         <file>assets/background.jpg</file>
         <file>three.js</file>
         <file>renderer.js</file>
+        <file>PressureField.qml</file>
+        <file>UIPanel.qml</file>
+        <file>Leaf.qml</file>
     </qresource>
 </RCC>
