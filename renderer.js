@@ -4,18 +4,14 @@ var camera, scene, renderer, gl;
 var leafObject, backgroundObject, pressureFieldObject;
 var leafMaterial, backgroundMaterial, pressureFieldMaterial;
 
-//var pressureInputs = [];
-//var pressureInputMaterials = [];
+var pressureInputs = [];
+var pressureInputMaterials = [];
 
 function initializeGL(canvas, pressurefield, leaf) {
     renderer = new THREE.Canvas3DRenderer(
                 { canvas: canvas, antialias: true, devicePixelRatio: canvas.devicePixelRatio });
     renderer.setSize(canvas.width, canvas.height);
     gl = renderer.context;
-    //gl.enable(gl.BLEND)
-    //gl.blendEquation(gl.FUNC_ADD)
-    //gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
-
     initCamera(pressurefield);
     initScene(pressurefield, leaf);
 }
@@ -84,12 +80,12 @@ function initMaterials(pressurefield, leaf) {
     }
     var pressureFieldTexture = new THREE.DataTexture(data, pressurefield.numCols, pressurefield.numRows, THREE.RGBAFormat);
     pressureFieldTexture.needsUpdate = true
-    pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture});
+    pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: 0.75, depthWrite: false});
 
     //Leaf Material
     leafMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00,
                                                    ambient: 0x000000,
-                                                   shading: THREE.SmoothShading });
+                                                   shading: THREE.SmoothShading});
 }
 
 function paintGL(pressurefield, leaf) {
@@ -105,7 +101,8 @@ function paintGL(pressurefield, leaf) {
     leafObject.position.x = leaf.leafX;
     leafObject.position.y = leaf.robotMaxY - leaf.leafY;
 
-    pressureFieldObject.material.opacity = .75*Math.max(0.0, (controls.rotation - controls.maximumRotation*.75)/(controls.maximumRotation*.25));
+    pressureFieldObject.material.opacity = .75*Math.max(0.0, (controls.rotation - controls.maxRotation*.75)/(controls.maxRotation*.25));
+    pressureFieldObject.material.needsUpdate = true
     //Render the scene
     renderer.render(scene, camera);
 }

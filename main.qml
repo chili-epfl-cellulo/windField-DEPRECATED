@@ -18,7 +18,6 @@ ApplicationWindow {
         id: windField
         anchors.fill: parent
 
-
         property int fieldWidth: 2560
         property int fieldHeight: 1600
 
