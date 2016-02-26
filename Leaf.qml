@@ -179,7 +179,7 @@ Item {
                         var searchRow = previousCellRow + rowOffset
                         var searchCol = previousCellCol + colOffset
                         //Out of bounds, try the next cell
-                        if (searchRow < 0 || searchRow > numRows || searchCol < 0 || searchCol > numCols)
+                        if (searchRow < 0 || searchRow > field.numRows || searchCol < 0 || searchCol > field.numCols)
                             continue;
                         if (!pressureGrid[searchRow][searchCol][6]) {
                             var yDiff = previousCellRow - searchRow

@@ -109,7 +109,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 style: pause.style
                 onClicked: {
-                    PressureField.initializeWindField()
+                    pressurefield.initializeWindField()
                     windField.initializeLeafInfo();
                 }
             }

@@ -4,8 +4,10 @@ var camera, scene, renderer, gl;
 var leafObject, backgroundObject, pressureFieldObject;
 var leafMaterial, backgroundMaterial, pressureFieldMaterial;
 
-var pressureInputs = [];
+var pressureInputObjects = [];
 var pressureInputMaterials = [];
+
+var pressureFieldUpdated = false;
 
 function initializeGL(canvas, pressurefield, leaf) {
     renderer = new THREE.Canvas3DRenderer(
@@ -43,10 +45,20 @@ function initScene(pressurefield, leaf) {
     leafObject = new THREE.Mesh(leafGeom, leafMaterial)
     leafObject.position.z = 300
 
+    pressureInputObjects = new Array(pressurefield.maxPressurePointPairs*2)
+    for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
+        var pressureInputGeom = new THREE.CylinderGeometry(25,25,50,6,1)
+        pressureInputObjects[i] = new THREE.Mesh(pressureInputGeom, pressureInputMaterials[i])
+        pressureInputObjects[i].position.z = 200
+        pressureInputObjects[i].rotation.x = Math.PI/2
+        pressureInputObjects[i].renderOrder = 2
+        scene.add(pressureInputObjects[i])
+    }
+
     //Add meshes to the scene
     backgroundObject.renderOrder = 1;
-    pressureFieldObject.renderOrder = 2;
-    leafObject.renderOrder = 3;
+    pressureFieldObject.renderOrder = 3;
+    leafObject.renderOrder = 4;
     scene.add(backgroundObject);
     scene.add(pressureFieldObject);
     scene.add(leafObject);
@@ -58,6 +70,23 @@ function initMaterials(pressurefield, leaf) {
     //Background Material
     backgroundMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/background.jpg')} );
 
+    createPressureFieldMaterial()
+
+    //Leaf Material
+    leafMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00,
+                                                   ambient: 0x000000,
+                                                   shading: THREE.SmoothShading});
+
+    pressureInputMaterials = new Array(pressurefield.maxPressurePointPairs*2)
+    for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
+        //todo color change based on strength
+        pressureInputMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
+                                                                    ambient: 0x000000,
+                                                                    shading: THREE.SmoothShading})
+    }
+}
+
+function createPressureFieldMaterial() {
     //Pressure Field Material
     var data = new Uint8Array(pressurefield.numRows*pressurefield.numCols*4);
     var index = 0
@@ -82,10 +111,7 @@ function initMaterials(pressurefield, leaf) {
     pressureFieldTexture.needsUpdate = true
     pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: 0.75, depthWrite: false});
 
-    //Leaf Material
-    leafMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00,
-                                                   ambient: 0x000000,
-                                                   shading: THREE.SmoothShading});
+    pressureFieldUpdated = false
 }
 
 function paintGL(pressurefield, leaf) {
@@ -101,73 +127,28 @@ function paintGL(pressurefield, leaf) {
     leafObject.position.x = leaf.leafX;
     leafObject.position.y = leaf.robotMaxY - leaf.leafY;
 
+    if (pressureFieldUpdated) {
+        createPressureFieldMaterial()
+        pressureFieldObject.material = pressureFieldMaterial;
+    }
+
     pressureFieldObject.material.opacity = .75*Math.max(0.0, (controls.rotation - controls.maxRotation*.75)/(controls.maxRotation*.25));
     pressureFieldObject.material.needsUpdate = true
+
+    for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
+        pressureInputObjects[i].position.x = pressurefield.pressurePoints[i].position.x;
+        pressureInputObjects[i].position.y = pressurefield.height - pressurefield.pressurePoints[i].position.y;
+        pressureInputObjects[i].material.visible = (pressurefield.pressurePoints[i].state > pressurefield.inactive);
+        var pressure = pressurefield.pressurePoints[i].strength
+        pressureInputObjects[i].material.color = Qt.rgba(pressure/100.0, 0.0, (100-pressure)/100.0, 1.0);
+        pressureInputObjects[i].material.needsUpdate = true
+    }
+
     //Render the scene
     renderer.render(scene, camera);
 }
 
 /*
-function drawPressureCellInput(gl) {//use outlined cylinders
-    //Draw outlines for existing pressure points
-    for (var i = 0; i < maxPressurePointPairs*2; i++) {
-        if (!pressurePoints[i])
-            continue
-        var row = pressurePoints[i].x
-        var col = pressurePoints[i].y
-        gl.lineWidth = 5
-        if (i < maxPressurePointPairs)
-            gl.strokeStyle = Qt.rgba(1,.5,0,1)
-        else
-            gl.strokeStyle = Qt.rgba(0,0,.5,1)
-        gl.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
-    }
-
-    //Draw the pressure cell selection outline rects
-    for (var i = 0; i < pressureDragInput.length; i++) {
-        if (!pressureDragInput[i])
-            continue
-        var row = pressureDragInput[i].x
-        var col = pressureDragInput[i].y
-        gl.lineWidth = 5
-        if (i < maxPressurePointPairs)
-            gl.strokeStyle = Qt.rgba(1,1,0,.75)
-        else if (i >= maxPressurePointPairs)
-            gl.strokeStyle = Qt.rgba(0,1,1,.75)
-        gl.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
-    }
-}
-
-function drawPressureCellInput(gl) {//use outlined cylinders
-    //Draw outlines for existing pressure points
-    for (var i = 0; i < maxPressurePointPairs*2; i++) {
-        if (!pressurePoints[i])
-            continue
-        var row = pressurePoints[i].x
-        var col = pressurePoints[i].y
-        gl.lineWidth = 5
-        if (i < maxPressurePointPairs)
-            gl.strokeStyle = Qt.rgba(1,.5,0,1)
-        else
-            gl.strokeStyle = Qt.rgba(0,0,.5,1)
-        gl.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
-    }
-
-    //Draw the pressure cell selection outline rects
-    for (var i = 0; i < pressureDragInput.length; i++) {
-        if (!pressureDragInput[i])
-            continue
-        var row = pressureDragInput[i].x
-        var col = pressureDragInput[i].y
-        gl.lineWidth = 5
-        if (i < maxPressurePointPairs)
-            gl.strokeStyle = Qt.rgba(1,1,0,.75)
-        else if (i >= maxPressurePointPairs)
-            gl.strokeStyle = Qt.rgba(0,1,1,.75)
-        gl.strokeRect(col*xGridSpacing,row*yGridSpacing,xGridSpacing,yGridSpacing)
-    }
-}
-
 //TODO: using particles would do the trick here
 function drawPredictedPath(gl) {
     var origLeafX = leafX

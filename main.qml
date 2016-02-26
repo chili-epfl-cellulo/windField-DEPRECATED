@@ -52,6 +52,7 @@ ApplicationWindow {
             pressurefield.pressureGrid[6][7][6] = 0
             pressurefield.pressureGrid[6][8][6] = 0
             pressurefield.pressureGrid[6][6][6] = 0
+            pressurefield.updateField()
 
             //Set test leaf info
             testLeaf.leafX = 200
@@ -75,6 +76,10 @@ ApplicationWindow {
             GLRender.paintGL(pressurefield, testLeaf)
         }
 
+        function setPressureFieldTextureDirty() {
+            GLRender.pressureFieldUpdated = true;
+        }
+
         Component.onCompleted: {
             pressurefield.initializeWindField()
             setInitialTestConfiguration()
@@ -84,10 +89,7 @@ ApplicationWindow {
         PressureField {
             anchors.fill: parent
             id: pressurefield
-            width: windField.fieldWidth
-            height: windField.fieldHeight
         }
-
 
         Leaf {
             id: testLeaf
@@ -97,8 +99,6 @@ ApplicationWindow {
         UIPanel {
             anchors.fill: parent
             id: controls
-            width: windField.fieldWidth
-            height: windField.fieldHeight
         }
     }
 }

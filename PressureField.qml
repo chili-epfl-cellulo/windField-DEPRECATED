@@ -6,16 +6,19 @@ import QtQuick.Controls.Styles 1.4
 
 Item {
     property variant pressureGrid: []
+    //Contains an array of pressurePoint structs including
     property variant pressurePoints: []
-    property variant pressureDragInput: []
+    property int numHighPressurePoints: 0
+    property int numLowPressurePoints: 0
+
     readonly property int maxPressurePointPairs: 10
 
     readonly property int gridDensity: 1
     readonly property int numCols: 26*gridDensity
     readonly property int numRows: 16*gridDensity
 
-    readonly property double xGridSpacing: (width/numCols)
-    readonly property double yGridSpacing: (height/numRows)
+    readonly property double xGridSpacing: (windField.fieldWidth/numCols)
+    readonly property double yGridSpacing: (windField.fieldHeight/numRows)
 
     //Controls how much force there is per unit of pressure difference
     readonly property double pressureToForceMultiplier: 1
@@ -25,7 +28,20 @@ Item {
     readonly property double pressureTransferRate: .5
 
     //Controls how many loops we run the pressure update for before letting the balloon simulation start
-    readonly property int convergenceIterations: 25
+    readonly property int convergenceIterations: 50
+
+    //State variables for pressure inputs
+    readonly property int inactive: 0
+    readonly property int active: 1
+    readonly property int selected: 2
+
+    function pressurePointObject() {
+        this.gridIndex = Qt.point(0,0);
+        this.position = Qt.point(0,0)
+        //0-inactive, 1-active, 2-active and selected
+        this.state = inactive
+        this.strength = 0.0
+    }
 
     /***PRESSURE FIELD INITIALIZATION***/
     function initializeWindField() {
@@ -46,21 +62,21 @@ Item {
             rows[i]=column
         }
         pressureGrid = rows
-        pressurePoints = new Array(maxPressurePointPairs*2);        
-        pressureDragInput = new Array(touchArea.maximumTouchPoints)
+        pressurePoints = new Array(maxPressurePointPairs*2);
+        for (var i = 0; i < maxPressurePointPairs*2; i++) {
+            pressurePoints[i] = new pressurePointObject()
+        }
+
         updateField()
     }
 
     function resetPressureAtPressurePoints() {
         for (var i = 0; i < maxPressurePointPairs*2; i++) {
-            if (!pressurePoints[i])
+            if (!pressurePoints[i].state)
                 continue
-            var row = pressurePoints[i].x
-            var col = pressurePoints[i].y
-            if (i < maxPressurePointPairs)
-                pressureGrid[row][col][4] = 100.0
-            else
-                pressureGrid[row][col][4] = 0.0
+            var row = pressurePoints[i].gridIndex.x
+            var col = pressurePoints[i].gridIndex.y
+            pressureGrid[row][col][4] = pressurePoints[i].strength
         }
     }
 
@@ -68,9 +84,11 @@ Item {
     function updateField() {
         //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
         for (var i = 0; i < convergenceIterations; i++) {
+            resetPressureAtPressurePoints()
             updatePressureGrid()
             resetPressureAtPressurePoints()
             calculateForceVectors()
+            windField.setPressureFieldTextureDirty()
         }
     }
 
@@ -185,9 +203,9 @@ Item {
     function addPressurePoint(r,c,highPressure) {
         //First make sure the point doesn't already exist, do nothing if it already does
         for (var p = 0; p < maxPressurePointPairs*2; p++) {
-            if (pressurePoints[p]) {
-                var row = pressurePoints[p].x
-                var col = pressurePoints[p].y
+            if (pressurePoints[p].state) {
+                var row = pressurePoints[p].gridIndex.x
+                var col = pressurePoints[p].gridIndex.y
                 if (row == r && col == c) {
                     return;
                 }
@@ -196,17 +214,23 @@ Item {
         //Actually add the pressure cell
         if (highPressure) {
             for (var p = 0; p < maxPressurePointPairs; p++) {
-                if (!pressurePoints[p]) {
-                    pressurePoints[p] = Qt.point(r,c)
-                    updateField()
+                if (!pressurePoints[p].state) {
+                    pressurePoints[p].gridIndex = Qt.point(r,c)
+                    pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
+                    pressurePoints[p].state = active
+                    pressurePoints[p].strength = 100.0
+                    numHighPressurePoints++
                     return
                 }
             }
         } else {
             for (var p = maxPressurePointPairs; p < maxPressurePointPairs*2; p++) {
-                if (!pressurePoints[p]) {
-                    pressurePoints[p] = Qt.point(r,c)
-                    updateField()
+                if (!pressurePoints[p].state) {
+                    pressurePoints[p].gridIndex = Qt.point(r,c)
+                    pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
+                    pressurePoints[p].state = active
+                    pressurePoints[p].strength = 0.0
+                    numLowPressurePoints++
                     return
                 }
             }
@@ -215,12 +239,19 @@ Item {
 
     function removePressurePoint(r,c) {
         for (var i = 0; i < maxPressurePointPairs*2; i++) {
-            if (!pressurePoints[i])
+            if (!pressurePoints[i].state)
                 continue
-            var row = pressurePoints[i].x
-            var col = pressurePoints[i].y
+            var row = pressurePoints[i].gridIndex.x
+            var col = pressurePoints[i].gridIndex.y
             if (r == row && c == col) {
-                pressurePoints[i] = 0
+                pressurePoints[i].state = inactive
+                pressurePoints[i].position = null
+                pressurePoints[i].gridIndex = null
+                if (pressurePoints[i].strength > 50.0)
+                    numHighPressurePoints--
+                else
+                    numLowPressurePoints--
+                pressurePoints[i].strength = 0.0
                 updateField()
             }
         }
@@ -231,11 +262,12 @@ Item {
         id: touchArea
         anchors.fill: parent
         maximumTouchPoints: maxPressurePointPairs
+        enabled: (controls.rotation == controls.maxRotation)
 
         function changingPressureCells() {
-            var length = pressureDragInput.length
+            var length = pressurePoints.length
             for (var i = 0; i < length; i++) {
-                if (pressureDragInput[i])
+                if (pressurePoints[i].state == selected)
                     return true
             }
             return false
@@ -244,52 +276,68 @@ Item {
         onReleased: {
             var maxPointPairs = maxPressurePointPairs
             var length = touchPoints.length
+            console.log("LENGTH: ", length)
             for (var t = 0; t < length; t++) {
                 var row = Math.floor(touchPoints[t].y/yGridSpacing)
                 var col = Math.floor(touchPoints[t].x/xGridSpacing)
                 switch(windField.currentAction) {
+                //Note: For cases 1 and 2 gridIndex stores the starting touch point of the gesture so that we can identify which pressurepoint to remove
                 case 1:
-                    if (pressureGrid[row][col][6])
-                        addPressurePoint(row, col, true)
-                    //Remove the cell input box
+                    //Remove the unplaced pressure point
                     for (var i = 0; i < maxPointPairs; i++) {
-                        if (pressureDragInput[i]) {
-                            if (pressureDragInput[i].x == row && pressureDragInput[i].y == col) {
-                                 pressureDragInput[i] = 0
-                                 break;
-                            }
+                        console.log(pressurePoints[i].position.x, "  ", pressurePoints[i].position.y)
+                        if (pressurePoints[i].state == selected &&
+                                pressurePoints[i].gridIndex.x == touchPoints[t].startX &&
+                                pressurePoints[i].gridIndex.y == touchPoints[t].startY) {
+                            pressurePoints[i].state = inactive
+                            pressurePoints[i].position = null
+                            pressurePoints[i].gridIndex = null
+                            pressurePoints[i].strength = 0.0
+                            break
                         }
+                    }
+                    if (pressureGrid[row][col][6] && numHighPressurePoints < maxPressurePointPairs) {
+                        addPressurePoint(row, col, true)
+                        updateField()
                     }
                     break;
                 case 2:
-                    if (pressureGrid[row][col][6])
-                        addPressurePoint(row, col, false)
-                    //Remove the cell input box
+                    //Remove the unplaced pressure point
                     for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
-                        if (pressureDragInput[i+maxPointPairs].x == row &&
-                                pressureDragInput[i+maxPointPairs].y == col) {
-                            pressureDragInput[i+maxPointPairs] = 0
-                            break;
+                        if (pressurePoints[i].state == selected &&
+                                pressurePoints[i].gridIndex.x == touchPoints[t].startX &&
+                                pressurePoints[i].gridIndex.y == touchPoints[t].startY) {
+                            pressurePoints[i].state = inactive
+                            pressurePoints[i].position = null
+                            pressurePoints[i].gridIndex = null
+                            pressurePoints[i].strength = 0.0
+                            break
                         }
+                    }
+                    if (pressureGrid[row][col][6] && numLowPressurePoints < maxPressurePointPairs) {
+                        addPressurePoint(row, col, false)
+                        updateField()
                     }
                     break;
                 case 3:
                     removePressurePoint(row, col)
+                    updateField()
                     break;
                 case 0:
                     var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                     var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
                     for (var i = 0; i < maxPointPairs*2; i++) {
-                        if (!pressurePoints[i])
+                        if (!pressurePoints[i].state)
                             continue
-                        var cellRow = pressurePoints[i].x
-                        var cellCol = pressurePoints[i].y
+                        var cellRow = pressurePoints[i].gridIndex.x
+                        var cellCol = pressurePoints[i].gridIndex.y
                         if (startRow == cellRow && startCol == cellCol) {
-                            pressureDragInput[i] = 0
-                            if (!pressureGrid[row][col][6])
-                                return
-                            pressurePoints[i].x = row
-                            pressurePoints[i].y = col
+                            if (!pressureGrid[row][col][6]) {
+                                row = startRow
+                                col = startCol
+                            }
+                            pressurePoints[i].gridIndex = Qt.point(row, col)
+                            pressurePoints[i].position = Qt.point(col*xGridSpacing+xGridSpacing/2, row*yGridSpacing+yGridSpacing/2);
                             updateField()
                         }
                     }
@@ -307,17 +355,25 @@ Item {
                 switch (windField.currentAction) {
                 case 1:
                     for (var i = 0; i < maxPointPairs; i++) {
-                        if (!pressureDragInput[i]) {
-                            pressureDragInput[i] = Qt.point(startRow, startCol)
-                            break;
+                        if (!pressurePoints[i].state) {
+                            pressurePoints[i].state = selected
+                            pressurePoints[i].strength = 100.0
+                            pressurePoints[i].position = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
+                            //Temporarily use gridIndex to store the start coordinates for use later
+                            pressurePoints[i].gridIndex = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
+                            break
                         }
                     }
                     break;
                 case 2:
                     for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
-                        if (!pressureDragInput[i+maxPointPairs]) {
-                            pressureDragInput[i+maxPointPairs] = Qt.point(startRow, startCol)
-                            break;
+                        if (!pressurePoints[i].state) {
+                            pressurePoints[i].state = selected
+                            pressurePoints[i].strength = 0.0
+                            pressurePoints[i].position = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
+                            //Temporarily use gridIndex to store the start coordinates for use later
+                            pressurePoints[i].gridIndex = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
+                            break
                         }
                     }
                     break;
@@ -325,12 +381,13 @@ Item {
                     break;
                 case 0:
                     for (var i = 0; i < maxPointPairs*2; i++) {
-                        if (!pressurePoints[i])
+                        if (!pressurePoints[i].state)
                             continue
-                        var cellRow = pressurePoints[i].x
-                        var cellCol = pressurePoints[i].y
+                        var cellRow = pressurePoints[i].gridIndex.x
+                        var cellCol = pressurePoints[i].gridIndex.y
                         if (startRow == cellRow && startCol == cellCol) {
-                             pressureDragInput[i] = Qt.point(startRow,startCol)
+                            pressurePoints[i].state = selected
+                            pressurePoints[i].position = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
                         }
                     }
                     break;
@@ -349,19 +406,20 @@ Item {
                switch (windField.currentAction) {
                case 1:
                    for (var i = 0; i < maxPointPairs; i++) {
-                       if (pressureDragInput[i]) {
-                           if (pressureDragInput[i].x == prevRow && pressureDragInput[i].y == prevCol) {
-                                pressureDragInput[i] = Qt.point(row, col)
-                                break;
-                           }
+                       if (pressurePoints[i].state == selected &&
+                               pressurePoints[i].position.x == touchPoints[t].previousX &&
+                               pressurePoints[i].position.y == touchPoints[t].previousY) {
+                           pressurePoints[i].position = Qt.point(touchPoints[t].x, touchPoints[t].y)
+                           break;
                        }
-                   }
+                   }                   
                    break;
                case 2:
                    for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
-                       if (pressureDragInput[i+maxPointPairs].x == prevRow &&
-                               pressureDragInput[i+maxPointPairs].y == prevCol) {
-                           pressureDragInput[i+maxPointPairs] = Qt.point(row, col)
+                       if (pressurePoints[i].state == selected &&
+                               pressurePoints[i].position.x == touchPoints[t].previousX &&
+                               pressurePoints[i].position.y == touchPoints[t].previousY) {
+                           pressurePoints[i].position = Qt.point(touchPoints[t].x, touchPoints[t].y)
                            break;
                        }
                    }
@@ -372,12 +430,12 @@ Item {
                    var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                    var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
                    for (var i = 0; i < maxPointPairs*2; i++) {
-                       if (!pressurePoints[i])
+                       if (pressurePoints[i].state != selected)
                            continue
-                       var cellRow = pressurePoints[i].x
-                       var cellCol = pressurePoints[i].y
+                       var cellRow = pressurePoints[i].gridIndex.x
+                       var cellCol = pressurePoints[i].gridIndex.y
                        if (startRow == cellRow && startCol == cellCol) {
-                            pressureDragInput[i] = Qt.point(row,col)
+                            pressurePoints[i].position = Qt.point(touchPoints[t].x, touchPoints[t].y)
                        }
                    }
                    break;
