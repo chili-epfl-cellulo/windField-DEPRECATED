@@ -133,7 +133,8 @@ function paintGL(pressurefield, leaf) {
     }
 
     pressureFieldObject.material.opacity = .75*Math.max(0.0, (controls.rotation - controls.maxRotation*.75)/(controls.maxRotation*.25));
-    pressureFieldObject.material.needsUpdate = true
+    pressureFieldObject.material.visible = windField.drawPressureGrid;
+    pressureFieldObject.material.needsUpdate = true;
 
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
         pressureInputObjects[i].position.x = pressurefield.pressurePoints[i].position.x;

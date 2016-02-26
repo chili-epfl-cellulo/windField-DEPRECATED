@@ -110,7 +110,7 @@ Item {
                 style: pause.style
                 onClicked: {
                     pressurefield.initializeWindField()
-                    windField.initializeLeafInfo();
+                    windField.setInitialTestConfiguration()
                 }
             }
         }
@@ -147,6 +147,7 @@ Item {
             ComboBox {
                 id: actionMenu
                 currentIndex: 0
+                enabled: (sceneRotation.value == sceneRotation.maximumValue)
                 style: ComboBoxStyle {
                     background: Rectangle {
                         implicitWidth: 300

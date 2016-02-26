@@ -276,7 +276,6 @@ Item {
         onReleased: {
             var maxPointPairs = maxPressurePointPairs
             var length = touchPoints.length
-            console.log("LENGTH: ", length)
             for (var t = 0; t < length; t++) {
                 var row = Math.floor(touchPoints[t].y/yGridSpacing)
                 var col = Math.floor(touchPoints[t].x/xGridSpacing)
