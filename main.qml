@@ -13,16 +13,14 @@ ApplicationWindow {
     height: 480
     title: qsTr("Wind Field Game")
     visibility:"FullScreen"
+    contentOrientation: Screen.orientation
 
     Canvas3D {
         id: windField
         anchors.fill: parent
-        //width: parent.height;
-        //height: parent.width;
-        //transform: Rotation { origin.x: 0; origin.y: 0; angle: 270 }
 
-        property int fieldWidth: 2560
-        property int fieldHeight: 1600
+        property int fieldWidth: 1600
+        property int fieldHeight: 2560
 
         //Game UI variables, kept here so that all components can have access to them
         property bool paused: false

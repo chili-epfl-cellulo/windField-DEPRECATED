@@ -10,5 +10,6 @@
         <file>PressureField.qml</file>
         <file>UIPanel.qml</file>
         <file>Leaf.qml</file>
+        <file>assets/europe.jpg</file>
     </qresource>
 </RCC>
