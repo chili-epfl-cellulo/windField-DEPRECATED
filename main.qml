@@ -17,6 +17,9 @@ ApplicationWindow {
     Canvas3D {
         id: windField
         anchors.fill: parent
+        //width: parent.height;
+        //height: parent.width;
+        //transform: Rotation { origin.x: 0; origin.y: 0; angle: 270 }
 
         property int fieldWidth: 2560
         property int fieldHeight: 1600

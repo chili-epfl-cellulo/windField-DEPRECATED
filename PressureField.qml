@@ -13,7 +13,7 @@ Item {
 
     readonly property int maxPressurePointPairs: 10
 
-    readonly property int gridDensity: 1
+    readonly property int gridDensity: 3
     readonly property int numCols: 26*gridDensity
     readonly property int numRows: 16*gridDensity
 
@@ -28,7 +28,7 @@ Item {
     readonly property double pressureTransferRate: .5
 
     //Controls how many loops we run the pressure update for before letting the balloon simulation start
-    readonly property int convergenceIterations: 50
+    readonly property int convergenceIterations: 30
 
     //State variables for pressure inputs
     readonly property int inactive: 0
