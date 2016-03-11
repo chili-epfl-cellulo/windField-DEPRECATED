@@ -17,10 +17,13 @@ ApplicationWindow {
 
     Canvas3D {
         id: windField
-        anchors.fill: parent
+        width: fieldWidth
+        height: fieldHeight
+        y: menuMargin
 
+        property int menuMargin: 60
         property int fieldWidth: Screen.width
-        property int fieldHeight: Screen.height
+        property int fieldHeight: Screen.height-menuMargin
 
         //Game UI variables, kept here so that all components can have access to them
         property bool paused: false
@@ -98,10 +101,9 @@ ApplicationWindow {
             id: testLeaf
             field: pressurefield
         }
-
-        UIPanel {
-            anchors.fill: parent
-            id: controls
-        }
+    }
+    UIPanel {
+        anchors.fill: parent
+        id: controls
     }
 }

@@ -15,7 +15,7 @@ Item {
 
     readonly property int gridDensity: 3
     readonly property int numCols: 16*gridDensity
-    readonly property int numRows: 26*gridDensity
+    readonly property int numRows: 25*gridDensity
 
     readonly property double xGridSpacing: (windField.fieldWidth/numCols)
     readonly property double yGridSpacing: (windField.fieldHeight/numRows)
