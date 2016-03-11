@@ -9,8 +9,8 @@ import "renderer.js" as GLRender
 
 ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
+    width: Screen.width
+    height: Screen.height
     title: qsTr("Wind Field Game")
     visibility:"FullScreen"
     contentOrientation: Screen.orientation
@@ -19,8 +19,8 @@ ApplicationWindow {
         id: windField
         anchors.fill: parent
 
-        property int fieldWidth: 1600
-        property int fieldHeight: 2560
+        property int fieldWidth: Screen.width
+        property int fieldHeight: Screen.height
 
         //Game UI variables, kept here so that all components can have access to them
         property bool paused: false
@@ -47,17 +47,11 @@ ApplicationWindow {
             pressurefield.pressureGrid[13][23][6] = 0
             pressurefield.pressureGrid[14][23][6] = 0
             pressurefield.pressureGrid[14][24][6] = 0
-
-            pressurefield.pressureGrid[5][7][6] = 0
-            pressurefield.pressureGrid[5][8][6] = 0
-            pressurefield.pressureGrid[6][7][6] = 0
-            pressurefield.pressureGrid[6][8][6] = 0
-            pressurefield.pressureGrid[6][6][6] = 0
             pressurefield.updateField()
 
             //Set test leaf info
-            testLeaf.leafX = 200
-            testLeaf.leafY = 300
+            testLeaf.leafX = 4*pressureField.xGridSpacing
+            testLeaf.leafY = 2*pressureField.yGridSpacing
             testLeaf.leafXV = 0
             testLeaf.leafYV = 0
             testLeaf.leafMass = 1

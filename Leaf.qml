@@ -21,8 +21,8 @@ Item {
     property double collisionForceX: 0
     property double collisionForceY: 0
 
-    property int robotMaxX: 1600
-    property int robotMaxY: 2560
+    property int robotMaxX: windField.fieldWidth
+    property int robotMaxY: windField.fieldHeight
 
     readonly property double dragCoefficient: .05
     readonly property double maxVelocity: 50
