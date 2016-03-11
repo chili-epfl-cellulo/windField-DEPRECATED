@@ -1,21 +1,24 @@
 Qt.include("three.js")
 
 var camera, scene, renderer, gl;
-var leafObject, backgroundObject, pressureFieldObject;
-var leafMaterial, backgroundMaterial, pressureFieldMaterial;
+var backgroundObject, pressureFieldObject;
+var backgroundMaterial, pressureFieldMaterial;
+
+var leafObjects = [];
+var leafMaterials = [];
 
 var pressureInputObjects = [];
 var pressureInputMaterials = [];
 
 var pressureFieldUpdated = false;
 
-function initializeGL(canvas, pressurefield, leaf) {
+function initializeGL(canvas, pressurefield, leaves, numLeaves) {
     renderer = new THREE.Canvas3DRenderer(
                 { canvas: canvas, antialias: true, devicePixelRatio: canvas.devicePixelRatio });
     renderer.setSize(canvas.width, canvas.height);
     gl = renderer.context;
     initCamera(pressurefield);
-    initScene(pressurefield, leaf);
+    initScene(pressurefield, leaves, numLeaves);
 }
 
 /***INITIALIZATION HELPER METHODS***/
@@ -25,14 +28,17 @@ function initCamera(pressurefield) {
     camera.position.z = pressurefield.height;
 }
 
-function initScene(pressurefield, leaf) {
+function initScene(pressurefield, leaves, numLeaves) {
     console.log("Initialize Scene")
     scene = new THREE.Scene();
     //Initialize geometries and materials/shaders
     var backgroundGeom = new THREE.PlaneGeometry(pressurefield.width, pressurefield.height, 1, 1)
     var pressureFieldGeom = new THREE.PlaneGeometry(pressurefield.width, pressurefield.height, 1, 1)
-    var leafGeom = new THREE.SphereGeometry(leaf.leafSize/2, 10, 10)
-    initMaterials(pressurefield, leaf);
+    var leafGeom;
+    if (numLeaves)
+        leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
+    var pressureInputGeom = new THREE.CylinderGeometry(25,25,50,6,1)
+    initMaterials(pressurefield, leaves, numLeaves);
 
     //Create meshes and add them to the scene
     backgroundObject = new THREE.Mesh(backgroundGeom, backgroundMaterial)
@@ -42,12 +48,16 @@ function initScene(pressurefield, leaf) {
     pressureFieldObject.position.x = pressurefield.width/2
     pressureFieldObject.position.y = pressurefield.height/2
     pressureFieldObject.position.z = 200
-    leafObject = new THREE.Mesh(leafGeom, leafMaterial)
-    leafObject.position.z = 300
+
+    for (var i = 0; i < numLeaves; i++) {
+        leafObjects[i] = new THREE.Mesh(leafGeom, leafMaterials[i])
+        leafObjects[i].position.z = 300
+        leafObjects[i].renderOrder = 4;
+        scene.add(leafObjects[i]);
+    }
 
     pressureInputObjects = new Array(pressurefield.maxPressurePointPairs*2)
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
-        var pressureInputGeom = new THREE.CylinderGeometry(25,25,50,6,1)
         pressureInputObjects[i] = new THREE.Mesh(pressureInputGeom, pressureInputMaterials[i])
         pressureInputObjects[i].position.z = 200
         pressureInputObjects[i].rotation.x = Math.PI/2
@@ -58,13 +68,11 @@ function initScene(pressurefield, leaf) {
     //Add meshes to the scene
     backgroundObject.renderOrder = 1;
     pressureFieldObject.renderOrder = 3;
-    leafObject.renderOrder = 4;
     scene.add(backgroundObject);
     scene.add(pressureFieldObject);
-    scene.add(leafObject);
 }
 
-function initMaterials(pressurefield, leaf) {
+function initMaterials(pressurefield, leaves, numLeaves) {
     //Init shaders and textures
 
     //Background Material
@@ -72,10 +80,12 @@ function initMaterials(pressurefield, leaf) {
 
     createPressureFieldMaterial()
 
-    //Leaf Material
-    leafMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00,
-                                                   ambient: 0x000000,
-                                                   shading: THREE.SmoothShading});
+    //Leaf Material - may want to change material based on leaf properties
+    for (var i = 0; i < numLeaves; i++) {
+        leafMaterials[i] = new THREE.MeshBasicMaterial({ color: 0x00ff00,
+                                                       ambient: 0x000000,
+                                                       shading: THREE.SmoothShading});
+    }
 
     pressureInputMaterials = new Array(pressurefield.maxPressurePointPairs*2)
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
@@ -114,7 +124,7 @@ function createPressureFieldMaterial() {
     pressureFieldUpdated = false
 }
 
-function paintGL(pressurefield, leaf) {
+function paintGL(pressurefield, leaves, numLeaves) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.clearColor(1, 1, 1, 1);
 
@@ -124,9 +134,12 @@ function paintGL(pressurefield, leaf) {
     camera.lookAt(new THREE.Vector3(0,0,0))
 
     //Set leaf position
-    leafObject.position.x = leaf.leafX;
-    leafObject.position.y = leaf.robotMaxY - leaf.leafY;
+    for (var i = 0; i < numLeaves; i++) {
+        leafObjects[i].position.x = leaves[i].leafX;
+        leafObjects[i].position.y = leaves[i].robotMaxY - leaves[i].leafY;
+    }
 
+    //Update pressurefield texture as necessary given new pressurefield values
     if (pressureFieldUpdated) {
         createPressureFieldMaterial()
         pressureFieldObject.material = pressureFieldMaterial;

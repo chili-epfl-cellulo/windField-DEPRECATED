@@ -34,6 +34,10 @@ ApplicationWindow {
         property bool drawPrediction: false
         property int currentAction: 0
 
+        //Set the leaves here
+        property variant leaves: [testLeaf, testLeaf2]
+        property int numLeaves: 2
+
         function setInitialTestConfiguration(){
             //Set pressure point
             pressurefield.addPressurePoint(0,0,true)
@@ -67,19 +71,28 @@ ApplicationWindow {
             testLeaf.leafYV = 0
             testLeaf.leafMass = 1
             testLeaf.leafSize = 50
+
+            testLeaf.leafX = 10*pressurefield.xGridSpacing
+            testLeaf.leafY = 2*pressurefield.yGridSpacing
+            testLeaf.leafXV = 0
+            testLeaf.leafYV = 0
+            testLeaf.leafMass = 1
+            testLeaf.leafSize = 50
             testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
         }
 
         onInitializeGL: {
-            GLRender.initializeGL(windField, pressurefield, testLeaf)
+            GLRender.initializeGL(windField, pressurefield, leaves, numLeaves)
         }
 
         //Since we do no update the pressure grid while the simulation is running, the only thing we have to update then are the leaves
         onPaintGL: {
-            if (!paused)
-                testLeaf.updateLeaf()
+            if (!paused) {
+                for (var i = 0; i < numLeaves; i++)
+                    leaves[i].updateLeaf()
+            }
 
-            GLRender.paintGL(pressurefield, testLeaf)
+            GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
 
         function setPressureFieldTextureDirty() {
@@ -99,6 +112,11 @@ ApplicationWindow {
 
         Leaf {
             id: testLeaf
+            field: pressurefield
+        }
+
+        Leaf {
+            id: testLeaf2
             field: pressurefield
         }
     }
