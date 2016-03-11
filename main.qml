@@ -47,11 +47,19 @@ ApplicationWindow {
             pressurefield.pressureGrid[13][23][6] = 0
             pressurefield.pressureGrid[14][23][6] = 0
             pressurefield.pressureGrid[14][24][6] = 0
+
+            pressurefield.pressureGrid[4][7][6] = 0
+            pressurefield.pressureGrid[4][8][6] = 0
+            pressurefield.pressureGrid[5][7][6] = 0
+            pressurefield.pressureGrid[5][8][6] = 0
+            pressurefield.pressureGrid[6][7][6] = 0
+            pressurefield.pressureGrid[6][8][6] = 0
+            pressurefield.pressureGrid[6][6][6] = 0
             pressurefield.updateField()
 
             //Set test leaf info
-            testLeaf.leafX = 4*pressureField.xGridSpacing
-            testLeaf.leafY = 2*pressureField.yGridSpacing
+            testLeaf.leafX = 4*pressurefield.xGridSpacing
+            testLeaf.leafY = 2*pressurefield.yGridSpacing
             testLeaf.leafXV = 0
             testLeaf.leafYV = 0
             testLeaf.leafMass = 1

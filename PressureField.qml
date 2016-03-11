@@ -21,11 +21,11 @@ Item {
     readonly property double yGridSpacing: (windField.fieldHeight/numRows)
 
     //Controls how much force there is per unit of pressure difference
-    readonly property double pressureToForceMultiplier: 1
+    readonly property double pressureToForceMultiplier: .5
     readonly property double maxForce: 15.0
 
     //Controls how fast pressure disperses in a single time step
-    readonly property double pressureTransferRate: .5
+    readonly property double pressureTransferRate: 1
 
     //Controls how many loops we run the pressure update for before letting the balloon simulation start
     readonly property int convergenceIterations: 30
@@ -56,7 +56,7 @@ Item {
                 cellArray[3] = 0.0 //current wind force Y component
                 cellArray[4] = 50.0 //Pressure (from 0 to 100)
                 cellArray[5] = 0.0 //incoming pressure
-                cellArray[6] = 1.0 //0: obstacle 1:valid cell
+                cellArray[6] = 1.0 //0:mountain cell, 1:normal cell
                 column[j] = cellArray
             }
             rows[i]=column
@@ -117,7 +117,7 @@ Item {
                     for (var colOffset = -1; colOffset <= 1; colOffset++) {
                         var rowIndex = row+rowOffset
                         var colIndex = col+colOffset
-                        if ((!rowOffset && !colOffset) || colIndex >= numCols || colIndex < 0 || (!pressureGrid[rowIndex][colIndex][6]))
+                        if ((!rowOffset && !colOffset) || colIndex >= numCols || colIndex < 0)
                             continue;
                         var neighbourPressure = pressureGrid[rowIndex][colIndex][4]
                         if (curPressure > neighbourPressure) {
@@ -147,8 +147,6 @@ Item {
             for (var col = 0; col < numCols; col++) {
                 pressureGrid[row][col][4] += pressureGrid[row][col][5]
                 pressureGrid[row][col][5] = 0.0
-                if (!pressureGrid[row][col][6])
-                    pressureGrid[row][col][4] = 0.0
             }
         }
     }
@@ -168,7 +166,7 @@ Item {
                     for (var colOffset = -1; colOffset <= 1; colOffset++) {
                         var rowIndex = row+rowOffset
                         var colIndex = col+colOffset
-                        if (colIndex >= numCols || colIndex < 0 || (!pressureGrid[rowIndex][colIndex][6]))
+                        if (colIndex >= numCols || colIndex < 0)
                             continue;
                         var pressureGradient = (curPressure - pressureGrid[rowIndex][colIndex][4])*gridDensity
 
@@ -295,7 +293,7 @@ Item {
                             break
                         }
                     }
-                    if (pressureGrid[row][col][6] && numHighPressurePoints < maxPressurePointPairs) {
+                    if (numHighPressurePoints < maxPressurePointPairs) {
                         addPressurePoint(row, col, true)
                         updateField()
                     }
@@ -313,7 +311,7 @@ Item {
                             break
                         }
                     }
-                    if (pressureGrid[row][col][6] && numLowPressurePoints < maxPressurePointPairs) {
+                    if (numLowPressurePoints < maxPressurePointPairs) {
                         addPressurePoint(row, col, false)
                         updateField()
                     }
@@ -331,10 +329,6 @@ Item {
                         var cellRow = pressurePoints[i].gridIndex.x
                         var cellCol = pressurePoints[i].gridIndex.y
                         if (startRow == cellRow && startCol == cellCol) {
-                            if (!pressureGrid[row][col][6]) {
-                                row = startRow
-                                col = startCol
-                            }
                             pressurePoints[i].gridIndex = Qt.point(row, col)
                             pressurePoints[i].position = Qt.point(col*xGridSpacing+xGridSpacing/2, row*yGridSpacing+yGridSpacing/2);
                             updateField()
