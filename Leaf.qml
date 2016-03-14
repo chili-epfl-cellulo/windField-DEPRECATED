@@ -4,7 +4,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 import QtCanvas3D 1.0
-import Cellulo 1.0
+//import Cellulo 1.0
 
 Item {
     //Leaf Properties
@@ -24,18 +24,18 @@ Item {
     property int robotMaxX: windField.fieldWidth
     property int robotMaxY: windField.fieldHeight
 
-    readonly property double mountainDragMultiplier: 20
+    readonly property double mountainDragMultiplier: 10
     readonly property double dragCoefficient: .05
     readonly property double maxVelocity: 50
-    readonly property double timeStep: .125
+    readonly property double timeStep: .25
     readonly property int collisionSearchRadius: 1*field.gridDensity
 
     property variant field: null
 
     /***CELLULO SYNCHRONISATION METHODS***/
-    CelluloBluetooth{
-        id: robotComm
-    }
+//    CelluloBluetooth{
+//        id: robotComm
+//    }
 
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation

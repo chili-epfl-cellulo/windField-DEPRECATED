@@ -12,6 +12,11 @@ var pressureInputMaterials = [];
 
 var pressureFieldUpdated = false;
 
+//Vectors
+var leafForceVectors = [];
+var leafVelocityVectors = [];
+var leafDragVectors = [];
+
 function initializeGL(canvas, pressurefield, leaves, numLeaves) {
     renderer = new THREE.Canvas3DRenderer(
                 { canvas: canvas, antialias: true, devicePixelRatio: canvas.devicePixelRatio });
@@ -54,6 +59,17 @@ function initScene(pressurefield, leaves, numLeaves) {
         leafObjects[i].position.z = 300
         leafObjects[i].renderOrder = 4;
         scene.add(leafObjects[i]);
+
+        //Vectors: just initialize arrows for now, updating from leaf info happens on paint
+        var dir = new THREE.Vector3( 1, 0, 0 );
+        var origin = new THREE.Vector3( 0, 0, 0 );
+        var length = 1;
+        leafForceVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0xffffff);
+        leafDragVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0x000000);
+        leafVelocityVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0xffff00);
+        scene.add(leafForceVectors[i])
+        scene.add(leafDragVectors[i])
+        scene.add(leafVelocityVectors[i])
     }
 
     pressureInputObjects = new Array(pressurefield.maxPressurePointPairs*2)
@@ -89,7 +105,6 @@ function initMaterials(pressurefield, leaves, numLeaves) {
 
     pressureInputMaterials = new Array(pressurefield.maxPressurePointPairs*2)
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
-        //todo color change based on strength
         pressureInputMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
                                                                     ambient: 0x000000,
                                                                     shading: THREE.SmoothShading})
@@ -137,6 +152,31 @@ function paintGL(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         leafObjects[i].position.x = leaves[i].leafX;
         leafObjects[i].position.y = leaves[i].robotMaxY - leaves[i].leafY;
+
+        var leafDragDirection = new THREE.Vector3(leaves[i].leafXFDrag, -leaves[i].leafYFDrag, 0);
+        leafDragVectors[i].setDirection(leafDragDirection.normalize());
+        leafDragVectors[i].position.x = leafObjects[i].position.x;
+        leafDragVectors[i].position.y = leafObjects[i].position.y;
+        leafDragVectors[i].position.z = leafObjects[i].position.z;
+        leafDragVectors[i].setLength(leafDragDirection.length()*1000/pressurefield.maxForce);
+
+        var leafForceDirection = new THREE.Vector3(leaves[i].leafXF, -leaves[i].leafYF, 0);
+        leafForceVectors[i].setDirection(leafForceDirection.normalize());
+        leafForceVectors[i].position.x = leafObjects[i].position.x;
+        leafForceVectors[i].position.y = leafObjects[i].position.y;
+        leafForceVectors[i].position.z = leafObjects[i].position.z;
+        leafForceVectors[i].setLength(leafForceDirection.length()*1000/pressurefield.maxForce);
+
+        var leafVelocityDirection = new THREE.Vector3(leaves[i].leafXV, -leaves[i].leafYV, 0);
+        leafVelocityVectors[i].setDirection(leafVelocityDirection.normalize());
+        leafVelocityVectors[i].position.x = leafObjects[i].position.x;
+        leafVelocityVectors[i].position.y = leafObjects[i].position.y;
+        leafVelocityVectors[i].position.z = leafObjects[i].position.z;
+        leafVelocityVectors[i].setLength(leafVelocityDirection.length()*100);
+
+        leafDragVectors[i].visible = windField.drawLeafForceVectors;
+        leafForceVectors[i].visible = windField.drawLeafForceVectors;
+        leafVelocityVectors[i].visible = windField.drawLeafVelocityVector;
     }
 
     //Update pressurefield texture as necessary given new pressurefield values
@@ -150,12 +190,14 @@ function paintGL(pressurefield, leaves, numLeaves) {
     pressureFieldObject.material.needsUpdate = true;
 
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
-        pressureInputObjects[i].position.x = pressurefield.pressurePoints[i].position.x;
-        pressureInputObjects[i].position.y = pressurefield.height - pressurefield.pressurePoints[i].position.y;
         pressureInputObjects[i].material.visible = (pressurefield.pressurePoints[i].state > pressurefield.inactive);
         var pressure = pressurefield.pressurePoints[i].strength
         pressureInputObjects[i].material.color = Qt.rgba(pressure/100.0, 0.0, (100-pressure)/100.0, 1.0);
         pressureInputObjects[i].material.needsUpdate = true
+        if (pressurefield.pressurePoints[i].state == pressurefield.inactive)
+            continue;
+        pressureInputObjects[i].position.x = pressurefield.pressurePoints[i].position.x;
+        pressureInputObjects[i].position.y = pressurefield.height - pressurefield.pressurePoints[i].position.y;
     }
 
     //Render the scene
@@ -193,26 +235,6 @@ function drawPredictedPath(gl) {
 }
 
 //TODO: There is an ArrowHelper in Three.js for this
-function drawLeafVectors(gl) {
-    if (drawLeafVelocityVector) {
-        // Draw velocity vector
-        var vectorDrawX = leafXV*5
-        var vectorDrawY = leafYV*5
-        drawVector(gl, leafX, leafY, vectorDrawX, vectorDrawY, "white", 50.0/maxVelocity, leafSize, leafSize/2)
-    }
-
-    if (drawLeafForceVectors) {
-        //Draw force vector
-        vectorDrawX = 400*leafXF/maxForce
-        vectorDrawY = 400*leafYF/maxForce
-        drawVector(gl, leafX, leafY, vectorDrawX, vectorDrawY, "yellow", 1.0/maxForce, leafSize, leafSize/2)
-
-        //Draw drag vector
-        vectorDrawX = 400*leafXFDrag/maxForce
-        vectorDrawY = 400*leafYFDrag/maxForce
-        drawVector(gl, leafX, leafY, vectorDrawX, vectorDrawY, "red", 1.0/maxForce, leafSize, leafSize/2)
-    }
-}
 
 function drawForceField(gl, gridDensity) {
     if (!drawForceGrid)

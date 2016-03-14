@@ -21,7 +21,7 @@ ApplicationWindow {
         height: fieldHeight
         y: menuMargin
 
-        property int menuMargin: 60
+        property int menuMargin: 100
         property int fieldWidth: Screen.width
         property int fieldHeight: Screen.height-menuMargin
 
@@ -41,9 +41,9 @@ ApplicationWindow {
         function setInitialTestConfiguration(){
             //Set pressure point
             pressurefield.addPressurePoint(0,0,true)
-            pressurefield.addPressurePoint(15,0,true)
+            pressurefield.addPressurePoint(14,0,true)
             pressurefield.addPressurePoint(0,25,true)
-            pressurefield.addPressurePoint(15,25,true)
+            pressurefield.addPressurePoint(14,25,true)
             pressurefield.addPressurePoint(7,12,false)
             pressurefield.addPressurePoint(8,12,false)
             pressurefield.addPressurePoint(7,13,false)
@@ -72,13 +72,13 @@ ApplicationWindow {
             testLeaf.leafMass = 1
             testLeaf.leafSize = 50
 
-            testLeaf.leafX = 10*pressurefield.xGridSpacing
-            testLeaf.leafY = 2*pressurefield.yGridSpacing
-            testLeaf.leafXV = 0
-            testLeaf.leafYV = 0
-            testLeaf.leafMass = 1
-            testLeaf.leafSize = 50
-            testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+            testLeaf2.leafX = 10*pressurefield.xGridSpacing
+            testLeaf2.leafY = 2*pressurefield.yGridSpacing
+            testLeaf2.leafXV = 0
+            testLeaf2.leafYV = 0
+            testLeaf2.leafMass = 1
+            testLeaf2.leafSize = 50
+            //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
         }
 
         onInitializeGL: {

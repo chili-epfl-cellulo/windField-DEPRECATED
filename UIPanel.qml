@@ -222,7 +222,7 @@ Item {
             anchors.bottom: parent.bottom
             style: pause.style
             width: parent.width
-            height: 60
+            height: 100
             onClicked: {
                 if (menuView.state == "CLOSED") {
                     menuView.state = "OPENED"
