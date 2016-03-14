@@ -10,6 +10,9 @@ var leafMaterials = [];
 var pressureInputObjects = [];
 var pressureInputMaterials = [];
 
+var pressureInputCellObjects = [];
+var pressureInputCellMaterial;
+
 var pressureFieldUpdated = false;
 
 //Vectors
@@ -43,6 +46,7 @@ function initScene(pressurefield, leaves, numLeaves) {
     if (numLeaves)
         leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
     var pressureInputGeom = new THREE.CylinderGeometry(25,25,50,6,1)
+    var pressureInputCellGeom = new THREE.PlaneGeometry(pressurefield.xGridSpacing, pressurefield.yGridSpacing, 1, 1)
     initMaterials(pressurefield, leaves, numLeaves);
 
     //Create meshes and add them to the scene
@@ -57,7 +61,7 @@ function initScene(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         leafObjects[i] = new THREE.Mesh(leafGeom, leafMaterials[i])
         leafObjects[i].position.z = 300
-        leafObjects[i].renderOrder = 4;
+        leafObjects[i].renderOrder = 5;
         scene.add(leafObjects[i]);
 
         //Vectors: just initialize arrows for now, updating from leaf info happens on paint
@@ -77,13 +81,19 @@ function initScene(pressurefield, leaves, numLeaves) {
         pressureInputObjects[i] = new THREE.Mesh(pressureInputGeom, pressureInputMaterials[i])
         pressureInputObjects[i].position.z = 200
         pressureInputObjects[i].rotation.x = Math.PI/2
-        pressureInputObjects[i].renderOrder = 2
+        pressureInputObjects[i].renderOrder = 3
+
+        pressureInputCellObjects[i] = new THREE.Mesh(pressureInputCellGeom, pressureInputCellMaterial)
+        pressureInputCellObjects[i].position.z = 200
+        pressureInputCellObjects[i].renderOrder = 2
+
+        scene.add(pressureInputCellObjects[i])
         scene.add(pressureInputObjects[i])
     }
 
     //Add meshes to the scene
     backgroundObject.renderOrder = 1;
-    pressureFieldObject.renderOrder = 3;
+    pressureFieldObject.renderOrder = 4;
     scene.add(backgroundObject);
     scene.add(pressureFieldObject);
 }
@@ -109,6 +119,10 @@ function initMaterials(pressurefield, leaves, numLeaves) {
                                                                     ambient: 0x000000,
                                                                     shading: THREE.SmoothShading})
     }
+
+    pressureInputCellMaterial = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 0.05),
+                                                                 ambient: 0x000000,
+                                                                 shading: THREE.SmoothShading})
 }
 
 function createPressureFieldMaterial() {
@@ -198,6 +212,12 @@ function paintGL(pressurefield, leaves, numLeaves) {
             continue;
         pressureInputObjects[i].position.x = pressurefield.pressurePoints[i].position.x;
         pressureInputObjects[i].position.y = pressurefield.height - pressurefield.pressurePoints[i].position.y;
+        var xGridSpacing = pressurefield.xGridSpacing;
+        var yGridSpacing = pressurefield.yGridSpacing;
+        var curRow = Math.floor(pressurefield.pressurePoints[i].position.y/yGridSpacing);
+        var curCol = Math.floor(pressurefield.pressurePoints[i].position.x/xGridSpacing);
+        pressureInputCellObjects[i].position.x = curCol*xGridSpacing+xGridSpacing/2.0;
+        pressureInputCellObjects[i].position.y = (pressurefield.numRows - curRow)*yGridSpacing-yGridSpacing/2;
     }
 
     //Render the scene
