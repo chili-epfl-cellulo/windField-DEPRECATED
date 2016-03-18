@@ -5,20 +5,13 @@ import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 
 Item {
-    property double rotation: sceneRotation.value
-    property double maxRotation: sceneRotation.maximumValue
-
     function togglePaused() {
         windField.paused = !windField.paused
         if (windField.paused)
             pause.text = 'Resume'
         else
             pause.text = 'Pause'
-        pathUpdate.enabled = windField.paused
-    }
-
-    function togglePathDraw() {
-        windField.drawPrediction = true
+        pressureUpdate.enabled = windField.paused
     }
 
     function toggleDisplaySetting(setting) {
@@ -38,25 +31,17 @@ Item {
         }
     }
 
-    //UI
-    Column {
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        Slider {
-            id: sceneRotation
-            orientation: Qt.Vertical
-            height: 500
-            minimumValue: 0
-            maximumValue: 100
-            value: 100
-        }
+    function updateSimulation() {
+        pressurefield.updateField()
+        for (var i = 0; i < windField.numLeaves; i++)
+            windField.leaves[i].calculateForcesAtLeaf()
     }
 
     Column {
         id: menuView
-        x: 0
+        x: 2560*.25
         y: 0
-        width: parent.width
+        width: parent.width/2
         state: "CLOSED"
         height: 350
 
@@ -99,10 +84,10 @@ Item {
             spacing: 5
             Column {
                 Button {
-                    id: pathUpdate
-                    text: qsTr("Calculate path")
+                    id: pressureUpdate
+                    text: qsTr("Update Pressure")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    onClicked: togglePathDraw()
+                    onClicked: updateSimulation()
                     enabled: windField.paused
                     style: ButtonStyle {
                         id: buttonStyle
@@ -126,7 +111,7 @@ Item {
                 spacing:0
                 Button {
                     id: pause
-                    text: qsTr("Pause")
+                    text: qsTr("Start")
                     anchors.horizontalCenter: parent.horizontalCenter
                     onClicked: togglePaused()
                     style:     ButtonStyle {
@@ -152,6 +137,8 @@ Item {
                     onClicked: {
                         pressurefield.initializeWindField()
                         windField.setInitialTestConfiguration()
+                        windField.setPressureFieldTextureDirty()
+                        windField.pauseSimulation()
                     }
                 }
             }
@@ -188,7 +175,7 @@ Item {
                 ComboBox {
                     id: actionMenu
                     currentIndex: 0
-                    enabled: (sceneRotation.value == sceneRotation.maximumValue)
+
                     style: ComboBoxStyle {
                         background: Rectangle {
                             implicitWidth: 300
@@ -222,6 +209,7 @@ Item {
             anchors.bottom: parent.bottom
             style: pause.style
             width: parent.width
+
             height: 100
             onClicked: {
                 if (menuView.state == "CLOSED") {

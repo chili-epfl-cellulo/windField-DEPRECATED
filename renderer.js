@@ -120,7 +120,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
                                                                     shading: THREE.SmoothShading})
     }
 
-    pressureInputCellMaterial = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 0.05),
+    pressureInputCellMaterial = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 0.25),
                                                                  ambient: 0x000000,
                                                                  shading: THREE.SmoothShading})
 }
@@ -148,7 +148,7 @@ function createPressureFieldMaterial() {
     }
     var pressureFieldTexture = new THREE.DataTexture(data, pressurefield.numCols, pressurefield.numRows, THREE.RGBAFormat);
     pressureFieldTexture.needsUpdate = true
-    pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: 0.75, depthWrite: false});
+    pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: 0.8, depthWrite: false});
 
     pressureFieldUpdated = false
 }
@@ -157,9 +157,8 @@ function paintGL(pressurefield, leaves, numLeaves) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.clearColor(1, 1, 1, 1);
 
-    var sliderRatio = (controls.maxRotation-controls.rotation)/controls.maxRotation;
-    camera.position.z = pressurefield.width*Math.cos(Math.PI/2*sliderRatio)
-    camera.position.y = -pressurefield.height*Math.sin(Math.PI/2*sliderRatio)
+    camera.position.z = 1000;
+    camera.position.y = 0;
     camera.lookAt(new THREE.Vector3(0,0,0))
 
     //Set leaf position
@@ -168,29 +167,38 @@ function paintGL(pressurefield, leaves, numLeaves) {
         leafObjects[i].position.y = leaves[i].robotMaxY - leaves[i].leafY;
 
         var leafDragDirection = new THREE.Vector3(leaves[i].leafXFDrag, -leaves[i].leafYFDrag, 0);
-        leafDragVectors[i].setDirection(leafDragDirection.normalize());
-        leafDragVectors[i].position.x = leafObjects[i].position.x;
-        leafDragVectors[i].position.y = leafObjects[i].position.y;
-        leafDragVectors[i].position.z = leafObjects[i].position.z;
-        leafDragVectors[i].setLength(leafDragDirection.length()*1000/pressurefield.maxForce);
+        var dragLength = leafDragDirection.length()
+        if (dragLength) {
+            leafDragVectors[i].setDirection(leafDragDirection.normalize());
+            leafDragVectors[i].position.x = leafObjects[i].position.x;
+            leafDragVectors[i].position.y = leafObjects[i].position.y;
+            leafDragVectors[i].position.z = leafObjects[i].position.z;
+            leafDragVectors[i].setLength(leafDragDirection.length()*1000/pressurefield.maxForce);
+        }
 
         var leafForceDirection = new THREE.Vector3(leaves[i].leafXF, -leaves[i].leafYF, 0);
-        leafForceVectors[i].setDirection(leafForceDirection.normalize());
-        leafForceVectors[i].position.x = leafObjects[i].position.x;
-        leafForceVectors[i].position.y = leafObjects[i].position.y;
-        leafForceVectors[i].position.z = leafObjects[i].position.z;
-        leafForceVectors[i].setLength(leafForceDirection.length()*1000/pressurefield.maxForce);
+        var forceLength = leafForceDirection.length()
+        if (forceLength) {
+            leafForceVectors[i].setDirection(leafForceDirection.normalize());
+            leafForceVectors[i].position.x = leafObjects[i].position.x;
+            leafForceVectors[i].position.y = leafObjects[i].position.y;
+            leafForceVectors[i].position.z = leafObjects[i].position.z;
+            leafForceVectors[i].setLength(leafForceDirection.length()*1000/pressurefield.maxForce);
+        }
 
         var leafVelocityDirection = new THREE.Vector3(leaves[i].leafXV, -leaves[i].leafYV, 0);
-        leafVelocityVectors[i].setDirection(leafVelocityDirection.normalize());
-        leafVelocityVectors[i].position.x = leafObjects[i].position.x;
-        leafVelocityVectors[i].position.y = leafObjects[i].position.y;
-        leafVelocityVectors[i].position.z = leafObjects[i].position.z;
-        leafVelocityVectors[i].setLength(leafVelocityDirection.length()*100);
+        var velocityLength = leafVelocityDirection.length()
+        if (velocityLength) {
+            leafVelocityVectors[i].setDirection(leafVelocityDirection.normalize());
+            leafVelocityVectors[i].position.x = leafObjects[i].position.x;
+            leafVelocityVectors[i].position.y = leafObjects[i].position.y;
+            leafVelocityVectors[i].position.z = leafObjects[i].position.z;
+            leafVelocityVectors[i].setLength(leafVelocityDirection.length()*100);
+        }
 
-        leafDragVectors[i].visible = windField.drawLeafForceVectors;
-        leafForceVectors[i].visible = windField.drawLeafForceVectors;
-        leafVelocityVectors[i].visible = windField.drawLeafVelocityVector;
+        leafDragVectors[i].visible = windField.drawLeafForceVectors && (dragLength > 0);
+        leafForceVectors[i].visible = windField.drawLeafForceVectors && (forceLength > 0);
+        leafVelocityVectors[i].visible = windField.drawLeafVelocityVector && (velocityLength > 0);
     }
 
     //Update pressurefield texture as necessary given new pressurefield values
@@ -199,7 +207,6 @@ function paintGL(pressurefield, leaves, numLeaves) {
         pressureFieldObject.material = pressureFieldMaterial;
     }
 
-    pressureFieldObject.material.opacity = .75*Math.max(0.0, (controls.rotation - controls.maxRotation*.75)/(controls.maxRotation*.25));
     pressureFieldObject.material.visible = windField.drawPressureGrid;
     pressureFieldObject.material.needsUpdate = true;
 

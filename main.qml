@@ -19,14 +19,13 @@ ApplicationWindow {
         id: windField
         width: fieldWidth
         height: fieldHeight
-        y: menuMargin
 
-        property int menuMargin: 100
+        property int menuMargin: 50
         property int fieldWidth: Screen.width
-        property int fieldHeight: Screen.height-menuMargin
+        property int fieldHeight: Screen.height
 
         //Game UI variables, kept here so that all components can have access to them
-        property bool paused: false
+        property bool paused: true
         property bool drawPressureGrid: true
         property bool drawForceGrid: true
         property bool drawLeafVelocityVector: true
@@ -62,7 +61,6 @@ ApplicationWindow {
             pressurefield.pressureGrid[6][7][6] = 0
             pressurefield.pressureGrid[6][8][6] = 0
             pressurefield.pressureGrid[6][6][6] = 0
-            pressurefield.updateField()
 
             //Set test leaf info
             testLeaf.leafX = 4*pressurefield.xGridSpacing
@@ -71,6 +69,10 @@ ApplicationWindow {
             testLeaf.leafYV = 0
             testLeaf.leafMass = 1
             testLeaf.leafSize = 50
+            testLeaf.leafXF = 0
+            testLeaf.leafYF = 0
+            testLeaf.leafXFDrag = 0
+            testLeaf.leafYFDrag = 0
 
             testLeaf2.leafX = 10*pressurefield.xGridSpacing
             testLeaf2.leafY = 2*pressurefield.yGridSpacing
@@ -78,7 +80,18 @@ ApplicationWindow {
             testLeaf2.leafYV = 0
             testLeaf2.leafMass = 1
             testLeaf2.leafSize = 50
+            testLeaf2.leafXF = 0
+            testLeaf2.leafYF = 0
+            testLeaf2.leafXFDrag = 0
+            testLeaf2.leafYFDrag = 0
+
+            pauseSimulation()
             //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+        }
+
+        function pauseSimulation() {
+            paused = false;
+            controls.togglePaused()
         }
 
         onInitializeGL: {
@@ -91,7 +104,6 @@ ApplicationWindow {
                 for (var i = 0; i < numLeaves; i++)
                     leaves[i].updateLeaf()
             }
-
             GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
 

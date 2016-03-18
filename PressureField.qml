@@ -13,15 +13,15 @@ Item {
 
     readonly property int maxPressurePointPairs: 10
 
-    readonly property int gridDensity: 1
-    readonly property int numCols: 26*gridDensity
-    readonly property int numRows: 15*gridDensity
+    readonly property int gridDensity: 2
+    readonly property int numCols: 51 //26*gridDensity, better to round down at 2 times density, since resolution is 2560
+    readonly property int numRows: 16*gridDensity
 
     readonly property double xGridSpacing: (windField.fieldWidth/numCols)
     readonly property double yGridSpacing: (windField.fieldHeight/numRows)
 
     //Controls how much force there is per unit of pressure difference
-    readonly property double pressureToForceMultiplier: .5
+    readonly property double pressureToForceMultiplier: 1
     readonly property double maxForce: 15.0
 
     //Controls how fast pressure disperses in a single time step
@@ -66,8 +66,6 @@ Item {
         for (var i = 0; i < maxPressurePointPairs*2; i++) {
             pressurePoints[i] = new pressurePointObject()
         }
-
-        updateField()
     }
 
     function resetPressureAtPressurePoints() {
@@ -250,7 +248,6 @@ Item {
                 else
                     numLowPressurePoints--
                 pressurePoints[i].strength = 0.0
-                updateField()
             }
         }
     }
@@ -260,16 +257,7 @@ Item {
         id: touchArea
         anchors.fill: parent
         maximumTouchPoints: maxPressurePointPairs
-        enabled: (controls.rotation == controls.maxRotation)
-
-        function changingPressureCells() {
-            var length = pressurePoints.length
-            for (var i = 0; i < length; i++) {
-                if (pressurePoints[i].state == selected)
-                    return true
-            }
-            return false
-        }
+        enabled: windField.paused
 
         onReleased: {
             var maxPointPairs = maxPressurePointPairs
@@ -295,7 +283,6 @@ Item {
                     }
                     if (numHighPressurePoints < maxPressurePointPairs) {
                         addPressurePoint(row, col, true)
-                        updateField()
                     }
                     break;
                 case 2:
@@ -313,12 +300,10 @@ Item {
                     }
                     if (numLowPressurePoints < maxPressurePointPairs) {
                         addPressurePoint(row, col, false)
-                        updateField()
                     }
                     break;
                 case 3:
                     removePressurePoint(row, col)
-                    updateField()
                     break;
                 case 0:
                     var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
@@ -331,7 +316,6 @@ Item {
                         if (startRow == cellRow && startCol == cellCol) {
                             pressurePoints[i].gridIndex = Qt.point(row, col)
                             pressurePoints[i].position = Qt.point(col*xGridSpacing+xGridSpacing/2, row*yGridSpacing+yGridSpacing/2);
-                            updateField()
                         }
                     }
                     break;
