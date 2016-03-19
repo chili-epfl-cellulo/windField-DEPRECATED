@@ -12,6 +12,8 @@ var pressureInputCellMaterials = [];
 
 var pressureFieldUpdated = false;
 
+var opa_val = 0.6;
+
 //Vectors
 var leafForceVectors = [];
 var leafVelocityVectors = [];
@@ -41,8 +43,9 @@ function initScene(pressurefield, leaves, numLeaves) {
     var pressureFieldGeom = new THREE.PlaneGeometry(pressurefield.width, pressurefield.height, 1, 1)
     var leafGeom;
     if (numLeaves)
-        leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
-    var pressureInputGeom = new THREE.CylinderGeometry(25,25,50,6,1)
+        leafGeom =  new THREE.CircleGeometry(leaves[0].leafSize/2, 6)
+        //leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
+    var pressureInputGeom = new THREE.CircleGeometry(30,20)
     var pressureInputCellGeom = new THREE.PlaneGeometry(pressurefield.xGridSpacing, pressurefield.yGridSpacing, 1, 1)
     initMaterials(pressurefield, leaves, numLeaves);
 
@@ -132,7 +135,7 @@ function createPressureFieldMaterial() {
     }
     var pressureFieldTexture = new THREE.DataTexture(data, pressurefield.numCols, pressurefield.numRows, THREE.RGBAFormat);
     pressureFieldTexture.needsUpdate = true
-    pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: 0.8, depthWrite: false});
+    pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: opa_val, depthWrite: false});
 
     pressureFieldUpdated = false
 }

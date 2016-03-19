@@ -89,6 +89,19 @@ Item {
         }
     }
 
+    function getPressureOnCell(x,y){
+        var magn = 50.0;
+        for (var i = 0; i < maxPressurePointPairs*2; i++) {
+            if (!pressurePoints[i].state)
+                continue
+            var sign = 1
+            if(pressurePoints[i].strength <= 50)
+                sign = -1
+            magn+= sign * pressurePoints[i].strength / Math.sqrt((pressurePoints[i].position.x - x)*(pressurePoints[i].position.x - x)+(pressurePoints[i].position.y - y)*(pressurePoints[i].position.y - y) )
+}
+        print(magn);
+        return magn
+    }
     function updatePressureGrid() {
         for (var row = 0; row < numRows; row++) {
             for (var col = 0; col < numCols; col++) {
@@ -137,6 +150,9 @@ Item {
                         }
                     }
                 }
+
+                //pressureGrid[row][col][4] = getPressureOnCell(row,col)
+                //resetPressureAtPressurePoints()
             }
         }
 
@@ -251,6 +267,23 @@ Item {
                     numLowPressurePoints--
                 pressurePoints[i].strength = 0.0
             }
+        }
+    }
+
+    function removeAllPressurePoint() {
+        for (var i = 0; i < maxPressurePointPairs*2; i++) {
+            if (!pressurePoints[i].state)
+                continue
+            var row = pressurePoints[i].gridIndex.x
+            var col = pressurePoints[i].gridIndex.y
+            pressurePoints[i].state = inactive
+            pressurePoints[i].position = null
+            pressurePoints[i].gridIndex = null
+            numHighPressurePoints = 0
+            numLowPressurePoints= 0
+            pressurePoints[i].strength = 0.0
+            updateField()
+
         }
     }
 
