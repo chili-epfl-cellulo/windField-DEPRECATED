@@ -200,6 +200,16 @@ Item {
                         windField.currentAction = currentIndex;
                     }
                 }
+                Button {
+                    id: removeAll
+                    text: qsTr("Clear All Pressure")
+                    anchors.horizontalCenter: parent.right
+                    style: pause.style
+                    onClicked: {
+                        pressurefield.initializeWindField()
+                        windField.removeAllPressurePoint()
+                    }
+                }
             }
         }
         Button {
