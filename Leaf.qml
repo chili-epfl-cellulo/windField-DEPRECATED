@@ -18,17 +18,12 @@ Item {
     property double leafYFDrag: 0
     property double leafMass: 1
     property double leafSize: 0
-    property double collisionForceX: 0
-    property double collisionForceY: 0
-
-    property int robotMaxX: windField.fieldWidth
-    property int robotMaxY: windField.fieldHeight
+    property bool collided: false
 
     readonly property double mountainDragMultiplier: 10
     readonly property double dragCoefficient: .05
     readonly property double maxVelocity: 50
     readonly property double timeStep: .25
-    readonly property int collisionSearchRadius: 1*field.gridDensity
 
     property variant field: null
 
@@ -79,8 +74,8 @@ Item {
         var leftPressure = topLeftPressure+(bottomLeftPressure-topLeftPressure)*yRatio
         var rightPressure = topRightPressure+(bottomRightPressure-topRightPressure)*yRatio
 
-        leafYF = (topPressure-bottomPressure)*field.pressureToForceMultiplier*field.gridDensity
-        leafXF = (leftPressure-rightPressure)*field.pressureToForceMultiplier*field.gridDensity
+        leafYF = (topPressure-bottomPressure)*field.pressureToForceMultiplier
+        leafXF = (leftPressure-rightPressure)*field.pressureToForceMultiplier
 
         leafXFDrag = -leafXV * dragCoefficient
         leafYFDrag = -leafYV * dragCoefficient
@@ -91,6 +86,10 @@ Item {
     }
 
     function updateLeaf() {
+        if (collided) {
+            return;
+        }
+
         var pressureGrid = field.pressureGrid
         var yGridSpacing = field.yGridSpacing
         var xGridSpacing = field.xGridSpacing
@@ -104,24 +103,22 @@ Item {
         leafYV += netForceY/leafMass*timeStep
         leafX += deltaX
         leafY += deltaY
-        if (leafX > robotMaxX-leafSize || leafX < 0) {
-            leafX = Math.max(Math.min(leafX, robotMaxX-leafSize/2), 0.0)
-            var reflectDirection;
-            if (leafX  > robotMaxX-leafSize)
-                reflectDirection = -1
-            else
-                reflectDirection = 1
-            leafXV = leafXV - 2*leafXV*reflectDirection*reflectDirection
-        } else if (leafY > robotMaxY-leafSize || leafY < 0) {
-            leafY = Math.max(Math.min(leafY, robotMaxY-leafSize/2), 0.0)
-            var reflectDirection;
-            if (leafY  > robotMaxY-leafSize)
-                reflectDirection = -1
-            else
-                reflectDirection = 1
-            var vdotn = leafYV*reflectDirection
-            leafYV = leafYV - 2*leafYV*reflectDirection*reflectDirection
+        if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
+            leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
+            collided = true
+        } else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
+            leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
+            collided = true
         }
+        if (collided) {
+            leafXV = 0
+            leafYV = 0
+            leafXF = 0
+            leafYF = 0
+            leafXFDrag = 0
+            leafYFDrag = 0
+        }
+
         //TESTING
         //leafX = (robotComm.y/575)*robotMaxX
         //leafY = robotMaxY-(robotComm.x/400)*robotMaxY

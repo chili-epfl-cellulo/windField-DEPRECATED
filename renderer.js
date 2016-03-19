@@ -7,11 +7,8 @@ var backgroundMaterial, pressureFieldMaterial;
 var leafObjects = [];
 var leafMaterials = [];
 
-var pressureInputObjects = [];
-var pressureInputMaterials = [];
-
 var pressureInputCellObjects = [];
-var pressureInputCellMaterial;
+var pressureInputCellMaterials = [];
 
 var pressureFieldUpdated = false;
 
@@ -32,7 +29,7 @@ function initializeGL(canvas, pressurefield, leaves, numLeaves) {
 /***INITIALIZATION HELPER METHODS***/
 function initCamera(pressurefield) {
     console.log("Initialize Camera")
-    camera = new THREE.OrthographicCamera(0, pressurefield.width, pressurefield.height, 0, 0.1, 5000);
+    camera = new THREE.OrthographicCamera(0, windField.width, windField.height, 0, 0.1, 5000);
     camera.position.z = pressurefield.height;
 }
 
@@ -40,7 +37,7 @@ function initScene(pressurefield, leaves, numLeaves) {
     console.log("Initialize Scene")
     scene = new THREE.Scene();
     //Initialize geometries and materials/shaders
-    var backgroundGeom = new THREE.PlaneGeometry(pressurefield.width, pressurefield.height, 1, 1)
+    var backgroundGeom = new THREE.PlaneGeometry(windField.width, windField.height, 1, 1)
     var pressureFieldGeom = new THREE.PlaneGeometry(pressurefield.width, pressurefield.height, 1, 1)
     var leafGeom;
     if (numLeaves)
@@ -51,11 +48,11 @@ function initScene(pressurefield, leaves, numLeaves) {
 
     //Create meshes and add them to the scene
     backgroundObject = new THREE.Mesh(backgroundGeom, backgroundMaterial)
-    backgroundObject.position.x = pressurefield.width/2
-    backgroundObject.position.y = pressurefield.height/2
+    backgroundObject.position.x = windField.width/2
+    backgroundObject.position.y = windField.height/2
     pressureFieldObject = new THREE.Mesh(pressureFieldGeom, pressureFieldMaterial)
-    pressureFieldObject.position.x = pressurefield.width/2
-    pressureFieldObject.position.y = pressurefield.height/2
+    pressureFieldObject.position.x = pressurefield.width/2 + windField.robotMinX
+    pressureFieldObject.position.y = pressurefield.height/2 + windField.robotMinY
     pressureFieldObject.position.z = 200
 
     for (var i = 0; i < numLeaves; i++) {
@@ -76,19 +73,11 @@ function initScene(pressurefield, leaves, numLeaves) {
         scene.add(leafVelocityVectors[i])
     }
 
-    pressureInputObjects = new Array(pressurefield.maxPressurePointPairs*2)
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
-        pressureInputObjects[i] = new THREE.Mesh(pressureInputGeom, pressureInputMaterials[i])
-        pressureInputObjects[i].position.z = 200
-        pressureInputObjects[i].rotation.x = Math.PI/2
-        pressureInputObjects[i].renderOrder = 3
-
-        pressureInputCellObjects[i] = new THREE.Mesh(pressureInputCellGeom, pressureInputCellMaterial)
-        pressureInputCellObjects[i].position.z = 200
+        pressureInputCellObjects[i] = new THREE.Mesh(pressureInputCellGeom, pressureInputCellMaterials[i])
+        pressureInputCellObjects[i].position.z = 250
         pressureInputCellObjects[i].renderOrder = 2
-
         scene.add(pressureInputCellObjects[i])
-        scene.add(pressureInputObjects[i])
     }
 
     //Add meshes to the scene
@@ -113,16 +102,11 @@ function initMaterials(pressurefield, leaves, numLeaves) {
                                                        shading: THREE.SmoothShading});
     }
 
-    pressureInputMaterials = new Array(pressurefield.maxPressurePointPairs*2)
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
-        pressureInputMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
-                                                                    ambient: 0x000000,
-                                                                    shading: THREE.SmoothShading})
+        pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
+                                                                     ambient: 0x000000,
+                                                                     shading: THREE.SmoothShading})
     }
-
-    pressureInputCellMaterial = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 0.25),
-                                                                 ambient: 0x000000,
-                                                                 shading: THREE.SmoothShading})
 }
 
 function createPressureFieldMaterial() {
@@ -163,8 +147,15 @@ function paintGL(pressurefield, leaves, numLeaves) {
 
     //Set leaf position
     for (var i = 0; i < numLeaves; i++) {
-        leafObjects[i].position.x = leaves[i].leafX;
-        leafObjects[i].position.y = leaves[i].robotMaxY - leaves[i].leafY;
+        leafObjects[i].position.x = leaves[i].leafX + windField.robotMinX;
+        leafObjects[i].position.y = windField.height - leaves[i].leafY - windField.robotMinY;
+        if (leaves[i].collided) {
+            leafObjects[i].material.color = Qt.rgba(0,0,0,1);
+            leafObjects[i].material.needsUpdate = true;
+        } else {
+            leafObjects[i].material.color = Qt.rgba(0,1,0,1);
+            leafObjects[i].material.needsUpdate = true;
+        }
 
         var leafDragDirection = new THREE.Vector3(leaves[i].leafXFDrag, -leaves[i].leafYFDrag, 0);
         var dragLength = leafDragDirection.length()
@@ -211,20 +202,18 @@ function paintGL(pressurefield, leaves, numLeaves) {
     pressureFieldObject.material.needsUpdate = true;
 
     for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
-        pressureInputObjects[i].material.visible = (pressurefield.pressurePoints[i].state > pressurefield.inactive);
-        var pressure = pressurefield.pressurePoints[i].strength
-        pressureInputObjects[i].material.color = Qt.rgba(pressure/100.0, 0.0, (100-pressure)/100.0, 1.0);
-        pressureInputObjects[i].material.needsUpdate = true
+        pressureInputCellObjects[i].material.visible = (pressurefield.pressurePoints[i].state > pressurefield.inactive);
         if (pressurefield.pressurePoints[i].state == pressurefield.inactive)
             continue;
-        pressureInputObjects[i].position.x = pressurefield.pressurePoints[i].position.x;
-        pressureInputObjects[i].position.y = pressurefield.height - pressurefield.pressurePoints[i].position.y;
+        var pressure = pressurefield.pressurePoints[i].strength
+        pressureInputCellObjects[i].material.color = Qt.rgba(pressure/100.0, 0.0, (100-pressure)/100.0, 1.0);
+        pressureInputCellObjects[i].material.needsUpdate = true
         var xGridSpacing = pressurefield.xGridSpacing;
         var yGridSpacing = pressurefield.yGridSpacing;
         var curRow = Math.floor(pressurefield.pressurePoints[i].position.y/yGridSpacing);
         var curCol = Math.floor(pressurefield.pressurePoints[i].position.x/xGridSpacing);
-        pressureInputCellObjects[i].position.x = curCol*xGridSpacing+xGridSpacing/2.0;
-        pressureInputCellObjects[i].position.y = (pressurefield.numRows - curRow)*yGridSpacing-yGridSpacing/2;
+        pressureInputCellObjects[i].position.x = curCol*xGridSpacing+xGridSpacing/2.0 + windField.robotMinX;
+        pressureInputCellObjects[i].position.y = (pressurefield.numRows - curRow)*yGridSpacing-yGridSpacing/2 + windField.robotMinY;
     }
 
     //Render the scene

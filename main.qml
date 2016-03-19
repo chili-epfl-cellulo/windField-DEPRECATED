@@ -17,12 +17,17 @@ ApplicationWindow {
 
     Canvas3D {
         id: windField
-        width: fieldWidth
-        height: fieldHeight
+        width: Screen.width
+        height: Screen.height
 
         property int menuMargin: 50
-        property int fieldWidth: Screen.width
-        property int fieldHeight: Screen.height
+        property int fieldWidth: 2550
+        property int fieldHeight: 950
+
+        property int robotMinX: (windField.width - windField.fieldWidth)/2
+        property int robotMinY: (windField.height - windField.fieldHeight)/2
+        property int robotMaxX: robotMinX + windField.fieldWidth
+        property int robotMaxY: robotMinY + windField.fieldHeight
 
         //Game UI variables, kept here so that all components can have access to them
         property bool paused: true
@@ -34,8 +39,8 @@ ApplicationWindow {
         property int currentAction: 0
 
         //Set the leaves here
-        property variant leaves: [testLeaf, testLeaf2]
-        property int numLeaves: 2
+        property variant leaves: [testLeaf]
+        property int numLeaves: 1
 
         function setInitialTestConfiguration(){
             //Set pressure point
@@ -73,6 +78,7 @@ ApplicationWindow {
             testLeaf.leafYF = 0
             testLeaf.leafXFDrag = 0
             testLeaf.leafYFDrag = 0
+            testLeaf.collided = false
 
             testLeaf2.leafX = 10*pressurefield.xGridSpacing
             testLeaf2.leafY = 2*pressurefield.yGridSpacing
@@ -118,7 +124,10 @@ ApplicationWindow {
         }
 
         PressureField {
-            anchors.fill: parent
+            width: windField.fieldWidth
+            height: windField.fieldHeight
+            x: windField.robotMinX
+            y: windField.robotMinY
             id: pressurefield
         }
 
