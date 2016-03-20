@@ -192,8 +192,12 @@ Item {
                     model: ListModel {
                         id: cbItems
                         ListElement { text: "Move Pressure"; color: "White" }
-                        ListElement { text: "Add High Pressure"; color: "White" }
-                        ListElement { text: "Add Low Pressure"; color: "White" }
+                        ListElement { text: "Add Low Pressure (High)"; color: "White" }
+                        ListElement { text: "Add Low Pressure (Medium)"; color: "White" }
+                        ListElement { text: "Add Low Pressure (Low)"; color: "White" }
+                        ListElement { text: "Add High Pressure (Low)"; color: "White" }
+                        ListElement { text: "Add High Pressure (Medium)"; color: "White" }
+                        ListElement { text: "Add High Pressure (High)"; color: "White" }
                         ListElement { text: "Remove Pressure"; color: "White" }
                     }
                     onCurrentIndexChanged: {

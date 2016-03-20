@@ -53,20 +53,7 @@ ApplicationWindow {
             pressurefield.addPressurePoint(7,13,-3)
             pressurefield.addPressurePoint(8,13,-3)
 
-            //Set obstacle spots
-            pressurefield.pressureGrid[13][24][6] = 0
-            pressurefield.pressureGrid[13][23][6] = 0
-            pressurefield.pressureGrid[14][23][6] = 0
-            pressurefield.pressureGrid[14][24][6] = 0
-
-            pressurefield.pressureGrid[4][7][6] = 0
-            pressurefield.pressureGrid[4][8][6] = 0
-            pressurefield.pressureGrid[5][7][6] = 0
-            pressurefield.pressureGrid[5][8][6] = 0
-            pressurefield.pressureGrid[6][7][6] = 0
-            pressurefield.pressureGrid[6][8][6] = 0
-            pressurefield.pressureGrid[6][6][6] = 0
-
+            setObstacles()
             //Set test leaf info
             testLeaf.leafX = 4*pressurefield.xGridSpacing
             testLeaf.leafY = 2*pressurefield.yGridSpacing
@@ -93,6 +80,22 @@ ApplicationWindow {
 
             pauseSimulation()
             //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+        }
+
+        function setObstacles() {
+            //Set obstacle spots
+            pressurefield.pressureGrid[13][24][6] = 0
+            pressurefield.pressureGrid[13][23][6] = 0
+            pressurefield.pressureGrid[14][23][6] = 0
+            pressurefield.pressureGrid[14][24][6] = 0
+
+            pressurefield.pressureGrid[4][7][6] = 0
+            pressurefield.pressureGrid[4][8][6] = 0
+            pressurefield.pressureGrid[5][7][6] = 0
+            pressurefield.pressureGrid[5][8][6] = 0
+            pressurefield.pressureGrid[6][7][6] = 0
+            pressurefield.pressureGrid[6][8][6] = 0
+            pressurefield.pressureGrid[6][6][6] = 0
         }
 
         function pauseSimulation() {
