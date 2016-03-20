@@ -215,7 +215,7 @@ Item {
     //1: high pressure (low setting), 2: high pressure (medium), 3: high pressure (low)
     //-1: low pressure (low setting), -2: low pressure (medium), -3: low pressure (low)
     function addPressurePoint(r,c,pressureLevel) {
-        if (r < 0 || r >= numRows || c < 0 || c >= numCols)
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6])
             return;
 
         //First make sure the point doesn't already exist, do nothing if it already does
@@ -326,7 +326,7 @@ Item {
                             continue
                         var originalRow = pressurePoints[i].gridIndex.x
                         var originalCol = pressurePoints[i].gridIndex.y
-                        if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
+                        if (row < 0 || row >= numRows || col < 0 || col >= numCols || !pressureGrid[row][col][6]) {
                             row = startRow;
                             col = startCol;
                         }
