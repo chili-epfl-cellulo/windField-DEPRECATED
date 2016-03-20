@@ -26,7 +26,7 @@ Item {
     readonly property double pressureTransferRate: 1
 
     //Controls how many loops we run the pressure update for before letting the balloon simulation start
-    readonly property int convergenceIterations: 50
+    readonly property int convergenceIterations: 20
 
     //State variables for pressure inputs
     readonly property int inactive: 0
