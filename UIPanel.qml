@@ -135,7 +135,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     style: pause.style
                     onClicked: {
-                        pressurefield.initializeWindField()
+                        pressurefield.resetWindField()
                         windField.setInitialTestConfiguration()
                         windField.setPressureFieldTextureDirty()
                         windField.pauseSimulation()
@@ -206,8 +206,7 @@ Item {
                     anchors.horizontalCenter: parent.right
                     style: pause.style
                     onClicked: {
-                        pressurefield.initializeWindField()
-                        windField.removeAllPressurePoint()
+                        pressurefield.resetWindField()
                     }
                 }
             }

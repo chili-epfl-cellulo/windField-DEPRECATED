@@ -44,14 +44,14 @@ ApplicationWindow {
 
         function setInitialTestConfiguration(){
             //Set pressure point
-            pressurefield.addPressurePoint(0,0,true)
-            pressurefield.addPressurePoint(14,0,true)
-            pressurefield.addPressurePoint(0,25,true)
-            pressurefield.addPressurePoint(14,25,true)
-            pressurefield.addPressurePoint(7,12,false)
-            pressurefield.addPressurePoint(8,12,false)
-            pressurefield.addPressurePoint(7,13,false)
-            pressurefield.addPressurePoint(8,13,false)
+            pressurefield.addPressurePoint(0,0,3)
+            pressurefield.addPressurePoint(14,0,3)
+            pressurefield.addPressurePoint(0,25,3)
+            pressurefield.addPressurePoint(14,25,3)
+            pressurefield.addPressurePoint(7,12,-3)
+            pressurefield.addPressurePoint(8,12,-3)
+            pressurefield.addPressurePoint(7,13,-3)
+            pressurefield.addPressurePoint(8,13,-3)
 
             //Set obstacle spots
             pressurefield.pressureGrid[13][24][6] = 0
@@ -118,7 +118,7 @@ ApplicationWindow {
         }
 
         Component.onCompleted: {
-            pressurefield.initializeWindField()
+            pressurefield.resetWindField()
             setInitialTestConfiguration()
             testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
         }

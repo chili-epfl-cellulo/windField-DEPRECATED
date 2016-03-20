@@ -76,7 +76,7 @@ function initScene(pressurefield, leaves, numLeaves) {
         scene.add(leafVelocityVectors[i])
     }
 
-    for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
+    for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
         pressureInputCellObjects[i] = new THREE.Mesh(pressureInputCellGeom, pressureInputCellMaterials[i])
         pressureInputCellObjects[i].position.z = 250
         pressureInputCellObjects[i].renderOrder = 2
@@ -105,7 +105,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
                                                        shading: THREE.SmoothShading});
     }
 
-    for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
+    for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
         pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
                                                                      ambient: 0x000000,
                                                                      shading: THREE.SmoothShading})
@@ -204,7 +204,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
     pressureFieldObject.material.visible = windField.drawPressureGrid;
     pressureFieldObject.material.needsUpdate = true;
 
-    for (var i = 0; i < pressurefield.maxPressurePointPairs*2; i++) {
+    for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
         pressureInputCellObjects[i].material.visible = (pressurefield.pressurePoints[i].state > pressurefield.inactive);
         if (pressurefield.pressurePoints[i].state == pressurefield.inactive)
             continue;
