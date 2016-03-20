@@ -21,7 +21,7 @@ ApplicationWindow {
         height: Screen.height
 
         property int menuMargin: 50
-        property int fieldWidth: 2550
+        property int fieldWidth: 2500
         property int fieldHeight: 950
 
         property int robotMinX: (windField.width - windField.fieldWidth)/2
