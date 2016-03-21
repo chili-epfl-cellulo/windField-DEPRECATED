@@ -102,7 +102,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     //Init shaders and textures
 
     //Background Material
-    backgroundMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/europe.jpg')} );
+    backgroundMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/EuropeBg-02.png')} );
 
     createPressureFieldMaterial()
 

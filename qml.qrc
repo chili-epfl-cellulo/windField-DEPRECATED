@@ -11,5 +11,6 @@
         <file>UIPanel.qml</file>
         <file>Leaf.qml</file>
         <file>assets/europe.jpg</file>
+        <file>assets/EuropeBg-02.png</file>
     </qresource>
 </RCC>
