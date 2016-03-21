@@ -8,27 +8,25 @@ Item {
     property variant pressureGrid: []
     //Contains an array of pressurePoint structs including
     property variant pressurePoints: []
-    property int numHighPressurePoints: 0
-    property int numLowPressurePoints: 0
+    property int numPressurePoints: 0
 
-    readonly property int maxPressurePointPairs: 10
+    readonly property int maxPressurePoints: 10
 
-    readonly property int gridDensity: 1
-    readonly property int numCols: 26*gridDensity
-    readonly property int numRows: 15*gridDensity
+    readonly property int numCols: 50
+    readonly property int numRows: 19
 
     readonly property double xGridSpacing: (windField.fieldWidth/numCols)
     readonly property double yGridSpacing: (windField.fieldHeight/numRows)
 
     //Controls how much force there is per unit of pressure difference
-    readonly property double pressureToForceMultiplier: .5
+    readonly property double pressureToForceMultiplier: 1
     readonly property double maxForce: 15.0
 
     //Controls how fast pressure disperses in a single time step
     readonly property double pressureTransferRate: 1
 
     //Controls how many loops we run the pressure update for before letting the balloon simulation start
-    readonly property int convergenceIterations: 50
+    readonly property int convergenceIterations: 20
 
     //State variables for pressure inputs
     readonly property int inactive: 0
@@ -44,7 +42,7 @@ Item {
     }
 
     /***PRESSURE FIELD INITIALIZATION***/
-    function initializeWindField() {
+    function resetWindField() {
         var rows = new Array(numRows)
         for (var i = 0; i < numRows; i++) {
             var column = new Array(numCols)
@@ -62,16 +60,16 @@ Item {
             rows[i]=column
         }
         pressureGrid = rows
-        pressurePoints = new Array(maxPressurePointPairs*2);
-        for (var i = 0; i < maxPressurePointPairs*2; i++) {
+        pressurePoints = new Array(maxPressurePoints);
+        numPressurePoints = 0
+        for (var i = 0; i < maxPressurePoints; i++) {
             pressurePoints[i] = new pressurePointObject()
         }
-
-        updateField()
+        windField.setObstacles()
     }
 
     function resetPressureAtPressurePoints() {
-        for (var i = 0; i < maxPressurePointPairs*2; i++) {
+        for (var i = 0; i < maxPressurePoints; i++) {
             if (!pressurePoints[i].state)
                 continue
             var row = pressurePoints[i].gridIndex.x
@@ -83,15 +81,28 @@ Item {
     /***PRESSURE GRID STATE UPDATE METHODS***/
     function updateField() {
         //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
+        resetPressureAtPressurePoints()
         for (var i = 0; i < convergenceIterations; i++) {
-            resetPressureAtPressurePoints()
             updatePressureGrid()
             resetPressureAtPressurePoints()
-            calculateForceVectors()
-            windField.setPressureFieldTextureDirty()
         }
+        windField.setPressureFieldTextureDirty()
+        calculateForceVectors()
     }
 
+    function getPressureOnCell(x,y){
+        var magn = 50.0;
+        for (var i = 0; i < maxPressurePoints; i++) {
+            if (!pressurePoints[i].state)
+                continue
+            var sign = 1
+            if(pressurePoints[i].strength <= 50)
+                sign = -1
+            magn+= sign * pressurePoints[i].strength / Math.sqrt((pressurePoints[i].position.x - x)*(pressurePoints[i].position.x - x)+(pressurePoints[i].position.y - y)*(pressurePoints[i].position.y - y) )
+}
+        print(magn);
+        return magn
+    }
     function updatePressureGrid() {
         for (var row = 0; row < numRows; row++) {
             for (var col = 0; col < numCols; col++) {
@@ -140,6 +151,9 @@ Item {
                         }
                     }
                 }
+
+                //pressureGrid[row][col][4] = getPressureOnCell(row,col)
+                //resetPressureAtPressurePoints()
             }
         }
 
@@ -168,7 +182,7 @@ Item {
                         var colIndex = col+colOffset
                         if (colIndex >= numCols || colIndex < 0)
                             continue;
-                        var pressureGradient = (curPressure - pressureGrid[rowIndex][colIndex][4])*gridDensity
+                        var pressureGradient = (curPressure - pressureGrid[rowIndex][colIndex][4])
 
                         if (rowOffset != 0 && colOffset == 0) {
                             nFY += rowOffset*pressureGradient
@@ -198,45 +212,62 @@ Item {
     }
 
     /***HELPER METHODS FOR ADDING, MOVING AND REMOVING PRESSURE POINTS***/
-    function addPressurePoint(r,c,highPressure) {
+
+    function pressureLevelToStrength(pressureLevel) {
+        //exponential increase
+        switch (pressureLevel) {
+        case -1:
+            return 50-Math.exp(Math.log(50)/3.0);
+            break;
+        case -2:
+            return 50-Math.exp(Math.log(50)/3.0*2.0);
+            break;
+        case -3:
+            return 0.0;
+            break;
+        case 1:
+            return 50+Math.exp(Math.log(50)/3.0);
+            break;
+        case 2:
+            return 50+Math.exp(Math.log(50)/3.0*2.0);
+            break;
+        case 3:
+            return 100.0;
+            break;
+        }
+    }
+
+    //1: high pressure (low setting), 2: high pressure (medium), 3: high pressure (low)
+    //-1: low pressure (low setting), -2: low pressure (medium), -3: low pressure (low)
+    function addPressurePoint(r,c,pressureLevel) {
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6])
+            return;
+
         //First make sure the point doesn't already exist, do nothing if it already does
-        for (var p = 0; p < maxPressurePointPairs*2; p++) {
+        for (var p = 0; p < maxPressurePoints; p++) {
             if (pressurePoints[p].state) {
                 var row = pressurePoints[p].gridIndex.x
                 var col = pressurePoints[p].gridIndex.y
-                if (row == r && col == c) {
+                if (row == r && col == c)
                     return;
-                }
             }
         }
+
         //Actually add the pressure cell
-        if (highPressure) {
-            for (var p = 0; p < maxPressurePointPairs; p++) {
-                if (!pressurePoints[p].state) {
-                    pressurePoints[p].gridIndex = Qt.point(r,c)
-                    pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
-                    pressurePoints[p].state = active
-                    pressurePoints[p].strength = 100.0
-                    numHighPressurePoints++
-                    return
-                }
-            }
-        } else {
-            for (var p = maxPressurePointPairs; p < maxPressurePointPairs*2; p++) {
-                if (!pressurePoints[p].state) {
-                    pressurePoints[p].gridIndex = Qt.point(r,c)
-                    pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
-                    pressurePoints[p].state = active
-                    pressurePoints[p].strength = 0.0
-                    numLowPressurePoints++
-                    return
-                }
+        for (var p = 0; p < maxPressurePoints; p++) {
+            if (!pressurePoints[p].state) {
+                pressurePoints[p].gridIndex = Qt.point(r,c)
+                pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
+                pressurePoints[p].state = active
+                pressurePoints[p].strength = pressureLevelToStrength(pressureLevel)
+                numPressurePoints++
+                return
             }
         }
     }
 
     function removePressurePoint(r,c) {
-        for (var i = 0; i < maxPressurePointPairs*2; i++) {
+        for (var i = 0; i < maxPressurePoints; i++) {
             if (!pressurePoints[i].state)
                 continue
             var row = pressurePoints[i].gridIndex.x
@@ -245,13 +276,19 @@ Item {
                 pressurePoints[i].state = inactive
                 pressurePoints[i].position = null
                 pressurePoints[i].gridIndex = null
-                if (pressurePoints[i].strength > 50.0)
-                    numHighPressurePoints--
-                else
-                    numLowPressurePoints--
+                numPressurePoints--
                 pressurePoints[i].strength = 0.0
-                updateField()
             }
+        }
+    }
+
+    function removeAllPressurePoint() {
+        for (var i = 0; i < maxPressurePoints; i++) {
+            if (!pressurePoints[i].state)
+                continue
+            var row = pressurePoints[i].gridIndex.x
+            var col = pressurePoints[i].gridIndex.y
+            removePressurePoint(row, col)
         }
     }
 
@@ -259,20 +296,10 @@ Item {
     MultiPointTouchArea {
         id: touchArea
         anchors.fill: parent
-        maximumTouchPoints: maxPressurePointPairs
-        enabled: (controls.rotation == controls.maxRotation)
-
-        function changingPressureCells() {
-            var length = pressurePoints.length
-            for (var i = 0; i < length; i++) {
-                if (pressurePoints[i].state == selected)
-                    return true
-            }
-            return false
-        }
+        maximumTouchPoints: maxPressurePoints
+        enabled: windField.paused
 
         onReleased: {
-            var maxPointPairs = maxPressurePointPairs
             var length = touchPoints.length
             for (var t = 0; t < length; t++) {
                 var row = Math.floor(touchPoints[t].y/yGridSpacing)
@@ -280,27 +307,17 @@ Item {
                 switch(windField.currentAction) {
                 //Note: For cases 1 and 2 gridIndex stores the starting touch point of the gesture so that we can identify which pressurepoint to remove
                 case 1:
-                    //Remove the unplaced pressure point
-                    for (var i = 0; i < maxPointPairs; i++) {
-                        console.log(pressurePoints[i].position.x, "  ", pressurePoints[i].position.y)
-                        if (pressurePoints[i].state == selected &&
-                                pressurePoints[i].gridIndex.x == touchPoints[t].startX &&
-                                pressurePoints[i].gridIndex.y == touchPoints[t].startY) {
-                            pressurePoints[i].state = inactive
-                            pressurePoints[i].position = null
-                            pressurePoints[i].gridIndex = null
-                            pressurePoints[i].strength = 0.0
-                            break
-                        }
-                    }
-                    if (numHighPressurePoints < maxPressurePointPairs) {
-                        addPressurePoint(row, col, true)
-                        updateField()
-                    }
-                    break;
                 case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    var pressureSetting = windField.currentAction - 3
+                    if (pressureSetting <= 0)
+                        pressureSetting--
+
                     //Remove the unplaced pressure point
-                    for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
+                    for (var i = 0; i < maxPressurePoints; i++) {
                         if (pressurePoints[i].state == selected &&
                                 pressurePoints[i].gridIndex.x == touchPoints[t].startX &&
                                 pressurePoints[i].gridIndex.y == touchPoints[t].startY) {
@@ -311,27 +328,28 @@ Item {
                             break
                         }
                     }
-                    if (numLowPressurePoints < maxPressurePointPairs) {
-                        addPressurePoint(row, col, false)
-                        updateField()
+                    if (numPressurePoints < maxPressurePoints) {
+                        addPressurePoint(row, col, pressureSetting)
                     }
                     break;
-                case 3:
+                case 7:
                     removePressurePoint(row, col)
-                    updateField()
                     break;
                 case 0:
                     var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                     var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
-                    for (var i = 0; i < maxPointPairs*2; i++) {
+                    for (var i = 0; i < maxPressurePoints; i++) {
                         if (!pressurePoints[i].state)
                             continue
-                        var cellRow = pressurePoints[i].gridIndex.x
-                        var cellCol = pressurePoints[i].gridIndex.y
-                        if (startRow == cellRow && startCol == cellCol) {
+                        var originalRow = pressurePoints[i].gridIndex.x
+                        var originalCol = pressurePoints[i].gridIndex.y
+                        if (row < 0 || row >= numRows || col < 0 || col >= numCols || !pressureGrid[row][col][6]) {
+                            row = startRow;
+                            col = startCol;
+                        }
+                        if (startRow == originalRow && startCol == originalCol) {
                             pressurePoints[i].gridIndex = Qt.point(row, col)
                             pressurePoints[i].position = Qt.point(col*xGridSpacing+xGridSpacing/2, row*yGridSpacing+yGridSpacing/2);
-                            updateField()
                         }
                     }
                     break;
@@ -340,29 +358,24 @@ Item {
         }
 
         onPressed:  {
-            var maxPointPairs = maxPressurePointPairs
             var length = touchPoints.length
             for (var t = 0; t < length; t++) {
                 var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                 var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
                 switch (windField.currentAction) {
                 case 1:
-                    for (var i = 0; i < maxPointPairs; i++) {
-                        if (!pressurePoints[i].state) {
-                            pressurePoints[i].state = selected
-                            pressurePoints[i].strength = 100.0
-                            pressurePoints[i].position = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
-                            //Temporarily use gridIndex to store the start coordinates for use later
-                            pressurePoints[i].gridIndex = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
-                            break
-                        }
-                    }
-                    break;
                 case 2:
-                    for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    var pressureSetting = windField.currentAction - 3
+                    if (pressureSetting <= 0)
+                        pressureSetting--
+                    for (var i = 0; i < maxPressurePoints; i++) {
                         if (!pressurePoints[i].state) {
                             pressurePoints[i].state = selected
-                            pressurePoints[i].strength = 0.0
+                            pressurePoints[i].strength = pressureLevelToStrength(pressureSetting)
                             pressurePoints[i].position = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
                             //Temporarily use gridIndex to store the start coordinates for use later
                             pressurePoints[i].gridIndex = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
@@ -370,15 +383,15 @@ Item {
                         }
                     }
                     break;
-                case 3:
+                case 7:
                     break;
                 case 0:
-                    for (var i = 0; i < maxPointPairs*2; i++) {
+                    for (var i = 0; i < maximumTouchPoints; i++) {
                         if (!pressurePoints[i].state)
                             continue
-                        var cellRow = pressurePoints[i].gridIndex.x
-                        var cellCol = pressurePoints[i].gridIndex.y
-                        if (startRow == cellRow && startCol == cellCol) {
+                        var originalRow = pressurePoints[i].gridIndex.x
+                        var originalCol = pressurePoints[i].gridIndex.y
+                        if (startRow == originalRow && startCol == originalCol) {
                             pressurePoints[i].state = selected
                             pressurePoints[i].position = Qt.point(touchPoints[t].startX, touchPoints[t].startY)
                         }
@@ -389,7 +402,6 @@ Item {
         }
 
         onUpdated: {
-           var maxPointPairs = maxPressurePointPairs
            var length = touchPoints.length
            for (var t = 0; t < length; t++) {
                var row = Math.floor(touchPoints[t].y/yGridSpacing)
@@ -398,7 +410,12 @@ Item {
                var prevCol = Math.floor(touchPoints[t].previousX/xGridSpacing)
                switch (windField.currentAction) {
                case 1:
-                   for (var i = 0; i < maxPointPairs; i++) {
+               case 2:
+               case 3:
+               case 4:
+               case 5:
+               case 6:
+                   for (var i = 0; i < maxPressurePoints; i++) {
                        if (pressurePoints[i].state == selected &&
                                pressurePoints[i].position.x == touchPoints[t].previousX &&
                                pressurePoints[i].position.y == touchPoints[t].previousY) {
@@ -407,27 +424,17 @@ Item {
                        }
                    }                   
                    break;
-               case 2:
-                   for (var i = maxPointPairs; i < maxPointPairs*2; i++) {
-                       if (pressurePoints[i].state == selected &&
-                               pressurePoints[i].position.x == touchPoints[t].previousX &&
-                               pressurePoints[i].position.y == touchPoints[t].previousY) {
-                           pressurePoints[i].position = Qt.point(touchPoints[t].x, touchPoints[t].y)
-                           break;
-                       }
-                   }
-                   break;
-               case 3:
+               case 7:
                    break;
                case 0:
                    var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                    var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
-                   for (var i = 0; i < maxPointPairs*2; i++) {
+                   for (var i = 0; i < maxPressurePoints; i++) {
                        if (pressurePoints[i].state != selected)
                            continue
-                       var cellRow = pressurePoints[i].gridIndex.x
-                       var cellCol = pressurePoints[i].gridIndex.y
-                       if (startRow == cellRow && startCol == cellCol) {
+                       var originalRow = pressurePoints[i].gridIndex.x
+                       var originalCol = pressurePoints[i].gridIndex.y
+                       if (startRow == originalRow && startCol == originalCol) {
                             pressurePoints[i].position = Qt.point(touchPoints[t].x, touchPoints[t].y)
                        }
                    }

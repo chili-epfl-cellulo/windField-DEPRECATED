@@ -17,16 +17,20 @@ ApplicationWindow {
 
     Canvas3D {
         id: windField
-        width: fieldWidth
-        height: fieldHeight
-        y: menuMargin
+        width: Screen.width
+        height: Screen.height
 
-        property int menuMargin: 100
-        property int fieldWidth: Screen.width
-        property int fieldHeight: Screen.height-menuMargin
+        property int menuMargin: 50
+        property int fieldWidth: 2500
+        property int fieldHeight: 950
+
+        property int robotMinX: (windField.width - windField.fieldWidth)/2
+        property int robotMinY: (windField.height - windField.fieldHeight)/2
+        property int robotMaxX: robotMinX + windField.fieldWidth
+        property int robotMaxY: robotMinY + windField.fieldHeight
 
         //Game UI variables, kept here so that all components can have access to them
-        property bool paused: false
+        property bool paused: true
         property bool drawPressureGrid: true
         property bool drawForceGrid: true
         property bool drawLeafVelocityVector: true
@@ -35,20 +39,50 @@ ApplicationWindow {
         property int currentAction: 0
 
         //Set the leaves here
-        property variant leaves: [testLeaf, testLeaf2]
-        property int numLeaves: 2
+        property variant leaves: [testLeaf]
+        property int numLeaves: 1
 
         function setInitialTestConfiguration(){
             //Set pressure point
-            pressurefield.addPressurePoint(0,0,true)
-            pressurefield.addPressurePoint(14,0,true)
-            pressurefield.addPressurePoint(0,25,true)
-            pressurefield.addPressurePoint(14,25,true)
-            pressurefield.addPressurePoint(7,12,false)
-            pressurefield.addPressurePoint(8,12,false)
-            pressurefield.addPressurePoint(7,13,false)
-            pressurefield.addPressurePoint(8,13,false)
+            pressurefield.addPressurePoint(0,0,3)
+            pressurefield.addPressurePoint(14,0,3)
+            pressurefield.addPressurePoint(0,25,3)
+            pressurefield.addPressurePoint(14,25,3)
+            pressurefield.addPressurePoint(7,12,-3)
+            pressurefield.addPressurePoint(8,12,-3)
+            pressurefield.addPressurePoint(7,13,-3)
+            pressurefield.addPressurePoint(8,13,-3)
 
+            setObstacles()
+            //Set test leaf info
+            testLeaf.leafX = 4*pressurefield.xGridSpacing
+            testLeaf.leafY = 2*pressurefield.yGridSpacing
+            testLeaf.leafXV = 0
+            testLeaf.leafYV = 0
+            testLeaf.leafMass = 1
+            testLeaf.leafSize = 50
+            testLeaf.leafXF = 0
+            testLeaf.leafYF = 0
+            testLeaf.leafXFDrag = 0
+            testLeaf.leafYFDrag = 0
+            testLeaf.collided = false
+
+            testLeaf2.leafX = 10*pressurefield.xGridSpacing
+            testLeaf2.leafY = 2*pressurefield.yGridSpacing
+            testLeaf2.leafXV = 0
+            testLeaf2.leafYV = 0
+            testLeaf2.leafMass = 1
+            testLeaf2.leafSize = 50
+            testLeaf2.leafXF = 0
+            testLeaf2.leafYF = 0
+            testLeaf2.leafXFDrag = 0
+            testLeaf2.leafYFDrag = 0
+
+            pauseSimulation()
+            //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+        }
+
+        function setObstacles() {
             //Set obstacle spots
             pressurefield.pressureGrid[13][24][6] = 0
             pressurefield.pressureGrid[13][23][6] = 0
@@ -62,23 +96,11 @@ ApplicationWindow {
             pressurefield.pressureGrid[6][7][6] = 0
             pressurefield.pressureGrid[6][8][6] = 0
             pressurefield.pressureGrid[6][6][6] = 0
-            pressurefield.updateField()
+        }
 
-            //Set test leaf info
-            testLeaf.leafX = 4*pressurefield.xGridSpacing
-            testLeaf.leafY = 2*pressurefield.yGridSpacing
-            testLeaf.leafXV = 0
-            testLeaf.leafYV = 0
-            testLeaf.leafMass = 1
-            testLeaf.leafSize = 50
-
-            testLeaf2.leafX = 10*pressurefield.xGridSpacing
-            testLeaf2.leafY = 2*pressurefield.yGridSpacing
-            testLeaf2.leafXV = 0
-            testLeaf2.leafYV = 0
-            testLeaf2.leafMass = 1
-            testLeaf2.leafSize = 50
-            //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+        function pauseSimulation() {
+            paused = false;
+            controls.togglePaused()
         }
 
         onInitializeGL: {
@@ -91,7 +113,6 @@ ApplicationWindow {
                 for (var i = 0; i < numLeaves; i++)
                     leaves[i].updateLeaf()
             }
-
             GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
 
@@ -100,13 +121,16 @@ ApplicationWindow {
         }
 
         Component.onCompleted: {
-            pressurefield.initializeWindField()
+            pressurefield.resetWindField()
             setInitialTestConfiguration()
             testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
         }
 
         PressureField {
-            anchors.fill: parent
+            width: windField.fieldWidth
+            height: windField.fieldHeight
+            x: windField.robotMinX
+            y: windField.robotMinY
             id: pressurefield
         }
 
