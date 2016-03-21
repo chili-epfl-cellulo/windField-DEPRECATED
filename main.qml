@@ -4,7 +4,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 import QtCanvas3D 1.0
-
+import Cellulo 1.0
 import "renderer.js" as GLRender
 
 ApplicationWindow {
@@ -67,7 +67,7 @@ ApplicationWindow {
             testLeaf.leafYFDrag = 0
             testLeaf.collided = false
 
-            testLeaf2.leafX = 10*pressurefield.xGridSpacing
+            /*testLeaf2.leafX = 10*pressurefield.xGridSpacing
             testLeaf2.leafY = 2*pressurefield.yGridSpacing
             testLeaf2.leafXV = 0
             testLeaf2.leafYV = 0
@@ -76,7 +76,7 @@ ApplicationWindow {
             testLeaf2.leafXF = 0
             testLeaf2.leafYF = 0
             testLeaf2.leafXFDrag = 0
-            testLeaf2.leafYFDrag = 0
+            testLeaf2.leafYFDrag = 0*/
 
             pauseSimulation()
             //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
@@ -137,15 +137,16 @@ ApplicationWindow {
         Leaf {
             id: testLeaf
             field: pressurefield
+             robot: robotComm
         }
 
-        Leaf {
-            id: testLeaf2
-            field: pressurefield
-        }
     }
     UIPanel {
         anchors.fill: parent
         id: controls
+        robot: robotComm
+    }
+    CelluloBluetooth{
+        id: robotComm
     }
 }
