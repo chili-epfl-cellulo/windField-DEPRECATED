@@ -15,5 +15,6 @@
         <file>assets/buttons/updateOn.png</file>
         <file>assets/buttons/playOff.png</file>
         <file>assets/buttons/playOn.png</file>
+        <file>assets/EuropeBg-02.png</file>
     </qresource>
 </RCC>

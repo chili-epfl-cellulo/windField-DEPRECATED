@@ -33,6 +33,8 @@ Item {
     readonly property int active: 1
     readonly property int selected: 2
 
+    property point goal: Qt.point(0,0)
+
     function pressurePointObject() {
         this.gridIndex = Qt.point(0,0);
         this.position = Qt.point(0,0)

@@ -146,6 +146,27 @@ ApplicationWindow {
         id: controls
         robot: robotComm
     }
+
+    Column {
+        id: stockView
+        x: 10
+        y: parent.height -300
+        width: parent.width - 10
+        //state: "CLOSED"
+        height: 300 -10
+
+
+        Rectangle {
+            anchors.fill: parent
+            border.width: 5
+            border.color: "white"
+            color: Qt.rgba(0.75,0.75,0.75,1.0)
+            opacity: 0.4
+            radius:30
+        }
+    }
+
+
     CelluloBluetooth{
         id: robotComm
     }

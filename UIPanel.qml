@@ -46,20 +46,23 @@ Item {
 
     Column {
         id: menuView
-        x: 2560*.25
+        x: 10
         y: 0
-        width: parent.width/2
-        state: "CLOSED"
-        height: 350
+        width: parent.width - 10
+        //state: "CLOSED"
+        height: 300
+
 
         Rectangle {
             anchors.fill: parent
             border.width: 5
-            border.color: "black"
+            border.color: "white"
             color: Qt.rgba(0.75,0.75,0.75,1.0)
+            opacity: 0.6
+            radius:30
         }
 
-        states: [
+        /*states: [
             State {
                 name: "OPENED"
                 when: menuView.state=="OPENED"
@@ -70,9 +73,9 @@ Item {
                 when: menuView.state=="CLOSED"
                 PropertyChanges { target: menuView; y: -(menuView.height-toggleMenu.height)}
             }
-        ]
+        ]*/
 
-        transitions: [
+        /*transitions: [
             Transition {
                 from: "OPENED"
                 to: "CLOSED"
@@ -83,7 +86,7 @@ Item {
                 to: "OPENED"
                 SmoothedAnimation { target: menuView; properties:"y"; duration: 1000}
             }
-        ]
+        ]*/
 
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -386,7 +389,7 @@ Item {
 
         }
         }
-        Button {
+        /*Button {
             id: toggleMenu
             text: qsTr("Open Menu")
             anchors.horizontalCenter: parent.horizontalCenter
@@ -404,6 +407,6 @@ Item {
                     toggleMenu.text = "Open Menu"
                 }
             }
-        }
+        }*/
     }
 }
