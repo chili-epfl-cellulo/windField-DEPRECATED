@@ -12,7 +12,7 @@ var pressureInputCellMaterials = [];
 
 var pressureFieldUpdated = false;
 
-var opa_val = 0.6;
+var opa_val = 0.4;
 
 //Vectors
 var leafForceVectors = [];
@@ -45,7 +45,7 @@ function initScene(pressurefield, leaves, numLeaves) {
     if (numLeaves)
         leafGeom =  new THREE.CircleGeometry(leaves[0].leafSize/2, 6)
         //leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
-    var pressureInputGeom = new THREE.CircleGeometry(30,20)
+    //var pressureInputGeom = new THREE.CircleGeometry(30,20)
     var pressureInputCellGeom = new THREE.PlaneGeometry(pressurefield.xGridSpacing, pressurefield.yGridSpacing, 1, 1)
     initMaterials(pressurefield, leaves, numLeaves);
 

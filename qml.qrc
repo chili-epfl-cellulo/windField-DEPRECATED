@@ -11,6 +11,9 @@
         <file>UIPanel.qml</file>
         <file>Leaf.qml</file>
         <file>assets/europe.jpg</file>
-        <file>assets/EuropeBg-02.png</file>
+        <file>assets/buttons/updateOff.png</file>
+        <file>assets/buttons/updateOn.png</file>
+        <file>assets/buttons/playOff.png</file>
+        <file>assets/buttons/playOn.png</file>
     </qresource>
 </RCC>

@@ -24,3 +24,21 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
+OTHER_FILES += \
+    renderer.js \
+    three.js \
+    Leaf.qml \
+    main.qml \
+    MainForm.ui.qml \
+    PressureField.qml \
+    UIPanel.qml \
+    assets/background.jpg \
+    assets/europe.jpg \
+    assets/CircleObstacle.png \
+    assets/leaf.png \
+    android/AndroidManifest.xml \
+    PressurePointPanel.qml \
+    assets/buttons/updateOff.png \
+    assets/buttons/updateOn.png \
+    assets/final.js
+

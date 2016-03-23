@@ -4,7 +4,14 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 
+
+
 Item {
+
+
+
+    property variant robot: null
+
     function togglePaused() {
         windField.paused = !windField.paused
         if (windField.paused)
@@ -83,7 +90,42 @@ Item {
             anchors.topMargin: parent.top
             spacing: 5
             Column {
-                Button {
+
+                //Implementation of the Button control.
+                Item {
+                    id: button
+                    width: 100
+                    height: 100
+                    property alias text: innerText.text
+                    signal clicked
+                    enabled: windField.paused
+
+                    Image {
+                        id: backgroundImage
+                        anchors.fill: parent
+                        source: (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
+                    }
+
+                    Text {
+                        id: innerText
+                        anchors.centerIn: parent
+                        color: "white"
+                        font.bold: true
+                    }
+
+                    //Mouse area to react on click events
+                    MouseArea {
+                        anchors.fill: button
+                        onClicked: { updateSimulation()}
+                        onPressed: {
+                            backgroundImage.source = "assets/buttons/updateOn.png"}
+                        onReleased: {
+                            backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
+                        }
+                    }
+                }
+
+                /*Button {
                     id: pressureUpdate
                     text: qsTr("Update Pressure")
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -104,11 +146,47 @@ Item {
                         }
                     }
                 }
+                */
             }
 
             Column {
                 id:menu
                 spacing:0
+                //Implementation of the Button control.
+                Item {
+                    id: buttonPause
+                    width: 100
+                    height: 100
+                    property alias text: innerText.text
+                    signal clicked
+                    enabled: windField.paused
+
+                    Image {
+                        id: playImage
+                        anchors.fill: parent
+                        source: (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
+                    }
+
+                    Text {
+                        id: playinnerText
+                        anchors.centerIn: parent
+                        color: "white"
+                        font.bold: true
+                    }
+
+                    //Mouse area to react on click events
+                    MouseArea {
+                        anchors.fill: buttonPause
+                        onClicked: {togglePaused()}
+                        onPressed: {
+                            playImage.source = "assets/buttons/playOn.png"}
+                        onReleased: {
+                            playImage.source = (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
+                        }
+                    }
+                }
+
+
                 Button {
                     id: pause
                     text: qsTr("Start")
@@ -214,6 +292,99 @@ Item {
                     }
                 }
             }
+
+            Column{
+                id: itemsCol
+
+                GroupBox {
+                    id: addressBox
+                    title: "Robot Address"
+                    width: gWidth
+
+                    Row{
+                        spacing: 5
+
+                        Label{
+                            text: "00:06:66:74:"
+                            anchors.verticalCenter: macAddrRight.verticalCenter
+                        }
+                        TextField{
+                            id: macAddrRight
+                            text: "41:14"
+                            placeholderText: "XX:XX"
+                            width: em(5)
+                        }
+                        Button {
+                            text: "Connect"
+                            onClicked: robot.macAddr =  "00:06:66:74:" + macAddrRight.text;
+                        }
+                    }
+                }
+
+                GroupBox {
+                    id: statusBox
+                    title: "Status"
+                    width: gWidth
+
+                    Column{
+                        spacing: 5
+
+                        Row{
+                            spacing: 5
+
+                            Text{
+                                text: "Connected?"
+                                color: robot.connected ? "green" : "red"
+                            }
+                            Text{
+                                text: "Battery State: " + robot.batteryState
+                            }
+                            Text{
+                                id: k0
+                                text: "K0"
+                                color: "black"
+                            }
+                            Text{
+                                id: k1
+                                text: "K1"
+                                color: "black"
+                            }
+                            Text{
+                                id: k2
+                                text: "K2"
+                                color: "black"
+                            }
+                            Text{
+                                id: k3
+                                text: "K3"
+                                color: "black"
+                            }
+                            Text{
+                                id: k4
+                                text: "K4"
+                                color: "black"
+                            }
+                            Text{
+                                id: k5
+                                text: "K5"
+                                color: "black"
+                            }
+                        }
+                        Row{
+                            spacing: 5
+
+                            Text{
+                                text: "Kidnapped?"
+                                color: robot.kidnapped ? "red" : "green"
+                            }
+                            Text{
+                                text: "X=" + robot.x.toFixed(2) + " Y=" + robot.y.toFixed(2) + " Theta=" + robot.theta.toFixed(1)
+                            }
+                        }
+                    }
+                }
+
+        }
         }
         Button {
             id: toggleMenu
