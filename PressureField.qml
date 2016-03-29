@@ -20,7 +20,7 @@ Item {
 
     //Controls how much force there is per unit of pressure difference
     readonly property double pressureToForceMultiplier: 1
-    readonly property double maxForce: 15.0
+    readonly property double maxForce: 20.0
 
     //Controls how fast pressure disperses in a single time step
     readonly property double pressureTransferRate: 1

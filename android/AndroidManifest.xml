@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<manifest android:installLocation="auto" android:versionCode="1" package="org.epfl.cellulo.windactivity" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="1" android:versionName="1.0" package="org.epfl.cellulo.windactivity">
     <application android:icon="@drawable/icon" android:hardwareAccelerated="true" android:label="Wind Activity" android:name="org.qtproject.qt5.android.bindings.QtApplication">
-        <activity android:screenOrientation="landscape" android:label="-- %%INSERT_APP_NAME%% --" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:launchMode="singleTop" android:name="org.qtproject.qt5.android.bindings.QtActivity">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:launchMode="singleTop" android:screenOrientation="landscape" android:label="-- %%INSERT_APP_NAME%% --" android:name="org.qtproject.qt5.android.bindings.QtActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -40,8 +40,8 @@
             <!-- Background running -->
         </activity>
     </application>
-    <uses-sdk android:targetSdkVersion="19" android:minSdkVersion="14"/>
-    <supports-screens android:smallScreens="true" android:largeScreens="true" android:anyDensity="true" android:normalScreens="true"/>
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19"/>
+    <supports-screens android:anyDensity="true" android:normalScreens="true" android:smallScreens="true" android:largeScreens="true"/>
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->
     <!-- %%INSERT_PERMISSIONS -->

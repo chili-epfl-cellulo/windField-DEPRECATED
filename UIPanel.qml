@@ -9,39 +9,39 @@ import QtQuick.Controls.Styles 1.4
 Item {
 
 
-
+    property variant windfield: null
     property variant robot: null
 
     function togglePaused() {
-        windField.paused = !windField.paused
-        if (windField.paused)
+        windfield.paused = !windfield.paused
+        if (windfield.paused)
             pause.text = 'Resume'
         else
             pause.text = 'Pause'
-        pressureUpdate.enabled = windField.paused
+        //pressureUpdate.enabled = windfield.paused
     }
 
     function toggleDisplaySetting(setting) {
         switch(setting){
         case 1:
-            windField.drawPressureGrid = pressureGridCheck.checked
+            windfield.drawPressureGrid = pressureGridCheck.checked
             break;
         case 2:
-            windField.drawForceGrid = forceGridCheck.checked
+            windfield.drawForceGrid = forceGridCheck.checked
             break;
         case 3:
-            windField.drawLeafVelocityVector = leafVelocityCheck.checked
+            windfield.drawLeafVelocityVector = leafVelocityCheck.checked
             break;
         case 4:
-            windField.drawLeafForceVectors = leafForceCheck.checked
+            windfield.drawLeafForceVectors = leafForceCheck.checked
             break;
         }
     }
 
     function updateSimulation() {
         pressurefield.updateField()
-        for (var i = 0; i < windField.numLeaves; i++)
-            windField.leaves[i].calculateForcesAtLeaf()
+        for (var i = 0; i < windfield.numLeaves; i++)
+            windfield.leaves[i].calculateForcesAtLeaf()
     }
 
     Column {
@@ -101,7 +101,7 @@ Item {
                     height: 100
                     property alias text: innerText.text
                     signal clicked
-                    enabled: windField.paused
+                    enabled: windfield.paused
 
                     Image {
                         id: backgroundImage
@@ -133,7 +133,7 @@ Item {
                     text: qsTr("Update Pressure")
                     anchors.horizontalCenter: parent.horizontalCenter
                     onClicked: updateSimulation()
-                    enabled: windField.paused
+                    enabled: windfield.paused
                     style: ButtonStyle {
                         id: buttonStyle
                         background: Rectangle {
@@ -162,7 +162,7 @@ Item {
                     height: 100
                     property alias text: innerText.text
                     signal clicked
-                    enabled: windField.paused
+                    enabled: windfield.paused
 
                     Image {
                         id: playImage
@@ -217,34 +217,34 @@ Item {
                     style: pause.style
                     onClicked: {
                         pressurefield.resetWindField()
-                        windField.setInitialTestConfiguration()
-                        windField.setPressureFieldTextureDirty()
-                        windField.pauseSimulation()
+                        windfield.setInitialTestConfiguration()
+                        windfield.setPressureFieldTextureDirty()
+                        windfield.pauseSimulation()
                     }
                 }
             }
             Column {
                 CheckBox {
                     id: pressureGridCheck
-                    checked: windField.drawPressureGrid
+                    checked: windfield.drawPressureGrid
                     text: "Pressure Gradient"
                     onClicked: toggleDisplaySetting(1)
                 }
                 CheckBox {
                     id: forceGridCheck
-                    checked: windField.drawForceGrid
+                    checked: windfield.drawForceGrid
                     text: "Force Vectors"
                     onClicked: toggleDisplaySetting(2)
                 }
                 CheckBox {
                     id: leafVelocityCheck
-                    checked: windField.drawLeafVelocityVector
+                    checked: windfield.drawLeafVelocityVector
                     text: "Leaf Velocity"
                     onClicked: toggleDisplaySetting(3)
                 }
                 CheckBox {
                     id: leafForceCheck
-                    checked: windField.drawLeafForceVectors
+                    checked: windfield.drawLeafForceVectors
                     text: "Forces on Leaf"
                     onClicked: toggleDisplaySetting(4)
                 }
@@ -282,7 +282,7 @@ Item {
                         ListElement { text: "Remove Pressure"; color: "White" }
                     }
                     onCurrentIndexChanged: {
-                        windField.currentAction = currentIndex;
+                        windfield.currentAction = currentIndex;
                     }
                 }
                 Button {
@@ -302,7 +302,7 @@ Item {
                 GroupBox {
                     id: addressBox
                     title: "Robot Address"
-                    width: gWidth
+                    width: 300
 
                     Row{
                         spacing: 5
@@ -315,7 +315,7 @@ Item {
                             id: macAddrRight
                             text: "41:14"
                             placeholderText: "XX:XX"
-                            width: em(5)
+                            width: 10
                         }
                         Button {
                             text: "Connect"

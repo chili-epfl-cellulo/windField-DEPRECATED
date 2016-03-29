@@ -40,5 +40,8 @@ OTHER_FILES += \
     PressurePointPanel.qml \
     assets/buttons/updateOff.png \
     assets/buttons/updateOn.png \
-    assets/final.js
+    assets/final.js \
+    windsim.js \
+    PressurePoint.qml \
+    CanvasField.qml
 
