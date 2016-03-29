@@ -16,11 +16,47 @@ ApplicationWindow {
     contentOrientation: Screen.orientation
 
 
+    MainForm{
+        id:game
+        focus:true
+        property bool readystart: state=""
+        property bool readyExplanation: state="general_explanation"
+        property bool readyGame1: state="game1"
+
+
+        state:""
+
+        onReadystartChanged:  {
+            state="Start"
+        }
+
+        onReadyExplanationChanged: {
+           state="general_explanations"
+        }
+
+        onReadyGame1Changed: {
+          state="game1"
+        }
+
+        onStateChanged: {
+            console.log("Switch to game state " + state);
+            if (state == "game1") {
+                game1();
+            }
+
+        }
+        function game1() {
+            mainGameField.visible= true;
+        }
+
+    }
+
 
     CanvasField{
         anchors.fill: parent
         id: mainGameField
         robot:robotComm
+        visible:false
       //  property alias windfield: windfield
     }
 

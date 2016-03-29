@@ -7,7 +7,7 @@ Item {
     height: parent.height
     property variant robot: robotComm
     property variant windfield: windField
-
+    visible: false
     Canvas3D {
         id: windField
         width: parent.width

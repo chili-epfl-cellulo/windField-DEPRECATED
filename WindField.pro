@@ -29,7 +29,6 @@ OTHER_FILES += \
     three.js \
     Leaf.qml \
     main.qml \
-    MainForm.ui.qml \
     PressureField.qml \
     UIPanel.qml \
     assets/background.jpg \
@@ -43,5 +42,6 @@ OTHER_FILES += \
     assets/final.js \
     windsim.js \
     PressurePoint.qml \
-    CanvasField.qml
+    CanvasField.qml \
+    MainForm.qml
 

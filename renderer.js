@@ -12,7 +12,7 @@ var pressureInputCellMaterials = [];
 
 var pressureFieldUpdated = false;
 
-var opa_val = 0.4;
+var opa_val = 0.8;
 
 //Vectors
 var leafForceVectors = [];
@@ -124,21 +124,57 @@ function createPressureFieldMaterial() {
                 data[index+2] = 0
                 data[index+3] = 255
             } else {
-                var pressure = pressurefield.pressureGrid[row][col][4];
-                data[index] = pressure/100.0*255
-                data[index+1] = 0
-                data[index+2] = (100-pressure)/100.0*255
-                data[index+3] = 255
+                //var pressure = pressurefield.pressureGrid[row][col][4];
+                //data[index] = pressure/100.0*255
+                //data[index+1] = 0
+                //data[index+2] = (100-pressure)/100.0*255
+                //data[index+3] = 255
+                var rgba = getRGBA(pressure/100);
+                data[index] =  rgba.r*255;
+                data[index+1] = rgba.g*255;
+                data[index+2] = rgba.b*255;
+                data[index+3] = 255;
             }
             index+=4
         }
     }
     var pressureFieldTexture = new THREE.DataTexture(data, pressurefield.numCols, pressurefield.numRows, THREE.RGBAFormat);
+
     pressureFieldTexture.needsUpdate = true
     pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: opa_val, depthWrite: false});
 
     pressureFieldUpdated = false
 }
+
+function getRGBA(intensity){
+
+    var c7 = new THREE.Color(1,0,0);
+    var c6 = new THREE.Color(1, 0.27,0,1)
+    var c5 = new THREE.Color(1.000, 0.549, 0.000)
+    var c4 = new THREE.Color(1.000, 1.000, 0.878)
+    var c3=  new THREE.Color(0.690, 0.878, 0.902)
+    var c2 = new THREE.Color(0.1, 0.1, 0.729)
+    var c1 = new THREE.Color(0.000, 0.000, 0.804)
+    var colorRamp = [c1,c2,c3,c4,c5,c6,c7]
+    if(intensity<1/7){
+        return c1;
+    }else if(intensity<2/7){
+        return c1.lerp(c2,intensity);
+    }else if(intensity<3/7){
+        return c2.lerp(c3,intensity);
+    } else if(intensity<4/7){
+        return c3.lerp(c4,intensity);
+    }else if(intensity<5/7){
+       return c4.lerp(c5,intensity);
+    }else if(intensity<6/7){
+       return c5.lerp(c6,intensity);
+    }else{
+        return c6.lerp(c7,intensity);
+    }
+}
+
+
+
 
 function paintGL(pressurefield, leaves, numLeaves) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
