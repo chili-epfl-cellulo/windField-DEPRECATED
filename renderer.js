@@ -94,7 +94,9 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     //Init shaders and textures
 
     //Background Material
-    backgroundMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/EuropeBg-02.png')} );
+    var bgtexture =  THREE.ImageUtils.loadTexture('assets/EuropeBg-02.png')
+    bgtexture.minFIlter = THREE.LinearFilter; //THREE.NearestFilter;
+    backgroundMaterial = new THREE.MeshBasicMaterial( { map:bgtexture} );
 
     createPressureFieldMaterial()
 
@@ -103,12 +105,14 @@ function initMaterials(pressurefield, leaves, numLeaves) {
         leafMaterials[i] = new THREE.MeshBasicMaterial({ color: 0x00ff00,
                                                        ambient: 0x000000,
                                                        shading: THREE.SmoothShading});
+        //leafMaterials[i] = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/highPressure.png')} );
     }
 
     for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
         pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
                                                                      ambient: 0x000000,
                                                                      shading: THREE.SmoothShading})
+         //pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/highPressure.png')} );
     }
 }
 
@@ -124,7 +128,7 @@ function createPressureFieldMaterial() {
                 data[index+2] = 0
                 data[index+3] = 255
             } else {
-                //var pressure = pressurefield.pressureGrid[row][col][4];
+                var pressure = pressurefield.pressureGrid[row][col][4];
                 //data[index] = pressure/100.0*255
                 //data[index+1] = 0
                 //data[index+2] = (100-pressure)/100.0*255
@@ -149,7 +153,7 @@ function createPressureFieldMaterial() {
 function getRGBA(intensity){
 
     var c7 = new THREE.Color(1,0,0);
-    var c6 = new THREE.Color(1, 0.27,0,1)
+    var c6 = new THREE.Color(1, 0.27, 0.000)
     var c5 = new THREE.Color(1.000, 0.549, 0.000)
     var c4 = new THREE.Color(1.000, 1.000, 0.878)
     var c3=  new THREE.Color(0.690, 0.878, 0.902)
@@ -173,7 +177,33 @@ function getRGBA(intensity){
     }
 }
 
-
+function drawPredictedPath(gl) {
+    var origLeafX = leafX
+    var origLeafY = leafY
+    var origLeafXV = leafXV
+    var origLeafYV = leafYV
+    var origLeafXF = leafXF
+    var origLeafYF = leafYF
+    var origLeafXDrag = leafXFDrag
+    var origLeafYDrag = leafYFDrag
+    var origCollisionX = collisionForceX
+    var origCollisionY = collisionForceY
+    for (var i = 0; i < 1800; i++){
+        updateLeaf()
+        gl.fillStyle = Qt.rgba(1,1,1,1)
+        gl.fillRect(leafX, leafY, 5, 5)
+    }
+    leafX = origLeafX
+    leafY = origLeafY
+    leafXV = origLeafXV
+    leafYV = origLeafYV
+    leafXF = origLeafXF
+    leafYF = origLeafYF
+    leafXFDrag = origLeafXDrag
+    leafYFDrag = origLeafYDrag
+    collisionForceX = origCollisionX
+    collisionForceY = origCollisionY
+}
 
 
 function paintGL(pressurefield, leaves, numLeaves) {

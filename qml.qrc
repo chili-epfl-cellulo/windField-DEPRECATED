@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>MainForm.ui.qml</file>
         <file>assets/CircleObstacle.png</file>
         <file>assets/leaf.png</file>
         <file>assets/background.jpg</file>
@@ -17,5 +16,11 @@
         <file>assets/buttons/playOn.png</file>
         <file>assets/EuropeBg-02.png</file>
         <file>CanvasField.qml</file>
+        <file>MainForm.qml</file>
+        <file>assets/start/windUiStart.png</file>
+        <file>assets/windUi-1.png</file>
+        <file>assets/windUi-4.png</file>
+        <file>assets/windUi-3.png</file>
+        <file>assets/windUi-2.png</file>
     </qresource>
 </RCC>
