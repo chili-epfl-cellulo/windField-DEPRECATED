@@ -53,7 +53,7 @@ Item {
             testLeaf.leafY = pressurefield.height/2
             testLeaf.leafXV = 20
             testLeaf.leafYV = 0
-            testLeaf.leafMass = 10
+            testLeaf.leafMass = 5
             testLeaf.leafSize = 50
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0

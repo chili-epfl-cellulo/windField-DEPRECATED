@@ -4,7 +4,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 import QtCanvas3D 1.0
-
+import Cellulo 1.0
 
 Item {
     //Leaf Properties
@@ -30,7 +30,7 @@ Item {
     property variant robot: null
 
     /***CELLULO SYNCHRONISATION METHODS***/
-    CelluloBluetooth{
+    CelluloRobot{
         id: robotComm
     }
 

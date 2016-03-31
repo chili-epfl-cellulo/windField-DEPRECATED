@@ -44,5 +44,6 @@ OTHER_FILES += \
     assets/final.js \
     windsim.js \
     CanvasField.qml \
-    MainForm.qml
+    MainForm.qml \
+    renderer.js
 
