@@ -57,7 +57,7 @@ Item {
                 cellArray[3] = 0.0 //current wind force Y component
                 cellArray[4] = 50.0 //Pressure (from 0 to 100)
                 cellArray[5] = 0.0 //incoming pressure
-                cellArray[6] = 1.0 //0:mountain cell, 1:normal cell
+                cellArray[6] = 1.0 //0:mountain cell, 1:normal cell, 2:active cell
                 column[j] = cellArray
             }
             rows[i]=column
@@ -138,6 +138,7 @@ Item {
                 continue
             var row = pressurePoints[i].gridIndex.x
             var col = pressurePoints[i].gridIndex.y
+            printPRESSAUROUND(row,col,10)
             pressureGrid[row][col][4] = pressurePoints[i].strength
 
             var nnb = 100;
@@ -150,22 +151,52 @@ Item {
                     var curPressure = pressureGrid[rowOffset][colOffset][4];
                     //console.info(rowOffset,colOffset,curPressure);
                     if(curPressure < 100 || curPressure >0){
-                        var d = Math.sqrt((rowOffset - row)*(rowOffset - row)+(colOffset - col)*(colOffset - col))
+                        var d = 2*Math.sqrt((rowOffset - row)*(rowOffset - row)+(colOffset - col)*(colOffset - col))/3
                         //console.info(d);
-                        pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/Math.floor(d);
+                        if(d==0)
+                            pressureGrid[rowOffset][colOffset][4] = pressurePoints[i].strength
+                        else
+                           pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/d;
                         //console.info(rowOffset,colOffset,curPressure+(pressurePoints[i].strength)/Math.floor(d));
+                    }
+                    else if(curPressure==100){
+                        pressureGrid[rowOffset][colOffset][4] =100;
+                    }
+                    else if(curPressure==0)
+                        pressureGrid[rowOffset][colOffset][4] =0;
+                    else{
+                        pressureGrid[rowOffset][colOffset][4] =50;
                     }
                     //(-1*pressureGrid[row][col][4]/(d*2))
 
                 }
-                pressureGrid[row][col][4]=50;
+                //pressureGrid[row][col][4]=50;
             }
 
-
+        printPRESSAUROUND(row,col,10)
         }
         console.info("updating over")
     }
 
+
+    function printPRESSAUROUND(r,c,patch){
+        var str="\n"
+        for(var rof=r-patch/2; rof<r+patch/2+1; rof++){
+            if (rof >= numRows || rof < 0)
+                continue;
+            for(var cof=c-patch/2; cof<c+patch/2+1; cof++){
+                if (cof >= numCols || cof < 0)
+                    continue;
+                var a = "%1"
+                 str+=a.arg(pressureGrid[rof][cof][4])
+                 str+= ' '
+            }
+            str+='\n'
+
+        }
+        console.log(str);
+
+    }
     function updatePressureGrid() {
         for (var row = 0; row < numRows; row++) {
             for (var col = 0; col < numCols; col++) {
@@ -215,7 +246,7 @@ Item {
                     }
                 }
 
-                //pressureGrid[row][col][4] = getPressureOnCell(row,col)
+                pressureGrid[row][col][4] = getPressureOnCell(row,col)
                 //resetPressureAtPressurePoints()
             }
         }
@@ -303,7 +334,7 @@ Item {
     //1: high pressure (low setting), 2: high pressure (medium), 3: high pressure (low)
     //-1: low pressure (low setting), -2: low pressure (medium), -3: low pressure (low)
     function addPressurePoint(r,c,pressureLevel) {
-        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6])
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6] )//|| pressureGrid[r][c][6]!=2)
             return;
 
         //First make sure the point doesn't already exist, do nothing if it already does
@@ -314,12 +345,10 @@ Item {
                 if (row == r && col == c)
                     return;
             }
-
-            console.log("===================pressure added========================")
-            console.log(r,c,pressureLevel)
-            console.log("===================pressure added========================")
         }
-
+        console.log("===================pressure added========================")
+        console.log(r,c,pressureLevel)
+        console.log("===================pressure added========================")
         //Actually add the pressure cell
         for (var p = 0; p < maxPressurePoints; p++) {
             if (!pressurePoints[p].state) {
@@ -331,6 +360,7 @@ Item {
                 return
             }
         }
+        //pressureGrid[r][c][6]=2;
     }
 
     function removePressurePoint(r,c) {

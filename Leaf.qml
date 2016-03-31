@@ -54,18 +54,23 @@ Item {
                                pressureGrid[Math.max(0,rowIndex-1)][colIndex][4] +
                                pressureGrid[rowIndex][Math.max(0,colIndex-1)][4] +
                                pressureGrid[rowIndex][colIndex][4])/4.0;
+
         var topRightPressure = (pressureGrid[Math.max(0,rowIndex-1)][colIndex][4] +
                                 pressureGrid[Math.max(0,rowIndex-1)][Math.min(numCols-1, colIndex+1)][4] +
                                 pressureGrid[rowIndex][colIndex][4] +
                                 pressureGrid[rowIndex][Math.min(numCols-1, colIndex+1)][4])/4.0
+
         var bottomLeftPressure = (pressureGrid[rowIndex][Math.max(0,colIndex-1)][4] +
                                   pressureGrid[rowIndex][colIndex] [4]+
                                   pressureGrid[Math.min(numRows-1,rowIndex+1)][Math.max(0,colIndex-1)][4] +
                                   pressureGrid[Math.min(numRows-1,rowIndex+1)][colIndex][4])/4.0
+
         var bottomRightPressure = (pressureGrid[rowIndex][colIndex][4] +
                                    pressureGrid[rowIndex][Math.min(numCols-1, colIndex+1)][4] +
                                    pressureGrid[Math.min(numRows-1,rowIndex+1)][colIndex][4] +
                                    pressureGrid[Math.min(numRows-1,rowIndex+1)][Math.min(numCols-1, colIndex+1)][4])/4
+
+         //console.log( 'pressures' ,topLeftPressure, topRightPressure ,bottomLeftPressure,bottomRightPressure)
 
         //Now interpolate between the points to find the force (which we will just call the
         var xRatio = (leafX-colIndex*xGridSpacing)/xGridSpacing
@@ -98,9 +103,11 @@ Item {
         calculateForcesAtLeaf()
         var netForceX = leafXF + leafXFDrag
         var netForceY = leafYF + leafYFDrag
+
         //update position from one time step given current velocity and current force
         var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
         var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
+
         leafXV += netForceX/leafMass*timeStep
         leafYV += netForceY/leafMass*timeStep
         leafX += deltaX
@@ -120,12 +127,13 @@ Item {
             leafXFDrag = 0
             leafYFDrag = 0
         }
-
+        console.log('new leaf positions',leafX, leafY)
+        console.log("===================")
         //TESTING
         //leafX = (robotComm.y/575)*robotMaxX
         //leafY = robotMaxY-(robotComm.x/400)*robotMaxY
 
-        robot.setGoalVelocity(leafXV*2 , leafYV*2 , 0.0);
+        //robot.setGoalVelocity(leafXV*2 , leafYV*2 , 0.0);
     }
 
 

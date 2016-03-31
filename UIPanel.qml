@@ -315,7 +315,7 @@ Item {
                             id: macAddrRight
                             text: "41:14"
                             placeholderText: "XX:XX"
-                            width: 10
+                            width: 50
                         }
                         Button {
                             text: "Connect"

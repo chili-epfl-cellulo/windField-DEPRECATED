@@ -12,7 +12,7 @@ var pressureInputCellMaterials = [];
 
 var pressureFieldUpdated = false;
 
-var opa_val = 0.8;
+var opa_val = 0.6;
 
 //Vectors
 var leafForceVectors = [];
@@ -67,10 +67,10 @@ function initScene(pressurefield, leaves, numLeaves) {
         //Vectors: just initialize arrows for now, updating from leaf info happens on paint
         var dir = new THREE.Vector3( 1, 0, 0 );
         var origin = new THREE.Vector3( 0, 0, 0 );
-        var length = 1;
-        leafForceVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0xffffff);
-        leafDragVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0x000000);
-        leafVelocityVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0xffff00);
+        var length = 2;
+        leafForceVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0xFF000);
+        leafDragVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0x0099FF);
+        leafVelocityVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0x66CC00);
         scene.add(leafForceVectors[i])
         scene.add(leafDragVectors[i])
         scene.add(leafVelocityVectors[i])
@@ -151,15 +151,18 @@ function createPressureFieldMaterial() {
 }
 
 function getRGBA(intensity){
-
     var c7 = new THREE.Color(1,0,0);
     var c6 = new THREE.Color(1, 0.27, 0.000)
     var c5 = new THREE.Color(1.000, 0.549, 0.000)
-    var c4 = new THREE.Color(1.000, 1.000, 0.878)
+    var c4 = new THREE.Color(1.000, 1.000, 1.0)
     var c3=  new THREE.Color(0.690, 0.878, 0.902)
     var c2 = new THREE.Color(0.1, 0.1, 0.729)
     var c1 = new THREE.Color(0.000, 0.000, 0.804)
     var colorRamp = [c1,c2,c3,c4,c5,c6,c7]
+    if(intensity<=0.5)
+        return c4.lerp(c1,intensity)
+    else
+        return c7.lerp(c4,intensity)
     if(intensity<1/7){
         return c1;
     }else if(intensity<2/7){
@@ -176,6 +179,43 @@ function getRGBA(intensity){
         return c6.lerp(c7,intensity);
     }
 }
+
+
+
+  /**
+   * Calculate the position of an object after a period of time.
+   *
+   * p = p0 + vt + at^2
+   *
+   * @param  {object|Point}  p    {x,y} initial position
+   * @param  {EFH.Vector}    v    velocity vector
+   * @param  {EFH.Vector}    a    acceleration vector
+   * @param  {Number}        t    time in seconds
+   * @return {object}             {x, y} final position
+   */
+  function calcPosition(p, v, a, t) {
+    return {
+      x : p.x + (v.xComponent() * t + a.xComponent() * (t*t)),
+      y : p.y + (v.yComponent() * t + a.yComponent() * (t*t))
+    }
+  }
+
+
+  /**
+   * Calculates the velocity of an object after a period of time
+   *
+   * v = v0 + at
+   *
+   * @param  {EFH.Vector}   v    initial velocity Vector
+   * @param  {EFH.Vector}   a    acceleration vector
+   * @param  {Number}       t    time passed in seconds
+   * @return {EFH.Vector}        final velocity vector
+   */
+  function calcVelocity(v, a, t) {
+    return v.add( a.mult(t) );
+  }
+
+
 
 function drawPredictedPath(gl) {
     var origLeafX = leafX
