@@ -46,20 +46,20 @@ Item {
 
     Column {
         id: menuView
-        x: 10
-        y: 0
-        width: parent.width - 10
+        x: 20
+        y: 5
+        width: parent.width - 40
         //state: "CLOSED"
-        height: 300
+        height: 310
 
 
         Rectangle {
             anchors.fill: parent
-            border.width: 5
-            border.color: "white"
-            color: Qt.rgba(0.75,0.75,0.75,1.0)
-            opacity: 0.6
-            radius:30
+//            border.width: 5
+//            border.color: "white"
+            color: Qt.rgba(1,1,1,0.6)
+            //opacity: 0.6
+            radius:155
         }
 
         /*states: [

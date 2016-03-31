@@ -12,7 +12,7 @@ var pressureInputCellMaterials = [];
 
 var pressureFieldUpdated = false;
 
-var opa_val = 0.8;
+var opa_val = 0.4;
 
 //Vectors
 var leafForceVectors = [];

@@ -30,9 +30,9 @@ Item {
     property variant robot: null
 
     /***CELLULO SYNCHRONISATION METHODS***/
-//    CelluloBluetooth{
-//        id: robotComm
-//    }
+    CelluloBluetooth{
+        id: robotComm
+    }
 
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
