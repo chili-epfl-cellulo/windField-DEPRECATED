@@ -1,15 +1,21 @@
 import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Dialogs 1.2
-import QtQuick.Window 2.2
-import QtQuick.Controls.Styles 1.4
+import QtQuick.Window 2.1
+import QtQuick.Layouts 1.1
+import QtQuick.Controls 1.2
+import QtQuick.Controls.Private 1.0
+import QtQuick.Controls.Styles 1.3
+import QtBluetooth 5.2
+import Cellulo 1.0
 
 
 
 Item {
 
+    function em(x){ return Math.round(x*TextSingleton.font.pixelSize); }
 
-    property variant windfield: null
+    property bool mobile: Qt.platform.os === "android"
+    property real gWidth: mobile ? Screen.width : 640
+    property variant windfield: windField
     property variant robot: null
 
     function togglePaused() {
@@ -62,31 +68,7 @@ Item {
             radius:155
         }
 
-        /*states: [
-            State {
-                name: "OPENED"
-                when: menuView.state=="OPENED"
-                PropertyChanges { target: menuView; y: 0}
-            },
-            State {
-                name: "CLOSED"
-                when: menuView.state=="CLOSED"
-                PropertyChanges { target: menuView; y: -(menuView.height-toggleMenu.height)}
-            }
-        ]*/
 
-        /*transitions: [
-            Transition {
-                from: "OPENED"
-                to: "CLOSED"
-                SmoothedAnimation { target: menuView; properties:"y"; duration: 1000}
-            },
-            Transition {
-                from: "CLOSED"
-                to: "OPENED"
-                SmoothedAnimation { target: menuView; properties:"y"; duration: 1000}
-            }
-        ]*/
 
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -283,6 +265,7 @@ Item {
                     }
                     onCurrentIndexChanged: {
                         windfield.currentAction = currentIndex;
+                        //windfield.currentAction = currentIndex;
                     }
                 }
                 Button {
@@ -302,7 +285,7 @@ Item {
                 GroupBox {
                     id: addressBox
                     title: "Robot Address"
-                    width: 300
+                    width: gWidth/4
 
                     Row{
                         spacing: 5
@@ -313,13 +296,13 @@ Item {
                         }
                         TextField{
                             id: macAddrRight
-                            text: "41:14"
+                            text: "43:00"
                             placeholderText: "XX:XX"
-                            width: 50
+                            width: em(5)
                         }
                         Button {
                             text: "Connect"
-                            onClicked: robot.macAddr =  "00:06:66:74:" + macAddrRight.text;
+                            onClicked: robotComm.macAddr =  "00:06:66:74:" + macAddrRight.text;
                         }
                     }
                 }
@@ -327,7 +310,7 @@ Item {
                 GroupBox {
                     id: statusBox
                     title: "Status"
-                    width: gWidth
+                    width: gWidth/4
 
                     Column{
                         spacing: 5

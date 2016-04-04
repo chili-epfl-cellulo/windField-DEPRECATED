@@ -106,7 +106,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         leafMaterials[i] = new THREE.MeshBasicMaterial({ color: 0x00ff00,
                                                        ambient: 0x000000,
-                                                       shading: THREE.SmoothShading});
+                                                       shading: THREE.FlatShading});
         //leafMaterials[i] = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/highPressure.png')} );
     }
 
@@ -135,6 +135,7 @@ function createPressureFieldMaterial() {
                 //data[index+1] = 0
                 //data[index+2] = (100-pressure)/100.0*255
                 //data[index+3] = 255
+
                 var rgba = getRGBA(pressure/100);
                 data[index] =  rgba.r*255;
                 data[index+1] = rgba.g*255;
@@ -145,28 +146,28 @@ function createPressureFieldMaterial() {
         }
     }
     var pressureFieldTexture = new THREE.DataTexture(data, pressurefield.numCols, pressurefield.numRows, THREE.RGBAFormat);
-
+    //pressureFieldTexture.minFIlter = THREE.LinearFilter;
     pressureFieldTexture.needsUpdate = true
+    pressureFieldTexture.minFilter = THREE.NearestFilter
     pressureFieldMaterial = new THREE.MeshBasicMaterial({ map: pressureFieldTexture, transparent:true, opacity: opa_val, depthWrite: false});
-
     pressureFieldUpdated = false
 }
 
 function getRGBA(intensity){
     var c7 = new THREE.Color(1,0,0);
-    var c6 = new THREE.Color(1, 0.27, 0.000)
-    var c5 = new THREE.Color(1.000, 0.549, 0.000)
-    var c4 = new THREE.Color(1.000, 1.000, 1.0)
-    var c3=  new THREE.Color(0.690, 0.878, 0.902)
-    var c2 = new THREE.Color(0.1, 0.1, 0.729)
-    var c1 = new THREE.Color(0.000, 0.000, 0.804)
+    var c6 = new THREE.Color(1, 0.3, 0)
+    var c5 = new THREE.Color(1, 0.5, 0)
+    var c4 = new THREE.Color(1, 1, 1.0)
+    var c3=  new THREE.Color(0, 0.5, 1)
+    var c2 = new THREE.Color(0, 0.3, 1)
+    var c1 = new THREE.Color(0, 0, 1)
     var colorRamp = [c1,c2,c3,c4,c5,c6,c7]
-    if(intensity<=0.33)
+    /*if(intensity<=0.33)
         return c4.lerp(c1,intensity)
     else if(intensity>=0.66)
         return c7.lerp(c4,intensity)
     else
-        return c4;
+        return c4;*/
     if(intensity<1/7){
         return c1;
     }else if(intensity<2/7){

@@ -37,6 +37,8 @@ Item {
         property int numLeaves: 1
 
         function setInitialTestConfiguration(){
+
+
             //Set pressure point
             pressurefield.addPressurePoint(0,0,3)
             pressurefield.addPressurePoint(14,0,3)
@@ -128,7 +130,7 @@ Item {
         Component.onCompleted: {
             pressurefield.resetWindField()
             setInitialTestConfiguration()
-            testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+            testLeaf.robotComm.macAddr = "00:06:66:74:43:00"
         }
 
         PressureField {
@@ -142,37 +144,74 @@ Item {
         Leaf {
             id: testLeaf
             field: pressurefield
-             robot: robotComm
+            robot: robotComm
         }
 
 
     }
 
     UIPanel {
-        anchors.fill: parent
+        //anchors.fill: parent
         id: controls
         robot: robotComm
         windfield: windField
+        width: parent.width
+        height: parent.height /3
     }
+
+
+
+    /*PressurePointPanel {
+        //anchors.fill: parent
+        width: parent.width
+        height: 310
+        id: ppointStock
+        //robot: robotComm
+        windfield: windField
+
+    }*/
 
     Column {
         id: stockView
         x: 20
-        y: parent.height -320
+        y: parent.height -  parent.height /5
         width: parent.width - 40
-        //state: "CLOSED"
-        height: 310
+        height:  parent.height /5
 
 
         Rectangle {
             anchors.fill: parent
-//            border.width: 5
-//            border.color: "white"
             color: Qt.rgba(1,1,1,0.6)
-            //opacity: 0.4
             radius:155
+
+            Row {
+                id:rowPressure
+                width:parent.width
+                height: parent.height
+                spacing: 50
+
+                PressurePoint{
+                    id: pressurePoint1
+                    ilevel: 2
+                }
+                PressurePoint{
+                    id: pressurePoint10
+                    ilevel: -2
+                }
+                PressurePoint{
+                    id: pressurePoint2
+                    ilevel: -1
+                }
+                PressurePoint{
+                    id: pressurePoint3
+                    ilevel: 1
+                }
+            }
+
         }
     }
+
+
 
 
 }

@@ -151,19 +151,20 @@ Item {
                     var curPressure = pressureGrid[rowOffset][colOffset][4];
                     //console.info(rowOffset,colOffset,curPressure);
                     if(curPressure < 100 || curPressure >0){
-                        var d = 2*Math.sqrt((rowOffset - row)*(rowOffset - row)+(colOffset - col)*(colOffset - col))/3
+                        var d = Math.sqrt((rowOffset - row)*(rowOffset - row)+(colOffset - col)*(colOffset - col));
                         //console.info(d);
                         if(d==0)
                             pressureGrid[rowOffset][colOffset][4] = pressurePoints[i].strength
                         else
-                           pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/(d/2);
+                           pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/(d/3);
                         //console.info(rowOffset,colOffset,curPressure+(pressurePoints[i].strength)/Math.floor(d));
                     }
                     else if(curPressure==100){
                         pressureGrid[rowOffset][colOffset][4] =100;
                     }
-                    else if(curPressure==0)
+                    else if(curPressure==0){
                         pressureGrid[rowOffset][colOffset][4] =0;
+                    }
                     else{
                         pressureGrid[rowOffset][colOffset][4] =50;
                     }

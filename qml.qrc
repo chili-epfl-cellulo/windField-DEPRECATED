@@ -7,7 +7,6 @@
         <file>three.js</file>
         <file>renderer.js</file>
         <file>PressureField.qml</file>
-        <file>UIPanel.qml</file>
         <file>Leaf.qml</file>
         <file>assets/europe.jpg</file>
         <file>assets/buttons/updateOff.png</file>
@@ -22,5 +21,15 @@
         <file>assets/windUi-4.png</file>
         <file>assets/windUi-3.png</file>
         <file>assets/windUi-2.png</file>
+        <file>PressurePointPanel.qml</file>
+        <file>UIPanel.qml</file>
+        <file>assets/highPressure.png</file>
+        <file>assets/lowPressure.png</file>
+        <file>assets/highPressure2.png</file>
+        <file>assets/lowPressure2.png</file>
+        <file>assets/lowPressure3.png</file>
+        <file>assets/lowPressure4.png</file>
+        <file>assets/lowPressure5.png</file>
+        <file>PressurePoint.qml</file>
     </qresource>
 </RCC>
