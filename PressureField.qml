@@ -138,7 +138,7 @@ Item {
                 continue
             var row = pressurePoints[i].gridIndex.x
             var col = pressurePoints[i].gridIndex.y
-            printPRESSAUROUND(row,col,10)
+            //printPRESSAUROUND(row,col,10)
             pressureGrid[row][col][4] = pressurePoints[i].strength
 
             var nnb = 200;
@@ -174,7 +174,7 @@ Item {
                 //pressureGrid[row][col][4]=50;
             }
 
-        printPRESSAUROUND(row,col,10)
+        //printPRESSAUROUND(row,col,10)
         }
         console.info("updating over")
     }

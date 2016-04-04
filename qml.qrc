@@ -31,5 +31,6 @@
         <file>assets/lowPressure4.png</file>
         <file>assets/lowPressure5.png</file>
         <file>PressurePoint.qml</file>
+        <file>PressurePointLevelDialog.qml</file>
     </qresource>
 </RCC>

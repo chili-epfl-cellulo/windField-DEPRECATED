@@ -41,14 +41,14 @@ function initScene(pressurefield, leaves, numLeaves) {
     console.log("Initialize Scene")
     scene = new THREE.Scene();
     //Initialize geometries and materials/shaders
-    var backgroundGeom = new THREE.PlaneGeometry(windField.width, windField.height, 1, 1)
-    var pressureFieldGeom = new THREE.PlaneGeometry(pressurefield.width, pressurefield.height, 1, 1)
+    var backgroundGeom = new THREE.PlaneBufferGeometry(windField.width, windField.height, 1, 1)
+    var pressureFieldGeom = new THREE.PlaneBufferGeometry(pressurefield.width, pressurefield.height, 1, 1)
     var leafGeom;
     if (numLeaves)
         leafGeom =  new THREE.CircleGeometry(leaves[0].leafSize/2, 6)
         //leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
     //var pressureInputGeom = new THREE.CircleGeometry(30,20)
-    var pressureInputCellGeom = new THREE.PlaneGeometry(pressurefield.xGridSpacing, pressurefield.yGridSpacing, 1, 1)
+    var pressureInputCellGeom = new THREE.PlaneBufferGeometry(pressurefield.xGridSpacing, pressurefield.yGridSpacing, 1, 1)
     initMaterials(pressurefield, leaves, numLeaves);
 
     //Create meshes and add them to the scene
@@ -97,7 +97,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
 
     //Background Material
     var bgtexture =  THREE.ImageUtils.loadTexture('assets/EuropeBg-02.png')
-    bgtexture.minFIlter = THREE.LinearFilter; //THREE.NearestFilter;
+    bgtexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
     backgroundMaterial = new THREE.MeshBasicMaterial( { map:bgtexture} );
 
     createPressureFieldMaterial()
