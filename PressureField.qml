@@ -12,8 +12,8 @@ Item {
 
     readonly property int maxPressurePoints: 10
 
-    readonly property int numCols: windField.fieldWidth/15
-    readonly property int numRows: windField.fieldHeight/15
+    readonly property int numCols: windField.fieldWidth/12
+    readonly property int numRows: windField.fieldHeight/12
 
     readonly property double xGridSpacing: (windField.fieldWidth/numCols)
     readonly property double yGridSpacing: (windField.fieldHeight/numRows)
