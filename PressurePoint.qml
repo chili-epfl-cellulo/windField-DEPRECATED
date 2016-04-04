@@ -12,22 +12,44 @@ Item {
     ListModel{
      id: lowpressureModel
         ListElement{
-            imagePath:"assets/lowPressure5.png"
-            name:"mid"
-        }
-        ListElement{
             imagePath:"assets/lowPressure3.png"
-            name:"ll"
+            name:"lll"
+            plevel:-3
         }
         ListElement{
-            imagePath:"assets/lowPressure4.png"
-            name:"lll"
+            imagePath:"assets/lowPressure2.png"
+            name:"ll"
+            plevel:-2
+        }
+        ListElement{
+            imagePath:"assets/lowPressure1.png"
+            name:"l"
+            plevel:-1
+        }
+     }
+
+    ListModel{
+     id: highpressureModel
+        ListElement{
+            imagePath:"assets/highPressure3.png"
+            name:"hhh"
+            plevel:3
+        }
+        ListElement{
+            imagePath:"assets/highPressure2.png"
+            name:"hh"
+            plevel:-2
+        }
+        ListElement{
+            imagePath:"assets/highPressure1.png"
+            name:"h"
+            plevel:1
         }
      }
 
      PressurePointLevelDialog{
         id: newpDialog
-        dialogModel:lowpressureModel
+        dialogModel:ilevel <0 ?lowpressureModel :highpressureModel
         opacity: 0
         onClicked: {
             // Put your logic here! Below is my logic from KDiamond QML version.
@@ -35,7 +57,7 @@ Item {
 
             // Dismiss new game dialog
             newpDialog.hideDialog= true;
-
+            ilevel = plevel
             // Hide pop ups if any
             //hidePopup()
         }
@@ -59,22 +81,22 @@ Item {
             source:
                 switch (ilevel){
                 case -1:
-                    "assets/lowPressure2.png"
+                    "assets/lowPressure1.png"
                     break;
                 case -2:
                     "assets/lowPressure2.png"
                     break;
                 case -3:
-                    "assets/lowPressure2.png"
+                    "assets/lowPressure3.png"
                     break;
                 case 1:
-                    "assets/highPressure2.png"
+                    "assets/highPressure1.png"
                     break;
                 case 2:
                     "assets/highPressure2.png"
                     break;
                 case 3:
-                    "assets/lowPressure2.png"
+                    "assets/highPressure3.png"
                     break;
                 }
 

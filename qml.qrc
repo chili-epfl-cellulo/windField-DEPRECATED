@@ -25,12 +25,15 @@
         <file>UIPanel.qml</file>
         <file>assets/highPressure.png</file>
         <file>assets/lowPressure.png</file>
-        <file>assets/highPressure2.png</file>
-        <file>assets/lowPressure2.png</file>
         <file>assets/lowPressure3.png</file>
         <file>assets/lowPressure4.png</file>
         <file>assets/lowPressure5.png</file>
         <file>PressurePoint.qml</file>
         <file>PressurePointLevelDialog.qml</file>
+        <file>assets/highPressure1.png</file>
+        <file>assets/highPressure3.png</file>
+        <file>assets/lowPressure1.png</file>
+        <file>assets/lowPressure2.png</file>
+        <file>assets/highPressure2.png</file>
     </qresource>
 </RCC>

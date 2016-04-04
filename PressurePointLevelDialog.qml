@@ -9,7 +9,7 @@ Rectangle {
     y:parent.y
     property alias dialogModel: dialoglist.model
     //property alias dialogtitle: dialogtitle.text
-    signal clicked (string item_string, int index)
+    signal clicked (int plevel, int index)
     property alias showDialog: showDialog.running
     property alias hideDialog: hideDialog.running
     radius:15
@@ -66,7 +66,7 @@ Rectangle {
                     anchors.fill: listitemText
                     onClicked: {
                         console.log(listitemText.source)
-                        listdialog.clicked(imagePath, index)
+                        listdialog.clicked(plevel, index)
                     }
                 }
             }
