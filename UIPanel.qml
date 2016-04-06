@@ -18,6 +18,7 @@ Item {
     property variant windfield: windField
     property variant robot: null
 
+    property int numberOfLifes: windfield.nblifes
     function togglePaused() {
         windfield.paused = !windfield.paused
         if (windfield.paused)
@@ -68,14 +69,41 @@ Item {
             radius:155
         }
 
-
-
-        Row {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: parent.top
+        RowLayout {
+            anchors.fill: parent
+            //anchors.horizontalCenter: parent.horizontalCenter
+            //anchors.topMargin: parent.top
             spacing: 5
-            Column {
+            Column{
+                id:lifescol
+                Row {
+                    //anchors.horizontalCenter: parent.horizontalCenter
+                    //anchors.left: parent.left
+                    spacing: 5
+                    Repeater {
+                        model: numberOfLifes
+                        Rectangle {
+                            width: 50
+                            height: 50
+                            border.width: 1
+                            color: "yellow"
+                        }
+                    }
+                    Repeater {
+                        model: (3 - numberOfLifes)
+                        Rectangle {
+                            width: 50
+                            height: 50
+                            border.width: 1
+                            color: "black"
+                        }
+                    }
+                }
+            }
 
+
+            Column {
+                anchors.left: lifescol.right
                 //Implementation of the Button control.
                 Item {
                     id: button
@@ -162,12 +190,11 @@ Item {
                     //Mouse area to react on click events
                     MouseArea {
                         anchors.fill: buttonPause
-                        onClicked: {togglePaused()}
+                        onClicked: {togglePaused()
+                        playImage.source = (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
+                        }
                         onPressed: {
                             playImage.source = "assets/buttons/playOn.png"}
-                        onReleased: {
-                            playImage.source = (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
-                        }
                     }
                 }
 
@@ -199,7 +226,8 @@ Item {
                     style: pause.style
                     onClicked: {
                         pressurefield.resetWindField()
-                        windfield.setInitialTestConfiguration()
+                        //windfield.setInitialTestConfiguration()
+                        windfield.setInitialConfiguration()
                         windfield.setPressureFieldTextureDirty()
                         windfield.pauseSimulation()
                     }

@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtCanvas3D 1.0
+import QtPositioning 5.2
 import Cellulo 1.0
 import "renderer.js" as GLRender
 Item {
@@ -39,11 +40,8 @@ Item {
         property variant leaves: [testLeaf]
         property int numLeaves: 1
 
-        property variant game: 3
-
-        ZonesF{
-            id:allzones
-        }
+        property int nblifes: 3
+        property int game: 3
 
         function addPressurePoint(r,c,pressureLevel) {
             console.log('called here')
@@ -55,6 +53,30 @@ Item {
             var r = y
             var c = x
             pressurefield.addPressurePoint(r,c,pressureLevel)
+        }
+        function setInitialConfiguration(){
+            setObstaclesfromZones()
+            //Set test leaf info
+
+            var startp = allzones.startzone["path"]
+            var center = getCenterFromPoly(startp)
+            var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth+100)/pressurefield.numCols)
+            console.log("startpoints")
+            //startcoords =  Qt.point(50,50)
+            console.log(startcoords.x, startcoords.y)
+            testLeaf.leafX = startcoords.x
+            testLeaf.leafY = startcoords.y
+            testLeaf.leafXV = 20
+            testLeaf.leafYV = 0
+            testLeaf.leafMass = 5
+            testLeaf.leafSize = 150
+            testLeaf.leafXF = 0
+            testLeaf.leafYF = 0
+            testLeaf.leafXFDrag = 2
+            testLeaf.leafYFDrag = 0
+            testLeaf.collided = false
+
+            pauseSimulation()
         }
 
         function setInitialTestConfiguration(){
@@ -69,7 +91,6 @@ Item {
             pressurefield.addPressurePoint(7,13,-3)
             pressurefield.addPressurePoint(8,13,-3)
 
-            setObstaclesfromZones()
 
             //Set test leaf info
             testLeaf.leafX = 10*pressurefield.xGridSpacing
@@ -87,32 +108,16 @@ Item {
             pauseSimulation()
             //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
         }
+
         // - Set obstacle spots
         function setObstacles() {
             pressurefield.pressureGrid[10][30][6] = 0
         }
-
-        // - transform a point (between 0 and 1) to coordinates in the pressureGrid
-        function fromPointToCoords(ptx,pty){
-            return   [Math.round(ptx*pressurefield.numCols),Math.round(pty*pressurefield.numRows)];
-        }
-
-        // - return true if the point is in the polygone poly
-        function isPointInPoly(poly, pt){
-            for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i){
-                //console.log(poly[i].x,poly[i].y )
-                if(
-                        ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
-                        && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
-                        && (c = !c));
-                //console.log(c)
-                return c;
-            }
-        }
+        // - Set the obstales from the obstaclezone list of ZonesF
         function setObstaclesfromZones(){
             // TODO : PLACEMENT NOT ACCURATE OF THE ZONES
             //console.log("start zoning")
-            var zoneObstacles = allzones.zonelist
+            var zoneObstacles = allzones.obstaclezones
             for (var i = 0; i < zoneObstacles.length; i++) {
                 console.log(zoneObstacles[i]["name"])
                 if(zoneObstacles[i]["name"].indexOf("obstacle")===0 ||zoneObstacles[i]["name"].indexOf("cloud")===0){
@@ -122,16 +127,14 @@ Item {
                         var point  = zoneObstacles[i]["path"][j]
                         var coord = fromPointToCoords(point.x,point.y)
 
-                        minPX = Math.min(minPX,coord[0])
-                        maxPX = Math.max(maxPX,coord[0])
-                        minPY = Math.min(minPY,coord[1])
-                        maxPY = Math.max(maxPY,coord[1])
-                        pathcoord.push(Qt.point(coord[1],coord[0]))
-                        pressurefield.pressureGrid[coord[1]][coord[0]][6] = 0
+                        minPX = Math.min(minPX,coord.x)
+                        maxPX = Math.max(maxPX,coord.x)
+                        minPY = Math.min(minPY,coord.y)
+                        maxPY = Math.max(maxPY,coord.y)
+                        pathcoord.push(Qt.point(coord.y,coord.x))
+                        pressurefield.pressureGrid[coord.y][coord.x][6] = 0
 
                     }
-                    //console.log(minPX,minPY,maxPX,maxPY)
-                    //console.log(pathcoord)
                     // - try to fill the zone with obstacle
                     // TODO : NOT COVERING THE WHOLE ZONE
                     for (var px = minPX ; px<maxPX; px++){
@@ -149,6 +152,44 @@ Item {
             controls.togglePaused()
         }
 
+
+        function initGame(){
+
+        }
+        ////////////////////// UTILS FUNCTIONS
+        // - return the center of a polygone
+        function getCenterFromPoly(poly){
+            var minx= poly[0].x, miny= poly[0].y, maxx = poly[0].x, maxy = poly[0].y;
+            for(var i = 0 ; i <poly.length; i++){
+                minx = Math.min(minx, poly[i].x);
+                miny= Math.min(miny, poly[i].y);
+                maxx= Math.max(maxx, poly[i].x);
+                maxy= Math.max(maxy, poly[i].y);
+                console.log(poly[i].x, poly[i].y)
+            }
+            console.log(maxy, miny ,maxx, minx)
+            return Qt.point((maxx+minx)/2,(maxy+miny)/2)
+        }
+
+        // - return true if the point is in the polygone poly
+        function isPointInPoly(poly, pt){
+            for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i){
+                //console.log(poly[i].x,poly[i].y )
+                if(
+                        ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
+                        && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
+                        && (c = !c));
+                //console.log(c)
+                return c;
+            }
+        }
+
+        // - transform a point (between 0 and 1) to coordinates in the pressureGrid
+        function fromPointToCoords(ptx,pty){
+            return   Qt.point(Math.round(ptx*pressurefield.numCols),Math.round(pty*pressurefield.numRows));
+        }
+
+        ////////////////////// GL STUFFS
         onInitializeGL: {
             GLRender.initializeGL(windField, pressurefield, leaves, numLeaves)
         }
@@ -168,10 +209,21 @@ Item {
 
         Component.onCompleted: {
             pressurefield.resetWindField()
-            setInitialTestConfiguration()
+            setInitialConfiguration()
             //testLeaf.robotComm.macAddr = "00:06:66:74:43:00"
         }
 
+        ////////////////////// STATES
+        states:
+            State{
+                name: "lost"
+                PropertyChanges {target: ontopPanel; visible:true}
+                PropertyChanges {
+                    target: windField; nblifes: (windField.nblifes-1)
+                }
+            }
+
+        ////////////////////// EMBEDDED ITEMS
         PressureField {
             width: windField.fieldWidth
             height: windField.fieldHeight
@@ -185,8 +237,12 @@ Item {
             field: pressurefield
             robot: robotComm
         }
+        ZonesF{
+            id:allzones
+        }
     }
 
+    ////////////////////// TOP PANEL
     UIPanel {
         //anchors.fill: parent
         id: controls
@@ -196,14 +252,30 @@ Item {
         height: parent.height /5
     }
 
+
+    Rectangle {
+        id: ontopPanel
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        width: parent.width/2
+        height:  parent.height/2
+        color: Qt.rgba(1,1,1,0.6)
+        radius:110
+        visible:false
+            Text {
+                font.family: "Helvetica"
+                font.pointSize: 13
+                font.bold: true
+            }
+
+     }
+    ////////////////////// BOTTOM PANEL
     Rectangle {
         id: stockView
         y: parent.height -  controls.height
         anchors.left : windField.left
         width: controls.width
         height:  controls.height
-
-        //anchors.fill: parent
         color: Qt.rgba(1,1,1,0.6)
         radius:155
 
@@ -213,6 +285,7 @@ Item {
             height: parent.height
             spacing: 50
 
+            //Pressure points in the stock
             PressurePoint{
                 id: pressurePoint1
                 field: pressurefield

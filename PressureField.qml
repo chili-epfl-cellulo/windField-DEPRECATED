@@ -42,6 +42,7 @@ Item {
         //0-inactive, 1-active, 2-active and selected
         this.state = inactive
         this.strength = 0.0
+        this.size = 10
     }
 
     /***PRESSURE FIELD INITIALIZATION***/
