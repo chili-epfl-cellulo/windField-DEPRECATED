@@ -35,5 +35,6 @@
         <file>assets/lowPressure1.png</file>
         <file>assets/lowPressure2.png</file>
         <file>assets/highPressure2.png</file>
+        <file>ZonesF.qml</file>
     </qresource>
 </RCC>

@@ -4,9 +4,10 @@ Rectangle {
     id:listdialog
     width: parent.width*3
     height: parent.height
-    color: "teal"
+    //color: "teal"
     x:parent.x
     y:parent.y
+    opacity:0
     property alias dialogModel: dialoglist.model
     //property alias dialogtitle: dialogtitle.text
     signal clicked (int plevel, int index)
@@ -32,6 +33,7 @@ Rectangle {
         height: parent.height
         anchors.centerIn: parent
         radius: 15
+        opacity:0.5
         /*MouseArea{
             anchors.fill: parent
         }*/
@@ -56,7 +58,8 @@ Rectangle {
                 height: parent.height
                 radius: 10
                 anchors.verticalCenter: parent.verticalCenter
-                color: "teal"
+
+                opacity:1
                 Image{
                        id: listitemText
                        source:imagePath
@@ -74,7 +77,7 @@ Rectangle {
     }
 
     // Animating list dialog
-    PropertyAnimation { id: showDialog; target: listdialog; property: "opacity"; to: 1; duration: 500; easing.type: Easing.InQuad   }
+    PropertyAnimation { id: showDialog; target: listdialog; property: "opacity"; to: 0.8; duration: 500; easing.type: Easing.InQuad   }
     PropertyAnimation { id: hideDialog; target: listdialog; property: "opacity"; to: 0; duration: 500; easing.type: Easing.OutQuad}
 }
 
