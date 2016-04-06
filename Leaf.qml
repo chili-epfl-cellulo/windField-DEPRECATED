@@ -26,7 +26,7 @@ Item {
     readonly property double timeStep: .25
 
     property variant field: null
-
+    property variant allzones: null
     property variant robot: null
 
     /***CELLULO SYNCHRONISATION METHODS***/
@@ -92,6 +92,13 @@ Item {
         }
     }
 
+
+    // - check if the leaf is in a zone
+    function inZone(zone){
+        //TODO
+        return false;
+    }
+
     function updateLeaf() {
         if (collided) {
             return;
@@ -114,15 +121,24 @@ Item {
         leafY += deltaY
         if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
             leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
-            collided = true
-             windfield.state = "lost"
+            collided = true;
+            windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
             console.log("=========LEAF COLLIDED R1==========")
         } else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
             leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
             collided = true
-            windfield.state = "lost"
+            windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
             console.log("=========LEAF COLLIDED R2==========")
         }
+        else if (inZone(allzones.finishzone)) {
+                    leafXV = 0
+                    leafYV = 0
+                    windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
+
+                }
+
+
+
         if (collided) {
             leafXV = 0
             leafYV = 0
@@ -132,8 +148,8 @@ Item {
             leafYFDrag = 0
 
         }
-        console.log('new leaf positions',leafX, leafY)
-        console.log("===================")
+        //console.log('new leaf positions',leafX, leafY)
+        //console.log("===================")
 
         //TESTING
         //leafX = (robotComm.y/575)*robotMaxX

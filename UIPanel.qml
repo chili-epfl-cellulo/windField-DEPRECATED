@@ -74,42 +74,16 @@ Item {
             //anchors.horizontalCenter: parent.horizontalCenter
             //anchors.topMargin: parent.top
             spacing: 5
-            Column{
-                id:lifescol
-                Row {
-                    //anchors.horizontalCenter: parent.horizontalCenter
-                    //anchors.left: parent.left
-                    spacing: 5
-                    Repeater {
-                        model: numberOfLifes
-                        Rectangle {
-                            width: 50
-                            height: 50
-                            border.width: 1
-                            color: "yellow"
-                        }
-                    }
-                    Repeater {
-                        model: (3 - numberOfLifes)
-                        Rectangle {
-                            width: 50
-                            height: 50
-                            border.width: 1
-                            color: "black"
-                        }
-                    }
-                }
-            }
+
 
 
             Column {
-                anchors.left: lifescol.right
+                //anchors.left: lifescol.right
                 //Implementation of the Button control.
                 Item {
                     id: button
                     width: 100
                     height: 100
-                    property alias text: innerText.text
                     signal clicked
                     enabled: windfield.paused
 
@@ -117,49 +91,19 @@ Item {
                         id: backgroundImage
                         anchors.fill: parent
                         source: (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
-                    }
 
-                    Text {
-                        id: innerText
-                        anchors.centerIn: parent
-                        color: "white"
-                        font.bold: true
-                    }
 
                     //Mouse area to react on click events
                     MouseArea {
-                        anchors.fill: button
-                        onClicked: { updateSimulation()}
-                        onPressed: {
-                            backgroundImage.source = "assets/buttons/updateOn.png"}
-                        onReleased: {
-                            backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
+                        anchors.fill: backgroundImage
+                        onClicked: { updateSimulation()
+                          backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
                         }
-                    }
+
+                    }}
                 }
 
-                /*Button {
-                    id: pressureUpdate
-                    text: qsTr("Update Pressure")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onClicked: updateSimulation()
-                    enabled: windfield.paused
-                    style: ButtonStyle {
-                        id: buttonStyle
-                        background: Rectangle {
-                            implicitWidth: 100
-                            implicitHeight: 100
-                            border.width: control.activeFocus ? 2 : 1
-                            border.color: "#888"
-                            radius: 4
-                            gradient: Gradient {
-                                GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
-                                GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
-                            }
-                        }
-                    }
-                }
-                */
+
             }
 
             Column {
@@ -170,7 +114,6 @@ Item {
                     id: buttonPause
                     width: 100
                     height: 100
-                    property alias text: innerText.text
                     signal clicked
                     enabled: windfield.paused
 
@@ -306,6 +249,34 @@ Item {
                     }
                 }
             }
+
+            Column{
+                id:lifescol
+                Row {
+                    //anchors.horizontalCenter: parent.horizontalCenter
+                    //anchors.left: parent.left
+                    spacing: 5
+                    Repeater {
+                        model: numberOfLifes
+                        Rectangle {
+                            width: 50
+                            height: 50
+                            border.width: 1
+                            color: "yellow"
+                        }
+                    }
+                    Repeater {
+                        model: (3 - numberOfLifes)
+                        Rectangle {
+                            width: 50
+                            height: 50
+                            border.width: 1
+                            color: "black"
+                        }
+                    }
+                }
+            }
+
 
             Column{
                 id: itemsCol

@@ -266,7 +266,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
             leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
             leafObjects[i].material.needsUpdate = true;
         } else {
-            //leafObjects[i].material.color = Qt.rgba(0,1,0,1);
+            leafObjects[i].material.color = Qt.rgba(1,1,1,1);
             leafObjects[i].material.needsUpdate = true;
         }
 

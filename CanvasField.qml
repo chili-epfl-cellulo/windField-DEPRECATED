@@ -214,14 +214,33 @@ Item {
         }
 
         ////////////////////// STATES
-        states:
+        states:[
             State{
                 name: "lost"
+                PropertyChanges {target: ontopPanel; state:"playagain"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {
-                    target: windField; nblifes: (windField.nblifes-1)
-                }
+                PropertyChanges {target: windField; nblifes: (windField.nblifes-1)}
+            },
+            State{
+                name: "over"
+                PropertyChanges {target: ontopPanel; state:"gameover"}
+                PropertyChanges {target: ontopPanel; visible:true}
+                PropertyChanges {target: windField; nblifes: (windField.nblifes-1)}
+            },
+            State{
+                name: "win"
+                PropertyChanges {target: ontopPanel; state:"winr"}
+                PropertyChanges {target: ontopPanel; visible:true}
+                PropertyChanges {target: windField; nblifes:windField.nblifes}
+            },
+            State{
+                name: "ready"
+                PropertyChanges {target: ontopPanel; visible:false}
+                PropertyChanges {target: windField; nblifes:windField.nblifes}
             }
+        ]
+
+
 
         ////////////////////// EMBEDDED ITEMS
         PressureField {
@@ -236,6 +255,7 @@ Item {
             id: testLeaf
             field: pressurefield
             robot: robotComm
+            allzones: allzones
         }
         ZonesF{
             id:allzones
@@ -263,12 +283,69 @@ Item {
         radius:110
         visible:false
             Text {
+                id:thetext
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: button.top
                 font.family: "Helvetica"
-                font.pointSize: 13
+                font.pointSize: 20
                 font.bold: true
+                text:""
             }
 
-     }
+            Item {
+                id: button
+                width: 100
+                height: 100
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                Image {
+                    id: backgroundImage
+                    anchors.fill: parent
+                    source:  "assets/buttons/reset.png"
+                MouseArea {
+                    anchors.fill: backgroundImage
+                    onClicked: { pressurefield.resetWindField()
+                        windfield.setInitialConfiguration()
+                        windfield.setPressureFieldTextureDirty()
+                        windfield.pauseSimulation()
+                        windfield.state = "ready"
+                    }
+
+                }
+                }
+            }
+
+            states:[
+                State{
+                    name: "playagain"
+                    PropertyChanges {target: thetext; text:"Play again?"}
+                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
+                },
+                State{
+                    name: "winr"
+                    PropertyChanges {target: thetext; text:"You made it!"}
+                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
+                    //todo add time and total points
+                },
+                State{
+                    name: "wins"
+                    PropertyChanges {target: thetext; text:"You made it!"}
+                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
+                    //todo add time and total points
+                },
+                State{
+                    name: "gameover"
+                    PropertyChanges {target: thetext; text:"Game Over"}
+                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
+                },
+                State{
+                    name: "info"
+                    PropertyChanges {target: thetext; text:"Here some infos"}
+                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/info.png"}
+                }
+            ]
+
+    }
     ////////////////////// BOTTOM PANEL
     Rectangle {
         id: stockView
