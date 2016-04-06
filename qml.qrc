@@ -36,5 +36,7 @@
         <file>assets/lowPressure2.png</file>
         <file>assets/highPressure2.png</file>
         <file>ZonesF.qml</file>
+        <file>assets/cellulo_balloon.png</file>
+        <file>assets/FinalMapAnotated.pdf</file>
     </qresource>
 </RCC>

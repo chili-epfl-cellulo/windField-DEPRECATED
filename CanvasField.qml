@@ -39,6 +39,8 @@ Item {
         property variant leaves: [testLeaf]
         property int numLeaves: 1
 
+        property variant game: 3
+
         ZonesF{
             id:allzones
         }
@@ -70,12 +72,12 @@ Item {
             setObstaclesfromZones()
 
             //Set test leaf info
-            testLeaf.leafX = 4*pressurefield.xGridSpacing
+            testLeaf.leafX = 10*pressurefield.xGridSpacing
             testLeaf.leafY = pressurefield.height/2
             testLeaf.leafXV = 20
             testLeaf.leafYV = 0
             testLeaf.leafMass = 5
-            testLeaf.leafSize = 50
+            testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
             testLeaf.leafXFDrag = 2
@@ -110,7 +112,7 @@ Item {
         function setObstaclesfromZones(){
             // TODO : PLACEMENT NOT ACCURATE OF THE ZONES
             //console.log("start zoning")
-            zoneObstacles = allzones.zonelist
+            var zoneObstacles = allzones.zonelist
             for (var i = 0; i < zoneObstacles.length; i++) {
                 console.log(zoneObstacles[i]["name"])
                 if(zoneObstacles[i]["name"].indexOf("obstacle")===0 ||zoneObstacles[i]["name"].indexOf("cloud")===0){

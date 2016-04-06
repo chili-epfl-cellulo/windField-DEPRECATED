@@ -45,9 +45,8 @@ function initScene(pressurefield, leaves, numLeaves) {
     var pressureFieldGeom = new THREE.PlaneBufferGeometry(pressurefield.width, pressurefield.height, 1, 1)
     var leafGeom;
     if (numLeaves)
-        leafGeom =  new THREE.CircleGeometry(leaves[0].leafSize/2, 6)
-        //leafGeom = new THREE.SphereGeometry(leaves[0].leafSize/2, 10, 10)
-    //var pressureInputGeom = new THREE.CircleGeometry(30,20)
+        //leafGeom = new THREE.PlaneBufferGeometry(leaves[0].leafSize/2,leaves[0].leafSize/2, 1, 1)
+        leafGeom =  new THREE.CircleGeometry(leaves[0].leafSize/2, 20)
     var pressureInputCellGeom = new THREE.PlaneBufferGeometry(pressurefield.xGridSpacing, pressurefield.yGridSpacing, 1, 1)
     initMaterials(pressurefield, leaves, numLeaves);
 
@@ -61,7 +60,7 @@ function initScene(pressurefield, leaves, numLeaves) {
     pressureFieldObject.position.z = 200
 
     for (var i = 0; i < numLeaves; i++) {
-        leafObjects[i] = new THREE.Mesh(leafGeom, leafMaterials[i])
+        leafObjects[i] = new THREE.Mesh( leafGeom, leafMaterials[i])
         leafObjects[i].position.z = 300
         leafObjects[i].renderOrder = 5;
         scene.add(leafObjects[i]);
@@ -104,11 +103,11 @@ function initMaterials(pressurefield, leaves, numLeaves) {
 
     //Leaf Material - may want to change material based on leaf properties
     for (var i = 0; i < numLeaves; i++) {
-        leafMaterials[i] = new THREE.MeshBasicMaterial({ color: 0x00ff00,
-                                                       ambient: 0x000000,
-                                                       shading: THREE.FlatShading});
-        //leafMaterials[i] = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/highPressure.png')} );
-    }
+        var leaftexture =  THREE.ImageUtils.loadTexture('assets/cellulo_balloon.png')
+        leaftexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
+       leafMaterials[i]  = new THREE.MeshBasicMaterial( { map:leaftexture ,transparent: true, opacity: 0.9});
+
+        }
 
     for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
         pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
@@ -125,10 +124,10 @@ function createPressureFieldMaterial() {
     for (var row = 0; row < pressurefield.numRows; row++) {
         for (var col = 0; col < pressurefield.numCols; col++) {
             if (!pressurefield.pressureGrid[row][col][6]) {
-                data[index] = 255
+                data[index] = 0
                 data[index+1] = 0
                 data[index+2] = 0
-                data[index+3] = 255
+                data[index+3] = 125
             } else {
                 var pressure = pressurefield.pressureGrid[row][col][4];
                 //data[index] = pressure/100.0*255
@@ -264,10 +263,10 @@ function paintGL(pressurefield, leaves, numLeaves) {
         leafObjects[i].position.x = leaves[i].leafX + windField.robotMinX;
         leafObjects[i].position.y = windField.height - leaves[i].leafY - windField.robotMinY;
         if (leaves[i].collided) {
-            leafObjects[i].material.color = Qt.rgba(0,0,0,1);
+            leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
             leafObjects[i].material.needsUpdate = true;
         } else {
-            leafObjects[i].material.color = Qt.rgba(0,1,0,1);
+            //leafObjects[i].material.color = Qt.rgba(0,1,0,1);
             leafObjects[i].material.needsUpdate = true;
         }
 

@@ -115,9 +115,11 @@ Item {
         if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
             leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
             collided = true
+            console.log("=========LEAF COLLIDED R1==========")
         } else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
             leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
             collided = true
+            console.log("=========LEAF COLLIDED R2==========")
         }
         if (collided) {
             leafXV = 0
@@ -126,6 +128,7 @@ Item {
             leafYF = 0
             leafXFDrag = 0
             leafYFDrag = 0
+
         }
         console.log('new leaf positions',leafX, leafY)
         console.log("===================")
