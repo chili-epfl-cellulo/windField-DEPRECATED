@@ -70,7 +70,7 @@ Item {
             var row = Math.floor(yOffst-p.y/yGridSpacing)
             var col = Math.floor(p.x+xOffst/xGridSpacing)
             console.info(row,col, p.x, p.y, root.x, root.y, x,y)
-            field.addPressurePoint(row,col,ilevel)
+            //field.addPressurePoint(row,col,ilevel)
 
             // Dismiss new game dialog
             newpDialog.hideDialog= true;
@@ -120,20 +120,20 @@ Item {
             drag.target:ppImg
             //propagateComposedEvents: true
             onReleased:{
-                if(root.state == "exited"){
+                //if(root.state == "exited"){
                 newpDialog.x = ppImg.x
                 newpDialog.y = ppImg.y - ppImg.height
                 newpDialog.showDialog =true
-                }
+                //}
             }
             onClicked:{
-                if(root.state == "exited"){
+                //if(root.state == "exited"){
                 newpDialog.x = ppImg.x
                 newpDialog.y = ppImg.y - ppImg.height
                 newpDialog.showDialog =true
-                }
+                //}
             }
-            onExited:{
+            /*onExited:{
                 console.log("exit p point")
                 root.state = "exited"
                 console.log(root.parent)
@@ -144,7 +144,7 @@ Item {
                 root.state = "backin"
                 console.log(root.parent)
                 console.log(root.x, root.y)
-            }
+            }*/
         }
 
         states:

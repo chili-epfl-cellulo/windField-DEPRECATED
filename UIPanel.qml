@@ -17,14 +17,19 @@ Item {
     property real gWidth: mobile ? Screen.width : 640
     property variant windfield: windField
     property variant robot: null
-
+    property double startTime: 0
+    property int secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
     function togglePaused() {
         windfield.paused = !windfield.paused
-        if (windfield.paused)
+        if (windfield.paused){
+            //timer.stop()
             pause.text = 'Resume'
-        else
+        }
+        else{
+            timer.restart()
             pause.text = 'Pause'
+        }
         //pressureUpdate.enabled = windfield.paused
     }
 
@@ -50,7 +55,14 @@ Item {
         for (var i = 0; i < windfield.numLeaves; i++)
             windfield.leaves[i].calculateForcesAtLeaf()
     }
-
+    function timeChanged(){
+        if(!windfield.paused){
+            if(startTime == 0)
+                startTime =  new Date().getTime()
+            var currentTime = new Date().getTime()
+            secondsElapsed = (currentTime-startTime) /1000
+        }
+    }
     Column {
         id: menuView
         x: 20
@@ -62,8 +74,8 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-//            border.width: 5
-//            border.color: "white"
+            //            border.width: 5
+            //            border.color: "white"
             color: Qt.rgba(1,1,1,0.6)
             //opacity: 0.6
             radius:155
@@ -74,8 +86,6 @@ Item {
             //anchors.horizontalCenter: parent.horizontalCenter
             //anchors.topMargin: parent.top
             spacing: 5
-
-
 
             Column {
                 //anchors.left: lifescol.right
@@ -93,14 +103,14 @@ Item {
                         source: (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
 
 
-                    //Mouse area to react on click events
-                    MouseArea {
-                        anchors.fill: backgroundImage
-                        onClicked: { updateSimulation()
-                          backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
-                        }
+                        //Mouse area to react on click events
+                        MouseArea {
+                            anchors.fill: backgroundImage
+                            onClicked: { updateSimulation()
+                                backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
+                            }
 
-                    }}
+                        }}
                 }
 
 
@@ -134,7 +144,7 @@ Item {
                     MouseArea {
                         anchors.fill: buttonPause
                         onClicked: {togglePaused()
-                        playImage.source = (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
+                            playImage.source = (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
                         }
                         onPressed: {
                             playImage.source = "assets/buttons/playOn.png"}
@@ -168,6 +178,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     style: pause.style
                     onClicked: {
+                        startTime=0;
                         pressurefield.resetWindField()
                         //windfield.setInitialTestConfiguration()
                         windfield.setInitialConfiguration()
@@ -176,6 +187,7 @@ Item {
                     }
                 }
             }
+
             Column {
                 CheckBox {
                     id: pressureGridCheck
@@ -202,6 +214,7 @@ Item {
                     onClicked: toggleDisplaySetting(4)
                 }
             }
+
             Column {
                 Text {
                     text: " Action Menu: "
@@ -276,7 +289,6 @@ Item {
                     }
                 }
             }
-
 
             Column{
                 id: itemsCol
@@ -369,7 +381,37 @@ Item {
                     }
                 }
 
-        }
+            }
+
+            Timer {
+                id:timer
+                interval:100
+                running: false; repeat: true
+                onTriggered: timeChanged()
+            }
+
+            Column{
+                id:timerMenu
+                anchors.right: parent.right
+                Rectangle{
+                    width: 250
+                    height: 150
+                    radius:30
+                    border.width:3
+                    border.color: "black"
+                    color:"transparent"
+                    Text {
+                        id: timetext
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.family: "Helvetica"
+                        font.pointSize: 25
+                        font.bold: true
+                        text: secondsElapsed + '\''
+                    }
+                }
+            }
+
         }
         /*Button {
             id: toggleMenu
