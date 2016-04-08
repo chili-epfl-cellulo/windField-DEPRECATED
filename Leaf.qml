@@ -101,6 +101,7 @@ Item {
 
     function updateLeaf() {
         if (collided) {
+
             return;
         }
 
@@ -123,11 +124,17 @@ Item {
             leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
             collided = true;
             windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
+            robotComm.fullColor = robots[i].defaultColor;
+            robotComm.pulse(Qt.rgba(0.7,0,0,1));
+            robotComm.setGlobalSpeeds(0,0,0);
             console.log("=========LEAF COLLIDED R1==========")
         } else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
             leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
             collided = true
             windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
+            robotComm.fullColor = robots[i].defaultColor;
+            robotComm.pulse(Qt.rgba(0.7,0,0,1));
+            robotComm.setGlobalSpeeds(0,0,0);
             console.log("=========LEAF COLLIDED R2==========")
         }
         else if (inZone(allzones.finishzone)) {
