@@ -79,14 +79,29 @@ ApplicationWindow {
         id: mainGameField
         robot:robotComm
         visible:false
+        playground:playground
       //  property alias windfield: windfield
     }
 
 
+    ZonesF{
+        id:playground
+        width: 1700 // in mm
+        height: 660 // in mm
+        function zonesByName(name) {
+            var res = []
+            for (var i = 0; i < zones.length; i++) {
+                if (zones[i]["name"] === name)
+                    res.push(zones[i]);
+            }
+            return res;
+        }
+    }
 
 
-
-   CelluloBluetooth{
+   CelluloRobot{
         id: robotComm
+        playground: playground
+
     }
 }

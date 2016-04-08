@@ -18,6 +18,7 @@ Item {
     property variant windfield: windField
     property variant robot: null
     property double startTime: 0
+    property variant playgound: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
     function togglePaused() {
@@ -313,7 +314,7 @@ Item {
                         }
                         Button {
                             text: "Connect"
-                            onClicked: robotComm.macAddr =  "00:06:66:74:" + macAddrRight.text;
+                            onClicked: robotComm.robotMacAddress =  "00:06:66:74:" + macAddrRight.text;
                         }
                     }
                 }
@@ -375,7 +376,7 @@ Item {
                                 color: robot.kidnapped ? "red" : "green"
                             }
                             Text{
-                                text: "X=" + robot.x.toFixed(2) + " Y=" + robot.y.toFixed(2) + " Theta=" + robot.theta.toFixed(1)
+                                text: "X=" +  robot.coords.x* playground.width + " Y=" + robot.coords.y*playground.height + " Theta=" + robot.rotation
                             }
                         }
                     }

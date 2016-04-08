@@ -7,6 +7,7 @@ Item {
     width: parent.width
     height: parent.height
     property variant robot: robotComm
+      property variant playground: playground
     property variant windfield: windField
     property int fieldWidth: 2418
     property int fieldHeight: 950
@@ -58,9 +59,9 @@ Item {
             setObstaclesfromZones()
             //Set test leaf info
 
-            var startp = allzones.startzone["path"]
+            var startp = playground.startzone["path"]
             var center = getCenterFromPoly(startp)
-            var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth+100)/pressurefield.numCols)
+            var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth)/pressurefield.numCols)
             console.log("startpoints")
             //startcoords =  Qt.point(50,50)
             console.log(startcoords.x, startcoords.y)
@@ -117,7 +118,7 @@ Item {
         function setObstaclesfromZones(){
             // TODO : PLACEMENT NOT ACCURATE OF THE ZONES
             //console.log("start zoning")
-            var zoneObstacles = allzones.obstaclezones
+            var zoneObstacles = playground.zones
             for (var i = 0; i < zoneObstacles.length; i++) {
                 console.log(zoneObstacles[i]["name"])
                 if(zoneObstacles[i]["name"].indexOf("obstacle")===0 ||zoneObstacles[i]["name"].indexOf("cloud")===0){
@@ -257,9 +258,7 @@ Item {
             robot: robotComm
             allzones: allzones
         }
-        ZonesF{
-            id:allzones
-        }
+
     }
 
     ////////////////////// TOP PANEL

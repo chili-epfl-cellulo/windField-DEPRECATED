@@ -132,7 +132,7 @@ function createPressureFieldMaterial() {
                 data[index] = 0
                 data[index+1] = 0
                 data[index+2] = 0
-                data[index+3] = 125
+                data[index+3] = 255
             } else {
                 var pressure = pressurefield.pressureGrid[row][col][4];
                 //data[index] = pressure/100.0*255
