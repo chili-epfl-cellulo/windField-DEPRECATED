@@ -18,7 +18,7 @@ Item {
     property variant windfield: windField
     property variant robot: null
     property double startTime: 0
-    property int secondsElapsed: 0
+    property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
     function togglePaused() {
         windfield.paused = !windfield.paused
@@ -60,7 +60,7 @@ Item {
             if(startTime == 0)
                 startTime =  new Date().getTime()
             var currentTime = new Date().getTime()
-            secondsElapsed = (currentTime-startTime) /1000
+            secondsElapsed = (currentTime-startTime)
         }
     }
     Column {
@@ -307,7 +307,7 @@ Item {
                         }
                         TextField{
                             id: macAddrRight
-                            text: "43:00"
+                            text: "40:DC"
                             placeholderText: "XX:XX"
                             width: em(5)
                         }
@@ -385,7 +385,7 @@ Item {
 
             Timer {
                 id:timer
-                interval:100
+                interval:30
                 running: false; repeat: true
                 onTriggered: timeChanged()
             }
@@ -394,8 +394,8 @@ Item {
                 id:timerMenu
                 anchors.right: parent.right
                 Rectangle{
-                    width: 250
-                    height: 150
+                    width: 270
+                    height: 100
                     radius:30
                     border.width:3
                     border.color: "black"
@@ -407,7 +407,7 @@ Item {
                         font.family: "Helvetica"
                         font.pointSize: 25
                         font.bold: true
-                        text: secondsElapsed + '\''
+                        text: parseInt(secondsElapsed/100) + '\''+parseInt(secondsElapsed/1000)
                     }
                 }
             }

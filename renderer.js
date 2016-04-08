@@ -68,10 +68,15 @@ function initScene(pressurefield, leaves, numLeaves) {
         //Vectors: just initialize arrows for now, updating from leaf info happens on paint
         var dir = new THREE.Vector3( 1, 0, 0 );
         var origin = new THREE.Vector3( 0, 0, 0 );
-        var length = 2;
+        var length = 4;
+        //var linemat =  new THREE.LineBasicMaterial({linewidth : 3});
+
         leafForceVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0xFF000);
+        //leafForceVectors.line.material = linemat
         leafDragVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0x0099FF);
+        //leafDragVectors.line.material = linemat
         leafVelocityVectors[i] = new THREE.ArrowHelper( dir, origin, length, 0x66CC00);
+        //leafVelocityVectors.line.material = linemat
         scene.add(leafForceVectors[i])
         scene.add(leafDragVectors[i])
         scene.add(leafVelocityVectors[i])
@@ -95,7 +100,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     //Init shaders and textures
 
     //Background Material
-    var bgtexture =  THREE.ImageUtils.loadTexture('assets/EuropeBg-02.png')
+    var bgtexture =  THREE.ImageUtils.loadTexture('assets/test.png')
     bgtexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
     backgroundMaterial = new THREE.MeshBasicMaterial( { map:bgtexture} );
 

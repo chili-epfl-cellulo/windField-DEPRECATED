@@ -154,8 +154,8 @@ Item {
         //TESTING
         //leafX = (robotComm.y/575)*robotMaxX
         //leafY = robotMaxY-(robotComm.x/400)*robotMaxY
-
-        //robot.setGoalVelocity(leafXV*2 , leafYV*2 , 0.0);
+        if(robot.connected)
+            robot.setGoalVelocity(leafXV*3 , leafYV*3 , 0.0);
     }
 
 

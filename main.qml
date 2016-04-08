@@ -27,23 +27,45 @@ ApplicationWindow {
         state:""
 
         onReadystartChanged:  {
-            state="Start"
+            console.log("Start changed ");
+            //state="Start"
+
         }
 
         onReadyExplanationChanged: {
-           state="general_explanations"
+           console.log("explanation");
+            //state="general_explanations"
         }
 
         onReadyGame1Changed: {
-          state="game1"
+            console.log("game1 ");
+          //state="game1"
         }
 
         onStateChanged: {
             console.log("Switch to game state " + state);
+            if (state == "general_explanation") {
+                intro();
+            }
             if (state == "game1") {
                 game1();
             }
 
+        }
+
+        Rectangle {
+            id:rect
+            width: 100; height: 100
+            color: "green"
+            visible:false
+            MouseArea {
+                anchors.fill: parent
+                onClicked: { parent.color = 'red' ; state="game1"}
+            }
+        }
+
+        function intro(){
+            rect.visible = true
         }
         function game1() {
             mainGameField.visible= true;

@@ -8,7 +8,7 @@ Item {
     height: parent.height
     property variant robot: robotComm
     property variant windfield: windField
-    property int fieldWidth: 2500
+    property int fieldWidth: 2418
     property int fieldHeight: 950
 
     visible: false
@@ -19,7 +19,7 @@ Item {
 
 
         property int menuMargin: 50
-        property int fieldWidth: 2500
+        property int fieldWidth: 2418
         property int fieldHeight: 950
 
         property int robotMinX: (windField.width - windField.fieldWidth)/2
@@ -66,13 +66,13 @@ Item {
             console.log(startcoords.x, startcoords.y)
             testLeaf.leafX = startcoords.x
             testLeaf.leafY = startcoords.y
-            testLeaf.leafXV = 20
+            testLeaf.leafXV = 30
             testLeaf.leafYV = 0
-            testLeaf.leafMass = 5
+            testLeaf.leafMass = 2
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 2
+            testLeaf.leafXFDrag = 0
             testLeaf.leafYFDrag = 0
             testLeaf.collided = false
 

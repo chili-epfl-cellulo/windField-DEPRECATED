@@ -67,8 +67,8 @@ Item {
             // add pressure point of the level at the position
             var p = mapFromItem(root, root.x, root.y )
             console.log('adding p poin')
-            var row = Math.floor(yOffst-p.y/yGridSpacing)
-            var col = Math.floor(p.x+xOffst/xGridSpacing)
+            var row = Math.floor((yOffst-p.y)/yGridSpacing)
+            var col = Math.floor((p.x+xOffst)/xGridSpacing)
             console.info(row,col, p.x, p.y, root.x, root.y, x,y)
             //field.addPressurePoint(row,col,ilevel)
 
