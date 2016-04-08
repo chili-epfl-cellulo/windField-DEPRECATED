@@ -102,6 +102,7 @@ ApplicationWindow {
    CelluloRobot{
         id: robotComm
         playground: playground
-
+        robotId: 1
+        robotMacAddress: macAddresses[activeTablet][4]
     }
 }

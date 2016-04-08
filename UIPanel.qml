@@ -18,7 +18,7 @@ Item {
     property variant windfield: windField
     property variant robot: null
     property double startTime: 0
-    property variant playgound: playground
+    property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
     function togglePaused() {
@@ -376,7 +376,7 @@ Item {
                                 color: robot.kidnapped ? "red" : "green"
                             }
                             Text{
-                                text: "X=" +  robot.coords.x* playground.width + " Y=" + robot.coords.y*playground.height + " Theta=" + robot.rotation
+                                text: "X=" +  robot.coords.x + " Y=" + robot.coords.y + " Theta=" + robot.rotation
                             }
                         }
                     }

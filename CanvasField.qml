@@ -59,7 +59,7 @@ Item {
             setObstaclesfromZones()
             //Set test leaf info
 
-            var startp = playground.startzone["path"]
+            var startp = playground.zones[0]["path"]
             var center = getCenterFromPoly(startp)
             var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth)/pressurefield.numCols)
             console.log("startpoints")
@@ -114,18 +114,20 @@ Item {
         function setObstacles() {
             pressurefield.pressureGrid[10][30][6] = 0
         }
+
         // - Set the obstales from the obstaclezone list of ZonesF
         function setObstaclesfromZones(){
             // TODO : PLACEMENT NOT ACCURATE OF THE ZONES
             //console.log("start zoning")
-            var zoneObstacles = playground.zones
-            for (var i = 0; i < zoneObstacles.length; i++) {
-                console.log(zoneObstacles[i]["name"])
-                if(zoneObstacles[i]["name"].indexOf("obstacle")===0 ||zoneObstacles[i]["name"].indexOf("cloud")===0){
+            var zones = playground.zones
+            for (var i = 0; i < zones.length; i++) {
+
+                if(zones[i]["name"].indexOf("obstacle")===0 ||zones[i]["name"].indexOf("cloud")===0){
+                    console.log(zones[i]["name"])
                     var pathcoord = []
                     var minPX = pressurefield.numCols;var minPY = pressurefield.numRows;var maxPX = 0;var maxPY = 0;
-                    for( var j =0 ; j< zoneObstacles[i]["path"].length; j++){
-                        var point  = zoneObstacles[i]["path"][j]
+                    for( var j =0 ; j< zones[i]["path"].length; j++){
+                        var point  = zones[i]["path"][j]
                         var coord = fromPointToCoords(point.x,point.y)
 
                         minPX = Math.min(minPX,coord.x)
@@ -138,12 +140,12 @@ Item {
                     }
                     // - try to fill the zone with obstacle
                     // TODO : NOT COVERING THE WHOLE ZONE
-                    for (var px = minPX ; px<maxPX; px++){
+                    /*for (var px = minPX ; px<maxPX; px++){
                         for (var py = minPY ; py<maxPY ; py++){
                             if(isPointInPoly(pathcoord, Qt.point(py,px)))
                                 pressurefield.pressureGrid[py][px][6] = 0
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -269,6 +271,7 @@ Item {
         windfield: windField
         width: parent.width
         height: parent.height /5
+        playground: playground
     }
 
 
