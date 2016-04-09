@@ -28,7 +28,7 @@ Item {
     property variant field: null
     property variant allzones: null
     property variant robot: null
-
+    property variant controls: null
 
 
 
@@ -121,23 +121,35 @@ Item {
         leafY += deltaY
 
 
-        if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
+            robot.setGlobalSpeeds( leafXV/2, leafYV/2,0);
+
+
+
+        if(robot.checkZone()==='madrid'){
+            controls.bonus = controls.bonus + 1
+        }
+
+        //if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
+        if (leafX > windField.fieldWidth || leafX < 0) {
             leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
             collided = true;
             windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
-
+         if(robot.connected){
             robot.alert(Qt.rgba(0.7,0,0,1), 5);
             robot.setGlobalSpeeds(0,0,0);
+         }
             console.log("=========LEAF COLLIDED R1==========")
-        } else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
+        //} else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
+        } else if (leafY > windField.fieldHeight || leafY < 0) {
             leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
             collided = true
             windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
+             if(robot.connected){
             robot.alert(Qt.rgba(0.7,0,0,1),5);
-            robot.setGlobalSpeeds(0,0,0);
+            robot.setGlobalSpeeds(0,0,0);}
             console.log("=========LEAF COLLIDED R2==========")
         }
-        else if (inZone(allzones.finishzone)) {
+        else if (inZone(allzones.zones[allzones.zones.length-1])) {
                     leafXV = 0
                     leafYV = 0
                     windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"

@@ -6,7 +6,7 @@ import "renderer.js" as GLRender
 Item {
     width: parent.width
     height: parent.height
-    property variant robot: robotComm
+    property variant robot: null
       property variant playground: playground
     property variant windfield: windField
     property int fieldWidth: 2418
@@ -107,7 +107,7 @@ Item {
             testLeaf.collided = false
 
             pauseSimulation()
-            //testLeaf.robotComm.macAddr = "00:06:66:74:43:01"
+
         }
 
         // - Set obstacle spots
@@ -213,7 +213,7 @@ Item {
         Component.onCompleted: {
             pressurefield.resetWindField()
             setInitialConfiguration()
-            //testLeaf.robotComm.macAddr = "00:06:66:74:43:00"
+
         }
 
         ////////////////////// STATES
@@ -257,8 +257,9 @@ Item {
         Leaf {
             id: testLeaf
             field: pressurefield
-            robot: robotComm
-            allzones: allzones
+            robot: parent.parent.robot
+            allzones: playground
+            controls: parent.controls
         }
 
     }
@@ -267,7 +268,7 @@ Item {
     UIPanel {
         //anchors.fill: parent
         id: controls
-        robot: robotComm
+        robot: parent.robot
         windfield: windField
         width: parent.width
         height: parent.height /5

@@ -33,13 +33,13 @@ ApplicationWindow {
         }
 
         onReadyExplanationChanged: {
-           console.log("explanation");
+            console.log("explanation");
             //state="general_explanations"
         }
 
         onReadyGame1Changed: {
             console.log("game1 ");
-          //state="game1"
+            //state="game1"
         }
 
         onStateChanged: {
@@ -71,16 +71,21 @@ ApplicationWindow {
             mainGameField.visible= true;
         }
 
+
+        Keys.onUpPressed: macAddrSelectors.updateKeys('u')
+        Keys.onVolumeUpPressed: macAddrSelectors.updateKeys('u')
+        Keys.onDownPressed: macAddrSelectors.updateKeys('d')
+        Keys.onVolumeDownPressed: macAddrSelectors.updateKeys('d')
     }
 
 
     CanvasField{
         anchors.fill: parent
         id: mainGameField
-        robot:robotComm
+        robot:cellulo1
         visible:false
         playground:playground
-      //  property alias windfield: windfield
+        //  property alias windfield: windfield
     }
 
 
@@ -99,10 +104,77 @@ ApplicationWindow {
     }
 
 
-   CelluloRobot{
-        id: robotComm
-        playground: playground
-        robotId: 1
-        robotMacAddress: macAddresses[activeTablet][4]
-    }
+    Column{
+           id: macAddrSelectors
+           spacing: 5
+           visible: false
+
+           function updateKeys(keyCode){
+               hideSelectors();
+               var tempKeyHistory = [];
+               for(var i=0;i<keyHistory.length;i++)
+                   tempKeyHistory.push(keyHistory[i]);
+               tempKeyHistory.push(keyCode);
+               if(tempKeyHistory.length > 10)
+                   tempKeyHistory.shift();
+               keyHistory = tempKeyHistory;
+           }
+
+           function hideSelectors(){
+               visible = false;
+           }
+
+           function showSelectors(){
+               visible = true;
+           }
+
+           property variant keyHistory: []
+           property variant keyCode: ['d','u','d','u','d','u','d','u','d','u']
+           onKeyHistoryChanged:{
+               if(keyHistory.length == 10){
+                   for(var i=0;i<10;i++)
+                       if(keyHistory[i] !== keyCode[i])
+                           return;
+                   showSelectors();
+                   keyHistory = [];
+               }
+           }
+
+           property variant addresses: [
+               "00:06:66:74:40:D2",
+               "00:06:66:74:40:D4",
+               "00:06:66:74:40:D5",
+               "00:06:66:74:40:DB",
+               "00:06:66:74:40:DC",
+               "00:06:66:74:40:E4",
+               "00:06:66:74:40:EC",
+               "00:06:66:74:40:EE",
+               "00:06:66:74:41:04",
+               "00:06:66:74:41:14",
+               "00:06:66:74:41:4C",
+               "00:06:66:74:43:00",
+               "00:06:66:74:46:58",
+               "00:06:66:74:46:60",
+               "00:06:66:74:48:A7"
+           ]
+
+           Row{
+               spacing: 5
+
+               Label{ text: "Robot " + cellulo1.robotId }
+               MacAddrSelector{
+                   addresses: parent.parent.addresses
+                   onConnectRequested: cellulo1.robotComm.macAddr = selectedAddress
+                   onDisconnectRequested: cellulo1.robotComm.disconnectFromServer()
+                   connected: cellulo1.robotComm.connected
+                   connecting: cellulo1.robotComm.connecting
+               }
+           }
+       }
+
+       CelluloRobot{
+           id: cellulo1
+           playground: playground
+           robotId: 1
+       }
 }
