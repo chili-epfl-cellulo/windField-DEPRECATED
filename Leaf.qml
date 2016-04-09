@@ -21,7 +21,7 @@ Item {
     property bool collided: false
 
     readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
-    readonly property double dragCoefficient: .05 //air friction
+    readonly property double dragCoefficient: .0 //air friction
     readonly property double maxVelocity: 50
     readonly property double timeStep: .25
 

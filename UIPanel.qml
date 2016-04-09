@@ -21,6 +21,8 @@ Item {
     property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
+    property int bonus: 0
+
     function togglePaused() {
         windfield.paused = !windfield.paused
         if (windfield.paused){
@@ -64,6 +66,9 @@ Item {
             secondsElapsed = (currentTime-startTime)
         }
     }
+
+    function showInfo(){}
+
     Column {
         id: menuView
         x: 20
@@ -86,11 +91,121 @@ Item {
             anchors.fill: parent
             //anchors.horizontalCenter: parent.horizontalCenter
             //anchors.topMargin: parent.top
-            spacing: 5
+            spacing: parent.height/3
 
+            Column {
+                Item {
+                    width: 150
+                    height: 150
+                    Rectangle{
+                        id: infobutton
+                        width: 150
+                        height: 150
+                        radius:width*0.5
+                        border.width:2
+                        border.color: "black"
+                        color:"transparent"
+                        Text {
+                            id: infoText
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.family: "Helvetica"
+                            font.pointSize: 40
+                            font.bold: true
+                            text: "?"
+                        }
+                        MouseArea {
+                            anchors.fill: infobutton
+                            onClicked:  showInfo()
+                        }
+                    }
+                }
+            }
+
+            Column {
+                Item {
+                    id: pressurebutton
+                    width: 150
+                    height: width/2
+                    Rectangle{
+                        id: pressureSwitch
+                        anchors.fill: parent
+                        width: 150
+                        height: width/2
+                        radius:width*0.5
+                        border.width:2
+                        border.color: "black"
+                        color:"transparent"
+                        Rectangle{
+                            id: pressureBall
+                            width: parent.height
+                            height: width
+                            radius:width*0.5
+                            border.width: parent.height/6
+                            border.color: "transparent"
+                            color:"black"
+                            state:"anchorLeft"
+                            states:[
+                                State {
+                                    name: "anchorRight"
+                                    AnchorChanges {
+                                        target: pressureBall
+                                        anchors.right: parent.right
+                                        anchors.left: undefined
+                                    }
+                                    PropertyChanges {
+                                        target: pressureBall;
+                                        color:"green"
+                                    }
+                                },
+                                State {
+                                    name: "anchorLeft"
+                                    AnchorChanges {
+                                        target: pressureBall
+                                        anchors.left: parent.left
+                                        anchors.right: undefined
+                                    }
+                                    PropertyChanges {
+                                        target: pressureBall;
+                                        color:"black"
+                                    }
+                                }
+                            ]
+                        }
+                        MouseArea {
+                            anchors.fill: pressureSwitch
+                            onClicked: {
+                                windfield.drawPressureGrid = (windfield.drawPressureGrid ? false : true)
+                                pressureBall.state = ( windfield.drawPressureGrid ? "anchorRight" : "anchorLeft")
+                                console.log("clicked")
+                            }
+                        }
+                    }
+                    Text{
+                        anchors.top: pressureSwitch.bottom
+                        font.family: "Helvetica"
+                        font.pointSize: 12
+                        font.bold: true
+                        text:"Pressure gradient"
+                    }
+                }
+            }
+
+
+            Column {
+                Rectangle{
+                    width: 4
+                    height: 150
+                    radius:width*0.5
+                    border.width:4
+                    border.color: "white"
+                    color:"white"
+                }
+            }
             Column {
                 //anchors.left: lifescol.right
                 //Implementation of the Button control.
+
                 Item {
                     id: button
                     width: 100
@@ -295,31 +410,6 @@ Item {
                 id: itemsCol
 
                 GroupBox {
-                    id: addressBox
-                    title: "Robot Address"
-                    width: gWidth/4
-
-                    Row{
-                        spacing: 5
-
-                        Label{
-                            text: "00:06:66:74:"
-                            anchors.verticalCenter: macAddrRight.verticalCenter
-                        }
-                        TextField{
-                            id: macAddrRight
-                            text: "40:DC"
-                            placeholderText: "XX:XX"
-                            width: em(5)
-                        }
-                        Button {
-                            text: "Connect"
-                            onClicked: robotComm.robotMacAddress =  "00:06:66:74:" + macAddrRight.text;
-                        }
-                    }
-                }
-
-                GroupBox {
                     id: statusBox
                     title: "Status"
                     width: gWidth/4
@@ -331,41 +421,7 @@ Item {
                             spacing: 5
 
                             Text{
-                                text: "Connected?"
-                                color: robot.connected ? "green" : "red"
-                            }
-                            Text{
-                                text: "Battery State: " + robot.batteryState
-                            }
-                            Text{
-                                id: k0
-                                text: "K0"
-                                color: "black"
-                            }
-                            Text{
-                                id: k1
-                                text: "K1"
-                                color: "black"
-                            }
-                            Text{
-                                id: k2
-                                text: "K2"
-                                color: "black"
-                            }
-                            Text{
-                                id: k3
-                                text: "K3"
-                                color: "black"
-                            }
-                            Text{
-                                id: k4
-                                text: "K4"
-                                color: "black"
-                            }
-                            Text{
-                                id: k5
-                                text: "K5"
-                                color: "black"
+                                text: "Battery State: " + robot.robotComm.batteryState
                             }
                         }
                         Row{
@@ -373,10 +429,10 @@ Item {
 
                             Text{
                                 text: "Kidnapped?"
-                                color: robot.kidnapped ? "red" : "green"
+                                color: robot.robotComm.kidnapped ? "red" : "green"
                             }
                             Text{
-                                text: "X=" +  robot.coords.x + " Y=" + robot.coords.y + " Theta=" + robot.rotation
+                                text: "X=" + parseInt(robot.robotComm.x) + " Y=" + parseInt(robot.robotComm.y) + " Theta=" + parseInt(robot.robotComm.theta)
                             }
                         }
                     }
@@ -393,7 +449,7 @@ Item {
 
             Column{
                 id:timerMenu
-                anchors.right: parent.right
+                anchors.right: bonusMenu.left
                 Rectangle{
                     width: 270
                     height: 100
@@ -408,7 +464,28 @@ Item {
                         font.family: "Helvetica"
                         font.pointSize: 25
                         font.bold: true
-                        text: parseInt(secondsElapsed/100) + '\''+parseInt(secondsElapsed/1000)
+                        text: parseInt(secondsElapsed/1000) + '\''+parseInt(secondsElapsed/100)
+                    }
+                }
+            }
+            Column{
+                id:bonusMenu
+                anchors.right: parent.right
+                Rectangle{
+                    width: 100
+                    height: 100
+                    radius:width*0.5
+                    border.width:3
+                    border.color: "black"
+                    color:"yellow"
+                    Text {
+                        id: scoretext
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.family: "Helvetica"
+                        font.pointSize: 25
+                        font.bold: true
+                        text: bonus
                     }
                 }
             }

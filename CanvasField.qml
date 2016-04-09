@@ -98,11 +98,11 @@ Item {
             testLeaf.leafY = pressurefield.height/2
             testLeaf.leafXV = 20
             testLeaf.leafYV = 0
-            testLeaf.leafMass = 5
+            testLeaf.leafMass = 1
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 2
+            testLeaf.leafXFDrag = 0
             testLeaf.leafYFDrag = 0
             testLeaf.collided = false
 
