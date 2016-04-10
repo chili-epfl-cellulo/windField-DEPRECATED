@@ -27,11 +27,11 @@ Item {
         windfield.paused = !windfield.paused
         if (windfield.paused){
             //timer.stop()
-            pause.text = 'Resume'
+
         }
         else{
             timer.restart()
-            pause.text = 'Pause'
+
         }
         //pressureUpdate.enabled = windfield.paused
     }
@@ -91,7 +91,7 @@ Item {
             anchors.fill: parent
             //anchors.horizontalCenter: parent.horizontalCenter
             //anchors.topMargin: parent.top
-            spacing: parent.height/3
+            spacing: parent.height/10
 
             Column {
                 Item {
@@ -129,22 +129,23 @@ Item {
                     height: width/2
                     Rectangle{
                         id: pressureSwitch
-                        anchors.fill: parent
+                        anchors.horizontalCenter: parent.horizontalCenter
                         width: 150
                         height: width/2
                         radius:width*0.5
-                        border.width:2
+                        border.width:5
                         border.color: "black"
-                        color:"transparent"
+                        color:"gray"
                         Rectangle{
                             id: pressureBall
-                            width: parent.height
+                            width: parent.height -border.width
                             height: width
                             radius:width*0.5
-                            border.width: parent.height/6
-                            border.color: "transparent"
+                            border.width: 5
+                            anchors.verticalCenter: parent.verticalCenter
+                            border.color: "black"
                             color:"black"
-                            state:"anchorLeft"
+                            state:( windfield.drawPressureGrid ? "anchorRight" : "anchorLeft")
                             states:[
                                 State {
                                     name: "anchorRight"
@@ -154,7 +155,7 @@ Item {
                                         anchors.left: undefined
                                     }
                                     PropertyChanges {
-                                        target: pressureBall;
+                                        target: pressureSwitch;
                                         color:"green"
                                     }
                                 },
@@ -166,8 +167,8 @@ Item {
                                         anchors.right: undefined
                                     }
                                     PropertyChanges {
-                                        target: pressureBall;
-                                        color:"black"
+                                        target: pressureSwitch;
+                                        color:"gray"
                                     }
                                 }
                             ]
@@ -177,11 +178,11 @@ Item {
                             onClicked: {
                                 windfield.drawPressureGrid = (windfield.drawPressureGrid ? false : true)
                                 pressureBall.state = ( windfield.drawPressureGrid ? "anchorRight" : "anchorLeft")
-                                console.log("clicked")
                             }
                         }
                     }
                     Text{
+                        anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: pressureSwitch.bottom
                         font.family: "Helvetica"
                         font.pointSize: 12
@@ -202,181 +203,162 @@ Item {
                     color:"white"
                 }
             }
-            Column {
-                //anchors.left: lifescol.right
-                //Implementation of the Button control.
-
-                Item {
-                    id: button
-                    width: 100
-                    height: 100
-                    signal clicked
-                    enabled: windfield.paused
-
-                    Image {
-                        id: backgroundImage
-                        anchors.fill: parent
-                        source: (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
-
-
-                        //Mouse area to react on click events
-                        MouseArea {
-                            anchors.fill: backgroundImage
-                            onClicked: { updateSimulation()
-                                backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
-                            }
-
-                        }}
-                }
-
-
-            }
 
             Column {
-                id:menu
+                id:hiddenMenuView
                 spacing:0
-                //Implementation of the Button control.
-                Item {
-                    id: buttonPause
-                    width: 100
-                    height: 100
-                    signal clicked
-                    enabled: windfield.paused
-
-                    Image {
-                        id: playImage
-                        anchors.fill: parent
-                        source: (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
-                    }
-
-                    Text {
-                        id: playinnerText
-                        anchors.centerIn: parent
-                        color: "white"
-                        font.bold: true
-                    }
-
-                    //Mouse area to react on click events
-                    MouseArea {
-                        anchors.fill: buttonPause
-                        onClicked: {togglePaused()
-                            playImage.source = (buttonPause.enabled ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
-                        }
-                        onPressed: {
-                            playImage.source = "assets/buttons/playOn.png"}
-                    }
-                }
+                RowLayout{
+                    Column {
+                        Item {
+                            id: button
+                            width: 100
+                            height: 100
+                            signal clicked
+                            enabled: windfield.paused
+                            Image {
+                                id: backgroundImage
+                                anchors.fill: parent
+                                source: (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
 
 
-                Button {
-                    id: pause
-                    text: qsTr("Start")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onClicked: togglePaused()
-                    style:     ButtonStyle {
-                        id: buttonStyle
-                        background: Rectangle {
-                            implicitWidth: 100
-                            implicitHeight: 25
-                            border.width: control.activeFocus ? 2 : 1
-                            border.color: "#888"
-                            radius: 4
-                            gradient: Gradient {
-                                GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
-                                GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+                                //Mouse area to react on click events
+                                MouseArea {
+                                    anchors.fill: backgroundImage
+                                    onClicked: { updateSimulation()
+                                        backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
+                                    }
+
+                                }
                             }
                         }
                     }
-                }
-                Button {
-                    id: reset
-                    text: qsTr("Reset")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    style: pause.style
-                    onClicked: {
-                        startTime=0;
-                        pressurefield.resetWindField()
-                        //windfield.setInitialTestConfiguration()
-                        windfield.setInitialConfiguration()
-                        windfield.setPressureFieldTextureDirty()
-                        windfield.pauseSimulation()
-                    }
-                }
-            }
 
-            Column {
-                CheckBox {
-                    id: pressureGridCheck
-                    checked: windfield.drawPressureGrid
-                    text: "Pressure Gradient"
-                    onClicked: toggleDisplaySetting(1)
-                }
-                CheckBox {
-                    id: forceGridCheck
-                    checked: windfield.drawForceGrid
-                    text: "Force Vectors"
-                    onClicked: toggleDisplaySetting(2)
-                }
-                CheckBox {
-                    id: leafVelocityCheck
-                    checked: windfield.drawLeafVelocityVector
-                    text: "Leaf Velocity"
-                    onClicked: toggleDisplaySetting(3)
-                }
-                CheckBox {
-                    id: leafForceCheck
-                    checked: windfield.drawLeafForceVectors
-                    text: "Forces on Leaf"
-                    onClicked: toggleDisplaySetting(4)
-                }
-            }
+                    Column {
+                        id:menu
+                        spacing:0
+                        Item {
+                            id: buttonPause
+                            width: 100
+                            height: 100
+                            Image {
+                                id: playImage
+                                anchors.fill: parent
+                                source: (windfield.paused ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
+                            }
 
-            Column {
-                Text {
-                    text: " Action Menu: "
-                }
-                ComboBox {
-                    id: actionMenu
-                    currentIndex: 0
+                            MouseArea {
+                                anchors.fill: buttonPause
+                                onClicked: {togglePaused()
+                                   // playImage.source = (windfield.paused ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
+                                }
+                            }
+                        }
 
-                    style: ComboBoxStyle {
-                        background: Rectangle {
-                            implicitWidth: 300
-                            implicitHeight: 50
-                            border.width: control.activeFocus ? 2 : 1
-                            border.color: "#888"
-                            radius: 4
-                            gradient: Gradient {
-                                GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
-                                GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+
+                        Button {
+                            id: reset
+                            text: qsTr("Reset")
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            onClicked: {
+                                startTime=0;
+                                pressurefield.resetWindField()
+                                //windfield.setInitialTestConfiguration()
+                                windfield.setInitialConfiguration()
+                                windfield.setPressureFieldTextureDirty()
+                                windfield.pauseSimulation()
+                                timer.restart()
                             }
                         }
                     }
-                    model: ListModel {
-                        id: cbItems
-                        ListElement { text: "Move Pressure"; color: "White" }
-                        ListElement { text: "Add Low Pressure (High)"; color: "White" }
-                        ListElement { text: "Add Low Pressure (Medium)"; color: "White" }
-                        ListElement { text: "Add Low Pressure (Low)"; color: "White" }
-                        ListElement { text: "Add High Pressure (Low)"; color: "White" }
-                        ListElement { text: "Add High Pressure (Medium)"; color: "White" }
-                        ListElement { text: "Add High Pressure (High)"; color: "White" }
-                        ListElement { text: "Remove Pressure"; color: "White" }
+
+                    Column {
+                        id:actionCol
+                        Text {
+                            text: " Action Menu: "
+                        }
+                        ComboBox {
+                            id: actionMenu
+                            currentIndex: 0
+
+                            style: ComboBoxStyle {
+                                background: Rectangle {
+                                    implicitWidth: 300
+                                    implicitHeight: 50
+                                    border.width: control.activeFocus ? 2 : 1
+                                    border.color: "#888"
+                                    radius: 4
+                                    gradient: Gradient {
+                                        GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
+                                        GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+                                    }
+                                }
+                            }
+                            model: ListModel {
+                                id: cbItems
+                                ListElement { text: "Move Pressure"; color: "White" }
+                                ListElement { text: "Add Low Pressure (High)"; color: "White" }
+                                ListElement { text: "Add Low Pressure (Medium)"; color: "White" }
+                                ListElement { text: "Add Low Pressure (Low)"; color: "White" }
+                                ListElement { text: "Add High Pressure (Low)"; color: "White" }
+                                ListElement { text: "Add High Pressure (Medium)"; color: "White" }
+                                ListElement { text: "Add High Pressure (High)"; color: "White" }
+                                ListElement { text: "Remove Pressure"; color: "White" }
+                            }
+                            onCurrentIndexChanged: {
+                                windfield.currentAction = currentIndex;
+                                //windfield.currentAction = currentIndex;
+                            }
+                        }
+                        Button {
+                            id: removeAll
+                            text: qsTr("Clear All Pressure")
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            //style: pause.style
+                            onClicked: {
+                                pressurefield.resetWindField()
+                            }
+                        }
                     }
-                    onCurrentIndexChanged: {
-                        windfield.currentAction = currentIndex;
-                        //windfield.currentAction = currentIndex;
+
+
+
+                    Column{
+                        id: itemsCol
+                        anchors.left:actionCol.right
+                        GroupBox {
+                            id: statusBox
+                            title: "Status"
+                            width: parent.height
+
+                            Column{
+                                spacing: 5
+
+                                Row{
+                                    spacing: 5
+
+                                    Text{
+                                        text: "Battery State: " + robot.robotComm.batteryState
+                                    }
+                                }
+                                Row{
+                                    spacing: 5
+
+                                    Text{
+                                        text: "Kidnapped?"
+                                        color: robot.robotComm.kidnapped ? "red" : "green"
+                                    }
+                                    Text{
+                                        text: "X=" + parseInt(robot.robotComm.x) + " Y=" + parseInt(robot.robotComm.y) + " Theta=" + parseInt(robot.robotComm.theta)
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 }
-                Button {
-                    id: removeAll
-                    text: qsTr("Clear All Pressure")
-                    anchors.horizontalCenter: parent.right
-                    style: pause.style
-                    onClicked: {
-                        pressurefield.resetWindField()
-                    }
-                }
+
+
+
             }
 
             Column{
@@ -406,40 +388,6 @@ Item {
                 }
             }
 
-            Column{
-                id: itemsCol
-
-                GroupBox {
-                    id: statusBox
-                    title: "Status"
-                    width: gWidth/4
-
-                    Column{
-                        spacing: 5
-
-                        Row{
-                            spacing: 5
-
-                            Text{
-                                text: "Battery State: " + robot.robotComm.batteryState
-                            }
-                        }
-                        Row{
-                            spacing: 5
-
-                            Text{
-                                text: "Kidnapped?"
-                                color: robot.robotComm.kidnapped ? "red" : "green"
-                            }
-                            Text{
-                                text: "X=" + parseInt(robot.robotComm.x) + " Y=" + parseInt(robot.robotComm.y) + " Theta=" + parseInt(robot.robotComm.theta)
-                            }
-                        }
-                    }
-                }
-
-            }
-
             Timer {
                 id:timer
                 interval:30
@@ -447,6 +395,17 @@ Item {
                 onTriggered: timeChanged()
             }
 
+
+            Column {
+                Rectangle{
+                    width: 4
+                    height: 150
+                    radius:width*0.5
+                    border.width:4
+                    border.color: "white"
+                    color:"white"
+                }
+            }
             Column{
                 id:timerMenu
                 anchors.right: bonusMenu.left
@@ -464,20 +423,21 @@ Item {
                         font.family: "Helvetica"
                         font.pointSize: 25
                         font.bold: true
-                        text: parseInt(secondsElapsed/1000) + '\''+parseInt(secondsElapsed/100)
+                        text: parseInt(secondsElapsed/1000) + '\''+parseInt(secondsElapsed/100) +"\""
                     }
                 }
-            }
-            Column{
-                id:bonusMenu
-                anchors.right: parent.right
-                Rectangle{
-                    width: 100
-                    height: 100
-                    radius:width*0.5
-                    border.width:3
-                    border.color: "black"
-                    color:"yellow"
+               }
+                Column{
+                    id:bonusMenu
+                    //anchors.right: parent.right
+                    Rectangle{
+                        width: 100
+                        height: 100
+                        radius:width*0.5
+                        border.width:3
+                        border.color: "black"
+                        color:"yellow"
+
                     Text {
                         id: scoretext
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -487,28 +447,12 @@ Item {
                         font.bold: true
                         text: bonus
                     }
-                }
+                    }
+
+
             }
 
         }
-        /*Button {
-            id: toggleMenu
-            text: qsTr("Open Menu")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            style: pause.style
-            width: parent.width
 
-            height: 100
-            onClicked: {
-                if (menuView.state == "CLOSED") {
-                    menuView.state = "OPENED"
-                    toggleMenu.text = "Close Menu"
-                } else {
-                    menuView.state = "CLOSED"
-                    toggleMenu.text = "Open Menu"
-                }
-            }
-        }*/
     }
 }

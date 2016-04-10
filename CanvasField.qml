@@ -42,7 +42,7 @@ Item {
         property int numLeaves: 1
 
         property int nblifes: 3
-        property int game: 3
+        property int gameMode: 3
 
         function addPressurePoint(r,c,pressureLevel) {
             console.log('called here')
