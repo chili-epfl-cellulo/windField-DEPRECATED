@@ -67,7 +67,7 @@ Item {
             console.log(startcoords.x, startcoords.y)
             testLeaf.leafX = startcoords.x
             testLeaf.leafY = startcoords.y
-            testLeaf.leafXV = 30
+            testLeaf.leafXV = 0
             testLeaf.leafYV = 0
             testLeaf.leafMass = 2
             testLeaf.leafSize = 150
@@ -96,7 +96,7 @@ Item {
             //Set test leaf info
             testLeaf.leafX = 10*pressurefield.xGridSpacing
             testLeaf.leafY = pressurefield.height/2
-            testLeaf.leafXV = 20
+            testLeaf.leafXV = 0
             testLeaf.leafYV = 0
             testLeaf.leafMass = 1
             testLeaf.leafSize = 150
