@@ -3,9 +3,11 @@ import QtCanvas3D 1.0
 import QtPositioning 5.2
 import Cellulo 1.0
 import "renderer.js" as GLRender
-Item {
+
+Item{
     width: parent.width
     height: parent.height
+
     property variant robot: null
     property variant playground: playground
     property variant windfield: windField
@@ -13,6 +15,7 @@ Item {
     property int fieldHeight: 950
 
     visible: false
+
     Canvas3D {
         id: windField
         width: parent.width

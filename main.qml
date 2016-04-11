@@ -60,7 +60,7 @@ ApplicationWindow {
         onGame2Clicked: stateEngine.goToStateByName('Game2')
     }
 
-    CanvasField{
+    MainGameField{
         anchors.fill: parent
         id: mainGameField
         robot: cellulo1

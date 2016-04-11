@@ -10,7 +10,7 @@
         <file>assets/buttons/playOff.png</file>
         <file>assets/buttons/playOn.png</file>
         <file>assets/EuropeBg-02.png</file>
-        <file>CanvasField.qml</file>
+        <file>MainGameField.qml</file>
         <file>MainMenu.qml</file>
         <file>assets/start/windUiStart.png</file>
         <file>assets/windUi-1.png</file>
