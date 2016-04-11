@@ -42,8 +42,10 @@ OTHER_FILES += \
     assets/buttons/updateOff.png \
     assets/buttons/updateOn.png \
     assets/final.js \
-    windsim.js \
     CanvasField.qml \
     MainForm.qml \
-    renderer.js
+    renderer.js \
+    PressurePoint.qml \
+    PressurePointLevelDialog.qml \
+    ZonesF.qml
 

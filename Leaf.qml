@@ -43,12 +43,11 @@ Item {
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
 
-        var leafPose = parent.fromPointToCoords(robot.coords.x,robot.coords.y)
-        leafX = leafPose.x
-        leafY = leafPose.y
-        console.log(robot.coords)
 
-        console.log(leafPose)
+        leafX = robot.coords.x* fieldWidth
+        leafY = robot.coords.y * fieldHeight
+        console.log(robot.coords.x, robot.coords.y)
+        console.log(leafX, leafY)
 
     }
 

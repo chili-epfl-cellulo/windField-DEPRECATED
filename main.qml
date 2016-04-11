@@ -141,8 +141,9 @@ ApplicationWindow {
 
     ZonesF{
         id:playground
-        width: 1700 // in mm
-        height: 660 // in mm
+        property real widthmm: 1700 // in mm
+        property real heightmm: 660 // in mm
+        property real gridSize: 0.508 //in mmm
         function zonesByName(name) {
             var res = []
             for (var i = 0; i < zones.length; i++) {

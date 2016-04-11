@@ -83,7 +83,6 @@ Item {
         }
     }
 
-
     Image {
         id: ppImg
         opacity:1

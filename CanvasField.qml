@@ -67,7 +67,33 @@ Item {
             pressurefield.addPressurePoint(r,c,pressureLevel)
         }
 
-        function setInitialConfiguration(){
+        function setInitialConfigurationGame1(){
+            //setObstaclesfromZones()
+            //Set test leaf info
+
+            var startp = playground.zones[0]["path"]
+            var center = getCenterFromPoly(startp)
+            var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
+            console.log("startpoints")
+            //startcoords =  Qt.point(50,50)
+            console.log(startcoords.x, startcoords.y)
+            testLeaf.leafX = startcoords.x
+            testLeaf.leafY = startcoords.y
+            testLeaf.leafXV = 0
+            testLeaf.leafYV = 0
+            testLeaf.leafMass = 2
+            testLeaf.leafSize = 150
+            testLeaf.leafXF = 0
+            testLeaf.leafYF = 0
+            testLeaf.leafXFDrag = 0
+            testLeaf.leafYFDrag = 0
+            testLeaf.collided = false
+
+            pauseSimulation()
+        }
+
+
+        function setInitialConfigurationGame2(){
             setObstaclesfromZones()
             //Set test leaf info
 
@@ -198,9 +224,10 @@ Item {
             }
         }
 
-        onGameModeChanged:{
+        function setGameMode(){
             switch(gameMode){
             case 1:
+                setInitialConfigurationGame1()
                 leaves[0].resetRobotVelocity()
                 leaves[0].tangible = true
                 hidePressurePoint()
@@ -209,6 +236,7 @@ Item {
                 controls.enabled = true //TODO CHnage in false
                 leaves[0].updateCellulo()
             case 2:
+                setInitialConfigurationGame2()
             }
         }
 
@@ -269,8 +297,12 @@ Item {
 
         Component.onCompleted: {
             pressurefield.resetWindField()
-            setInitialConfiguration()
+        }
 
+        onGameModeChanged: {
+            setGameMode()
+            console.log('game mode')
+            console.log(gameMode)
         }
 
         ////////////////////// STATES
@@ -435,22 +467,22 @@ Item {
             PressurePoint{
                 id: pressurePoint1
                 field: pressurefield
-                ilevel: 2
+                ilevel: 3
             }
             PressurePoint{
                 id: pressurePoint10
                 field: pressurefield
-                ilevel: -2
+                ilevel: 3
             }
             PressurePoint{
                 id: pressurePoint2
                 field: pressurefield
-                ilevel: -1
+                ilevel: -3
             }
             PressurePoint{
                 id: pressurePoint3
                 field: pressurefield
-                ilevel: 1
+                ilevel: -3
             }
         }
     }
