@@ -1,14 +1,10 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>assets/CircleObstacle.png</file>
-        <file>assets/leaf.png</file>
-        <file>assets/background.jpg</file>
         <file>three.js</file>
         <file>renderer.js</file>
         <file>PressureField.qml</file>
         <file>Leaf.qml</file>
-        <file>assets/europe.jpg</file>
         <file>assets/buttons/updateOff.png</file>
         <file>assets/buttons/updateOn.png</file>
         <file>assets/buttons/playOff.png</file>
@@ -35,5 +31,13 @@
         <file>assets/lowPressure1.png</file>
         <file>assets/lowPressure2.png</file>
         <file>assets/highPressure2.png</file>
+        <file>ZonesF.qml</file>
+        <file>assets/cellulo_balloon.png</file>
+        <file>assets/buttons/reset.png</file>
+        <file>assets/buttons/gameover.png</file>
+        <file>assets/test.png</file>
+        <file>assets/FinalMap.png</file>
+        <file>assets/buttons/on.png</file>
+        <file>assets/buttons/off.png</file>
     </qresource>
 </RCC>

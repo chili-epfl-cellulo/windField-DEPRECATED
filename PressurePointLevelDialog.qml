@@ -4,26 +4,28 @@ Rectangle {
     id:listdialog
     width: parent.width*3
     height: parent.height
-    color: "teal"
+    //color: "teal"
     x:parent.x
     y:parent.y
+    //color:"transparent"
     property alias dialogModel: dialoglist.model
     //property alias dialogtitle: dialogtitle.text
     signal clicked (int plevel, int index)
     property alias showDialog: showDialog.running
     property alias hideDialog: hideDialog.running
+    color:Qt.rgba(255, 255, 255, 0.4)
     radius:15
-    MouseArea{
-        anchors.fill: parent
+    /*MouseArea{
+        anchors.fill: listdialog.parent.parent
         onClicked: {
             // Hide the dialog box if clicked outside
-            //hideDialog.running = true
+            hideDialog.running = true
 
             // Resume the game as soon as Dialog is hidden
             //if(paused)
             //MainWindow.pauseButton_clicked(false)
         }
-    }
+    }*/
 
 
     Rectangle{
@@ -32,9 +34,7 @@ Rectangle {
         height: parent.height
         anchors.centerIn: parent
         radius: 15
-        /*MouseArea{
-            anchors.fill: parent
-        }*/
+        color:"transparent"
 
         ListView{
             id:dialoglist
@@ -56,10 +56,11 @@ Rectangle {
                 height: parent.height
                 radius: 10
                 anchors.verticalCenter: parent.verticalCenter
-                color: "teal"
+
                 Image{
-                       id: listitemText
-                       source:imagePath
+                    opacity: 1
+                    id: listitemText
+                    source:imagePath
                 }
                 MouseArea{
                     id: delegateMouseArea
@@ -74,11 +75,19 @@ Rectangle {
     }
 
     // Animating list dialog
-    PropertyAnimation { id: showDialog; target: listdialog; property: "opacity"; to: 1; duration: 500; easing.type: Easing.InQuad   }
-    PropertyAnimation { id: hideDialog; target: listdialog; property: "opacity"; to: 0; duration: 500; easing.type: Easing.OutQuad}
+    SequentialAnimation{
+        id : showDialog
+        PropertyAction { target: listdialog; property: "visible"; value: true }
+        PropertyAnimation { id: showDialogOparcity; target: listdialog; property: "opacity"; to: 0.8; duration: 500; easing.type: Easing.InQuad   }
+
+    }
+    SequentialAnimation{
+        id : hideDialog
+        PropertyAnimation { id: hideDialogOpacity; target: listdialog; property: "opacity"; to: 0; duration: 500; easing.type: Easing.OutQuad}
+        PropertyAction { target: listdialog; property: "visible"; value: false }
+    }
+
 }
-
-
 
 
 

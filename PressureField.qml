@@ -42,6 +42,7 @@ Item {
         //0-inactive, 1-active, 2-active and selected
         this.state = inactive
         this.strength = 0.0
+        this.size = 10
     }
 
     /***PRESSURE FIELD INITIALIZATION***/
@@ -68,7 +69,7 @@ Item {
         for (var i = 0; i < maxPressurePoints; i++) {
             pressurePoints[i] = new pressurePointObject()
         }
-        windField.setObstacles()
+        //windField.setObstacles()
     }
 
     function resetWindFieldBis() {
@@ -89,7 +90,7 @@ Item {
             rows[i]=column
         }
         pressureGrid = rows
-        windField.setObstacles()
+        //windField.setObstacles()
     }
 
     function resetPressureAtPressurePoints() {
@@ -335,6 +336,8 @@ Item {
     //1: high pressure (low setting), 2: high pressure (medium), 3: high pressure (low)
     //-1: low pressure (low setting), -2: low pressure (medium), -3: low pressure (low)
     function addPressurePoint(r,c,pressureLevel) {
+        console.info("===================pressure added========================")
+        //console.info(numRows,numCols)
         if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6] )//|| pressureGrid[r][c][6]!=2)
             return;
 
@@ -347,9 +350,9 @@ Item {
                     return;
             }
         }
-        console.log("===================pressure added========================")
-        console.log(r,c,pressureLevel)
-        console.log("===================pressure added========================")
+
+        console.info(r,c,pressureLevel)
+        console.info("===================pressure added========================")
         //Actually add the pressure cell
         for (var p = 0; p < maxPressurePoints; p++) {
             if (!pressurePoints[p].state) {
