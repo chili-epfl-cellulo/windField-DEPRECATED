@@ -58,14 +58,6 @@ Item {
         for (var i = 0; i < windfield.numLeaves; i++)
             windfield.leaves[i].calculateForcesAtLeaf()
     }
-    function timeChanged(){
-        if(!windfield.paused){
-            if(startTime == 0)
-                startTime =  new Date().getTime()
-            var currentTime = new Date().getTime()
-            secondsElapsed = (currentTime-startTime)
-        }
-    }
 
     function showInfo(){}
 
@@ -266,6 +258,7 @@ Item {
                                 windfield.setInitialConfiguration()
                                 windfield.setPressureFieldTextureDirty()
                                 windfield.pauseSimulation()
+                                robot.robotComm.reset();
                                 timer.restart()
                             }
                         }
@@ -388,12 +381,7 @@ Item {
                 }
             }
 
-            Timer {
-                id:timer
-                interval:30
-                running: false; repeat: true
-                onTriggered: timeChanged()
-            }
+
 
 
             Column {

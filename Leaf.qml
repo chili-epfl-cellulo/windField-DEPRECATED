@@ -19,6 +19,7 @@ Item {
     property double leafMass: 1
     property double leafSize: 0
     property bool collided: false
+    property bool tangible: false
 
     readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
@@ -32,9 +33,23 @@ Item {
 
 
 
+
     /***CELLULO SYNCHRONISATION METHODS***/
+    function resetRobotVelocity(){
+        //robot.setGlobalSpeeds(0.0 , 0.0 , 0.0);
+        robot.robotComm.reset();
+    }
+
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
+
+        var leafPose = parent.fromPointToCoords(robot.coords.x,robot.coords.y)
+        leafX = leafPose.x
+        leafY = leafPose.y
+        console.log(robot.coords)
+
+        console.log(leafPose)
+
     }
 
     /***LEAF STATE UPDATE METHODS***/
@@ -69,7 +84,7 @@ Item {
                                    pressureGrid[Math.min(numRows-1,rowIndex+1)][colIndex][4] +
                                    pressureGrid[Math.min(numRows-1,rowIndex+1)][Math.min(numCols-1, colIndex+1)][4])/4
 
-         //console.log( 'pressures' ,topLeftPressure, topRightPressure ,bottomLeftPressure,bottomRightPressure)
+        //console.log( 'pressures' ,topLeftPressure, topRightPressure ,bottomLeftPressure,bottomRightPressure)
 
         //Now interpolate between the points to find the force (which we will just call the
         var xRatio = (leafX-colIndex*xGridSpacing)/xGridSpacing
@@ -91,7 +106,6 @@ Item {
         }
     }
 
-
     // - check if the leaf is in a zone
     function inZone(zone){
         //TODO
@@ -99,75 +113,83 @@ Item {
     }
 
     function updateLeaf() {
+
         if (collided) {
 
             return;
         }
 
-        var pressureGrid = field.pressureGrid
-        var yGridSpacing = field.yGridSpacing
-        var xGridSpacing = field.xGridSpacing
-        calculateForcesAtLeaf()
-        var netForceX = leafXF + leafXFDrag
-        var netForceY = leafYF + leafYFDrag
+        if(tangible){
+            updateCellulo()
 
-        //update position from one time step given current velocity and current force
-        var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
-        var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
+        }else{
 
-        leafXV += netForceX/leafMass*timeStep
-        leafYV += netForceY/leafMass*timeStep
-        leafX += deltaX
-        leafY += deltaY
+            var pressureGrid = field.pressureGrid
+            var yGridSpacing = field.yGridSpacing
+            var xGridSpacing = field.xGridSpacing
+            calculateForcesAtLeaf()
+            var netForceX = leafXF + leafXFDrag
+            var netForceY = leafYF + leafYFDrag
+
+            //update position from one time step given current velocity and current force
+            var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
+            var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
+
+            leafXV += netForceX/leafMass*timeStep
+            leafYV += netForceY/leafMass*timeStep
+            leafX += deltaX
+            leafY += deltaY
 
 
             robot.setGlobalSpeeds( leafXV/2, leafYV/2,0);
 
 
 
-        if(robot.checkZone()==='madrid'){
-            controls.bonus = controls.bonus + 1
-        }
+            if(robot.checkZone()==='madrid'){
+                controls.bonus = controls.bonus + 1
+            }
 
-        //if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
-        if (leafX > windField.fieldWidth || leafX < 0) {
-            leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
-            collided = true;
-            windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
-         if(robot.connected){
-            robot.alert(Qt.rgba(0.7,0,0,1), 5);
-            robot.setGlobalSpeeds(0,0,0);
-         }
-            console.log("=========LEAF COLLIDED R1==========")
-        //} else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
-        } else if (leafY > windField.fieldHeight || leafY < 0) {
-            leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
-            collided = true
-            windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
-             if(robot.connected){
-            robot.alert(Qt.rgba(0.7,0,0,1),5);
-            robot.setGlobalSpeeds(0,0,0);}
-            console.log("=========LEAF COLLIDED R2==========")
-        }
-        else if (inZone(allzones.zones[allzones.zones.length-1])) {
-                    leafXV = 0
-                    leafYV = 0
-                    windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
-
+            //if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
+            if (leafX > windField.fieldWidth || leafX < 0) {
+                leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
+                collided = true;
+                windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
+                if(robot.connected){
+                    robot.alert(Qt.rgba(0.7,0,0,1), 5);
+                    robot.setGlobalSpeeds(0,0,4);
                 }
+                console.log("=========LEAF COLLIDED R1==========")
+                //} else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
+            } else if (leafY > windField.fieldHeight || leafY < 0) {
+                leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
+                collided = true
+                windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
+                if(robot.connected){
+                    robot.alert(Qt.rgba(0.7,0,0,1),5);
+                    robot.setGlobalSpeeds(0,0,4);
+                }
+                console.log("=========LEAF COLLIDED R2==========")
+            }
+            else if (inZone(allzones.zones[allzones.zones.length-1])) {
+                leafXV = 0
+                leafYV = 0
+                windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
 
-        if(robot.connected && !collided)
-            robot.setGoalVelocity(leafXV*3 , leafYV*3 , 0.0);
+            }
+
+            if(robot.connected && !collided)
+                robot.setGoalVelocity(leafXV , leafYV , 0.0);
 
 
-        if (collided) {
-            leafXV = 0
-            leafYV = 0
-            leafXF = 0
-            leafYF = 0
-            leafXFDrag = 0
-            leafYFDrag = 0
+            if (collided) {
+                leafXV = 0
+                leafYV = 0
+                leafXF = 0
+                leafYF = 0
+                leafXFDrag = 0
+                leafYFDrag = 0
 
+            }
         }
         //console.log('new leaf positions',leafX, leafY)
         //console.log("===================")

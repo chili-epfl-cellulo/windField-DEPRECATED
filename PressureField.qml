@@ -43,6 +43,7 @@ Item {
         this.state = inactive
         this.strength = 0.0
         this.size = 10
+        this.visible = true
     }
 
     /***PRESSURE FIELD INITIALIZATION***/
@@ -131,7 +132,6 @@ Item {
         return magn
     }
 
-
     function updatePressureGridBis(){
         console.info("start updating")
         for(var i = 0; i < maxPressurePoints; i++){
@@ -198,67 +198,6 @@ Item {
         }
         console.log(str);
 
-    }
-    function updatePressureGrid() {
-        for (var row = 0; row < numRows; row++) {
-            for (var col = 0; col < numCols; col++) {
-                var tempLocalPressure = new Array(3)
-                tempLocalPressure[0] = new Array(3)
-                tempLocalPressure[1] = new Array(3)
-                tempLocalPressure[2] = new Array(3)
-                tempLocalPressure[0][0] = 0.0
-                tempLocalPressure[0][1] = 0.0
-                tempLocalPressure[0][2] = 0.0
-                tempLocalPressure[1][0] = 0.0
-                tempLocalPressure[1][1] = 0.0
-                tempLocalPressure[1][2] = 0.0
-                tempLocalPressure[2][0] = 0.0
-                tempLocalPressure[2][1] = 0.0
-                tempLocalPressure[2][2] = 0.0
-
-                var numLowPressureNeighbours = 0;
-                var curPressure = pressureGrid[row][col][4]
-                for (var rowOffset = -1; rowOffset <= 1; rowOffset++) {
-                    if (row+rowOffset >= numRows || row+rowOffset < 0)
-                        continue;
-                    for (var colOffset = -1; colOffset <= 1; colOffset++) {
-                        var rowIndex = row+rowOffset
-                        var colIndex = col+colOffset
-                        if ((!rowOffset && !colOffset) || colIndex >= numCols || colIndex < 0)
-                            continue;
-                        var neighbourPressure = pressureGrid[rowIndex][colIndex][4]
-                        if (curPressure > neighbourPressure) {
-                            var pressureDiff = (curPressure - neighbourPressure)
-                            tempLocalPressure[rowOffset+1][colOffset+1] = pressureDiff
-                            numLowPressureNeighbours++
-                        } else {
-                            tempLocalPressure[rowOffset+1][colOffset+1] = 0.0
-                        }
-                    }
-                }
-
-                numLowPressureNeighbours++ //including self
-                for (var i = -1; i <= 1; i++) {
-                    for (var j = -1; j <= 1; j++) {
-                        var localPressureDiff = pressureTransferRate*tempLocalPressure[i+1][j+1]/numLowPressureNeighbours
-                        if (localPressureDiff > 0.0) {
-                            pressureGrid[row+i][col+j][5] += localPressureDiff
-                            pressureGrid[row][col][5] -= localPressureDiff
-                        }
-                    }
-                }
-
-                pressureGrid[row][col][4] = getPressureOnCell(row,col)
-                //resetPressureAtPressurePoints()
-            }
-        }
-
-        for (var row = 0; row < numRows; row++) {
-            for (var col = 0; col < numCols; col++) {
-                pressureGrid[row][col][4] += pressureGrid[row][col][5]
-                pressureGrid[row][col][5] = 0.0
-            }
-        }
     }
 
     function calculateForceVectors() {
@@ -336,6 +275,10 @@ Item {
     //1: high pressure (low setting), 2: high pressure (medium), 3: high pressure (low)
     //-1: low pressure (low setting), -2: low pressure (medium), -3: low pressure (low)
     function addPressurePoint(r,c,pressureLevel) {
+        addPressurePointHidden(r,c,pressureLevel, true)
+    }
+
+    function addPressurePointHidden(r,c,pressureLevel, visible) {
         console.info("===================pressure added========================")
         //console.info(numRows,numCols)
         if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6] )//|| pressureGrid[r][c][6]!=2)
@@ -360,12 +303,14 @@ Item {
                 pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
                 pressurePoints[p].state = active
                 pressurePoints[p].strength = pressureLevelToStrength(pressureLevel)
+                pressurePoints[p].visible = visible
                 numPressurePoints++
                 return
             }
         }
         //pressureGrid[r][c][6]=2;
     }
+
 
     function removePressurePoint(r,c) {
         for (var i = 0; i < maxPressurePoints; i++) {

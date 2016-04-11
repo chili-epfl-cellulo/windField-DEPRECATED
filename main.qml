@@ -40,7 +40,7 @@ ApplicationWindow {
            anchors.horizontalCenter: parent.horizontalCenter
             Rectangle {
                 id:rect
-                width: 500; height: 300
+                width: 700; height: 300
                 color: "yellow"
                 radius:width*0.5
                 opacity:0.6
@@ -50,7 +50,7 @@ ApplicationWindow {
                     font.family: "Helvetica"
                     font.pointSize: 25
                     font.bold: true
-                    text:"Game 1"
+                    text:"Feel the wind"
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -60,7 +60,7 @@ ApplicationWindow {
 
             Rectangle {
                 id:rect2
-                width: 500; height: 300
+                width: 700; height: 300
                 color: "green"
                 radius:width*0.5
                 opacity:0.6
@@ -70,7 +70,7 @@ ApplicationWindow {
                     font.family: "Helvetica"
                     font.pointSize: 25
                     font.bold: true
-                    text:"Game 2"
+                    text:"Control the wind"
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -78,7 +78,7 @@ ApplicationWindow {
                 }
             }
 
-            Rectangle {
+           /* Rectangle {
                 id:rect3
                 width: 500 ;height: 300
                 color: "blue"
@@ -96,28 +96,31 @@ ApplicationWindow {
                     anchors.fill: parent
                     onClicked: { parent.color = 'red' ; game.game3()}
                 }
-            }
+            }*/
 
         }
 
 
-        function intro(){
-            rect.visible = true
+        function mainMenu(){
+            game.visible = true
         }
         function game1() {
             mainGameField.visible= true;
             mainGameField.enabled=true;
+            mainGameField.windfield.gameMode = 1
         }
 
         function game2() {
             mainGameField.visible= true;
             mainGameField.enabled=true;
+            mainGameField.windfield.gameMode = 2
         }
 
-        function game3() {
+        /*function game3() {
             mainGameField.visible= true;
             mainGameField.enabled=true;
-        }
+            mainGameField.windfield.gameMode = 3
+        }*/
 
 
         Keys.onUpPressed: macAddrSelectors.updateKeys('u')
@@ -125,7 +128,6 @@ ApplicationWindow {
         Keys.onDownPressed: macAddrSelectors.updateKeys('d')
         Keys.onVolumeDownPressed: macAddrSelectors.updateKeys('d')
     }
-
 
     CanvasField{
         anchors.fill: parent
@@ -136,7 +138,6 @@ ApplicationWindow {
         playground:playground
         //  property alias windfield: windfield
     }
-
 
     ZonesF{
         id:playground
@@ -151,7 +152,6 @@ ApplicationWindow {
             return res;
         }
     }
-
 
     Column{
         id: macAddrSelectors
@@ -227,5 +227,6 @@ ApplicationWindow {
         id: cellulo1
         playground: playground
         robotId: 1
+        robotComm.macAddr : "00:06:66:74:40:DC"
     }
 }

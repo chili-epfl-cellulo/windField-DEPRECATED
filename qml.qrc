@@ -37,7 +37,5 @@
         <file>assets/buttons/gameover.png</file>
         <file>assets/test.png</file>
         <file>assets/FinalMap.png</file>
-        <file>assets/buttons/on.png</file>
-        <file>assets/buttons/off.png</file>
     </qresource>
 </RCC>
