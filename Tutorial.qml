@@ -24,6 +24,11 @@ Image {
         }
     }
 
+    TutorialAnimation{
+        baseName: 'ballon'
+        numImages: 120
+    }
+
     Image{
         id: nextButton
         width: parent.width/10
