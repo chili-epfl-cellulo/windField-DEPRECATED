@@ -27,5 +27,11 @@
         <file>StateEngine.qml</file>
         <file>assets/backgrounds/MainGameBackground.png</file>
         <file>assets/backgrounds/MainMenuBackground.png</file>
+        <file>Tutorial.qml</file>
+        <file>assets/backgrounds/tutorial/Tutorial1-5.png</file>
+        <file>assets/backgrounds/tutorial/Tutorial1-1.png</file>
+        <file>assets/backgrounds/tutorial/Tutorial1-2.png</file>
+        <file>assets/backgrounds/tutorial/Tutorial1-3.png</file>
+        <file>assets/backgrounds/tutorial/Tutorial1-4.png</file>
     </qresource>
 </RCC>
