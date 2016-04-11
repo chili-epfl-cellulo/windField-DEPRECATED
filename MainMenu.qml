@@ -19,7 +19,7 @@ Item{
         Image {
             id: background
             anchors.fill: parent
-            source: "assets/start/windUiStart.png"
+            source: "assets/backgrounds/MainMenuBackground.png"
         }
     }
 

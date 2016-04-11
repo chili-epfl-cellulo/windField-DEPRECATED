@@ -100,7 +100,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     //Init shaders and textures
 
     //Background Material
-    var bgtexture =  THREE.ImageUtils.loadTexture('assets/FinalMap.png')
+    var bgtexture =  THREE.ImageUtils.loadTexture('assets/backgrounds/MainGameBackground.png')
     bgtexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
     backgroundMaterial = new THREE.MeshBasicMaterial( { map:bgtexture} );
 
