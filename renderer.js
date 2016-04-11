@@ -323,6 +323,8 @@ function paintGL(pressurefield, leaves, numLeaves) {
         pressureInputCellObjects[i].material.visible = (pressurefield.pressurePoints[i].state > pressurefield.inactive);
         if (pressurefield.pressurePoints[i].state == pressurefield.inactive)
             continue;
+        if (pressurefield.pressurePoints[i].visible == false)
+            continue;
         var pressureSgn = pressurefield.pressurePoints[i].strength > 50.0 ? 1 : -1
         var pressureColorLevel = Math.log(Math.abs(50.0-pressurefield.pressurePoints[i].strength))*3.0/Math.log(50.0);
         var red;

@@ -7,7 +7,7 @@ Item {
     width: parent.width
     height: parent.height
     property variant robot: null
-      property variant playground: playground
+    property variant playground: playground
     property variant windfield: windField
     property int fieldWidth: 2418
     property int fieldHeight: 950
@@ -41,9 +41,20 @@ Item {
         property variant leaves: [testLeaf]
         property int numLeaves: 1
 
+        //Game Logic stuff
         property int nblifes: 3
-        property int gameMode: 3
+        property int gameMode: 0
 
+        // For Game 1
+        property int nbOfHiddenPPoint:4
+
+        // Time management
+        property double startTime: 0
+        property double secondsElapsed: 0
+
+
+
+        ////////////////////// FIELD RELATED FUNCTIONS
         function addPressurePoint(r,c,pressureLevel) {
             console.log('called here')
             pressurefield.addPressurePoint(r,c,pressureLevel)
@@ -55,6 +66,7 @@ Item {
             var c = x
             pressurefield.addPressurePoint(r,c,pressureLevel)
         }
+
         function setInitialConfiguration(){
             setObstaclesfromZones()
             //Set test leaf info
@@ -153,12 +165,54 @@ Item {
         function pauseSimulation() {
             paused = false;
             controls.togglePaused()
+            //timer.stop()
+            //secondsElapsed = 0
+            //startTime = 0
         }
-
 
         function initGame(){
-
+            //todo
         }
+        function hidePressurePoint(){
+            var nbLow = nbOfHiddenPPoint/2
+
+            pressurefield.addPressurePointHidden(50,15,-3,false) //todo remove this test
+            pressurefield.addPressurePointHidden(50,15,-3,true) //todo remove this test
+            for(var i=0; i< nbLow; i++){
+                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),getRandomInt(-1,-3), false)
+            }
+            for(var i=0; i< (nbOfHiddenPPoint- nbLow); i++){
+                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),getRandomInt(1,3), false)
+            }
+        }
+
+        ////////////////////// GAME LOGIC RELATED FUNCTIONS
+        function timeChanged(){
+            if(!windfield.paused){
+                if(startTime == 0)
+                    startTime =  new Date().getTime()
+                var currentTime = new Date().getTime()
+                secondsElapsed = (currentTime-startTime)
+            }else{
+                startTime=secondsElapsed
+            }
+        }
+
+        onGameModeChanged:{
+            switch(gameMode){
+            case 1:
+                leaves[0].resetRobotVelocity()
+                leaves[0].tangible = true
+                hidePressurePoint()
+                windfield.drawPressureGrid = false
+                controls.updateSimulation()
+                controls.enabled = true //TODO CHnage in false
+                leaves[0].updateCellulo()
+            case 2:
+            }
+        }
+
+
         ////////////////////// UTILS FUNCTIONS
         // - return the center of a polygone
         function getCenterFromPoly(poly){
@@ -192,6 +246,9 @@ Item {
             return   Qt.point(Math.round(ptx*pressurefield.numCols),Math.round(pty*pressurefield.numRows));
         }
 
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
         ////////////////////// GL STUFFS
         onInitializeGL: {
             GLRender.initializeGL(windField, pressurefield, leaves, numLeaves)
@@ -262,6 +319,13 @@ Item {
             controls: parent.controls
         }
 
+        Timer {
+            id:timer
+            interval:30
+            running: false; repeat: true
+            onTriggered: windfield.timeChanged()
+        }
+
     }
 
     ////////////////////// TOP PANEL
@@ -273,6 +337,8 @@ Item {
         width: parent.width
         height: parent.height /5
         playground: playground
+        startTime: startTime
+        secondsElapsed: secondsElapsed
     }
 
 
@@ -285,26 +351,26 @@ Item {
         color: Qt.rgba(1,1,1,0.6)
         radius:110
         visible:false
-            Text {
-                id:thetext
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: button.top
-                font.family: "Helvetica"
-                font.pointSize: 20
-                font.bold: true
-                text:""
-            }
+        Text {
+            id:thetext
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: button.top
+            font.family: "Helvetica"
+            font.pointSize: 20
+            font.bold: true
+            text:""
+        }
 
-            Item {
-                id: button
-                width: 100
-                height: 100
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                Image {
-                    id: backgroundImage
-                    anchors.fill: parent
-                    source:  "assets/buttons/reset.png"
+        Item {
+            id: button
+            width: 100
+            height: 100
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            Image {
+                id: backgroundImage
+                anchors.fill: parent
+                source:  "assets/buttons/reset.png"
                 MouseArea {
                     anchors.fill: backgroundImage
                     onClicked: { pressurefield.resetWindField()
@@ -315,38 +381,38 @@ Item {
                     }
 
                 }
-                }
             }
+        }
 
-            states:[
-                State{
-                    name: "playagain"
-                    PropertyChanges {target: thetext; text:"Play again?"}
-                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
-                },
-                State{
-                    name: "winr"
-                    PropertyChanges {target: thetext; text:"You made it!"}
-                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
-                    //todo add time and total points
-                },
-                State{
-                    name: "wins"
-                    PropertyChanges {target: thetext; text:"You made it!"}
-                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
-                    //todo add time and total points
-                },
-                State{
-                    name: "gameover"
-                    PropertyChanges {target: thetext; text:"Game Over"}
-                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
-                },
-                State{
-                    name: "info"
-                    PropertyChanges {target: thetext; text:"Here some infos"}
-                    PropertyChanges {target: backgroundImage; source:  "assets/buttons/info.png"}
-                }
-            ]
+        states:[
+            State{
+                name: "playagain"
+                PropertyChanges {target: thetext; text:"Play again?"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
+            },
+            State{
+                name: "winr"
+                PropertyChanges {target: thetext; text:"You made it!"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
+                //todo add time and total points
+            },
+            State{
+                name: "wins"
+                PropertyChanges {target: thetext; text:"You made it!"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
+                //todo add time and total points
+            },
+            State{
+                name: "gameover"
+                PropertyChanges {target: thetext; text:"Game Over"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
+            },
+            State{
+                name: "info"
+                PropertyChanges {target: thetext; text:"Here some infos"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/info.png"}
+            }
+        ]
 
     }
     ////////////////////// BOTTOM PANEL
