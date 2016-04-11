@@ -154,8 +154,27 @@ ApplicationWindow {
         }
     }
 
+    MouseArea {
+        id: debugButton
+        x: parent.width/2 - width/2
+        y: 0
+        width: parent.width/10
+        height: parent.height/10
+        smooth: false
+        z: 20
+
+        property bool showing: false
+        onPressAndHold: {
+            if(showing)
+                debugMenu.hideMenu();
+            else
+                debugMenu.showMenu();
+            showing = !showing;
+        }
+    }
+
     Column{
-        id: macAddrSelectors
+        id: debugMenu
         spacing: 5
         visible: false
 
@@ -171,11 +190,11 @@ ApplicationWindow {
             keyHistory = tempKeyHistory;
         }
 
-        function hideSelectors(){
+        function hideMenu(){
             visible = false;
         }
 
-        function showSelectors(){
+        function showMenu(){
             visible = true;
         }
 
@@ -228,6 +247,5 @@ ApplicationWindow {
         id: cellulo1
         playground: playground
         robotId: 1
-        robotComm.macAddr : "00:06:66:74:40:DC"
     }
 }
