@@ -11,7 +11,7 @@
         <file>assets/buttons/playOn.png</file>
         <file>assets/EuropeBg-02.png</file>
         <file>CanvasField.qml</file>
-        <file>MainForm.qml</file>
+        <file>MainMenu.qml</file>
         <file>assets/start/windUiStart.png</file>
         <file>assets/windUi-1.png</file>
         <file>assets/windUi-4.png</file>
@@ -32,5 +32,6 @@
         <file>assets/buttons/reset.png</file>
         <file>assets/buttons/gameover.png</file>
         <file>assets/FinalMap.png</file>
+        <file>StateEngine.qml</file>
     </qresource>
 </RCC>

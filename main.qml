@@ -13,145 +13,61 @@ ApplicationWindow {
     width: Screen.width
     height: Screen.height
     title: qsTr("Wind Field Game")
-    visibility:"FullScreen"
+    visibility: "FullScreen"
     contentOrientation: Screen.orientation
 
+    StateEngine{
+        id: stateEngine
 
-    Item{
-        id:game
-        focus:true
-        width:2560
-        height: width * 10/16
-        Rectangle{
-            id:selectionRect
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter:  parent.verticalCenter
-            width:parent.width
-            height:parent.height
-            Image {
-                id: background
-                anchors.fill: parent
-                source: "assets/start/windUiStart.png"
+        states: [
+            'MainMenu',
+            'Game1',
+            'Game2'
+        ]
+
+        onCurrentStateChanged: {
+            switch(currentState){
+            case 'MainMenu':
+                mainMenu.visible = true;
+                mainMenu.enabled = true;
+                mainGameField.visible = false;
+                mainGameField.enabled = false;
+                break;
+            case 'Game1':
+                mainMenu.visible = false;
+                mainMenu.enabled = false;
+                mainGameField.visible = true;
+                mainGameField.enabled = true;
+                mainGameField.windfield.gameMode = 1;
+                break;
+            case 'Game2':
+                mainMenu.visible = false;
+                mainMenu.enabled = false;
+                mainGameField.visible = true;
+                mainGameField.enabled = true;
+                mainGameField.windfield.gameMode = 2;
+                break;
+            default:
+                break;
             }
         }
-       RowLayout{
-           spacing: 200
-           y:3*parent.height/4
-           anchors.horizontalCenter: parent.horizontalCenter
-            Rectangle {
-                id:rect
-                width: 700; height: 300
-                color: "yellow"
-                radius:width*0.5
-                opacity:0.6
-                Text{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.family: "Helvetica"
-                    font.pointSize: 25
-                    font.bold: true
-                    text:"Feel the wind"
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: { parent.color = 'red' ; game.game1()}
-                }
-            }
+    }
 
-            Rectangle {
-                id:rect2
-                width: 700; height: 300
-                color: "green"
-                radius:width*0.5
-                opacity:0.6
-                Text{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.family: "Helvetica"
-                    font.pointSize: 25
-                    font.bold: true
-                    text:"Control the wind"
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: { parent.color = 'red' ;game.game2()}
-                }
-            }
+    MainMenu{
+        id: mainMenu
 
-           /* Rectangle {
-                id:rect3
-                width: 500 ;height: 300
-                color: "blue"
-                radius:width*0.5
-                opacity:0.6
-                Text{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.family: "Helvetica"
-                    font.pointSize: 25
-                    font.bold: true
-                    text:"Game 3"
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: { parent.color = 'red' ; game.game3()}
-                }
-            }*/
-
-        }
-
-
-        function mainMenu(){
-            game.visible = true
-        }
-        function game1() {
-            mainGameField.visible= true;
-            mainGameField.enabled=true;
-            mainGameField.windfield.gameMode = 1
-        }
-
-        function game2() {
-            mainGameField.visible= true;
-            mainGameField.enabled=true;
-            mainGameField.windfield.gameMode = 2
-        }
-
-        /*function game3() {
-            mainGameField.visible= true;
-            mainGameField.enabled=true;
-            mainGameField.windfield.gameMode = 3
-        }*/
-
-
-        Keys.onUpPressed: macAddrSelectors.updateKeys('u')
-        Keys.onVolumeUpPressed: macAddrSelectors.updateKeys('u')
-        Keys.onDownPressed: macAddrSelectors.updateKeys('d')
-        Keys.onVolumeDownPressed: macAddrSelectors.updateKeys('d')
+        onGame1Clicked: stateEngine.goToStateByName('Game1')
+        onGame2Clicked: stateEngine.goToStateByName('Game2')
     }
 
     CanvasField{
         anchors.fill: parent
         id: mainGameField
-        robot:cellulo1
-        visible:false
-        enabled:false
-        playground:playground
+        robot: cellulo1
+        visible: false
+        enabled: false
+        playground: playground
         //  property alias windfield: windfield
-    }
-
-    ZonesF{
-        id:playground
-        property real widthmm: 1700 // in mm
-        property real heightmm: 660 // in mm
-        property real gridSize: 0.508 //in mmm
-        function zonesByName(name) {
-            var res = []
-            for (var i = 0; i < zones.length; i++) {
-                if (zones[i]["name"] === name)
-                    res.push(zones[i]);
-            }
-            return res;
-        }
     }
 
     MouseArea {
@@ -178,37 +94,13 @@ ApplicationWindow {
         spacing: 5
         visible: false
 
-        function updateKeys(keyCode){
-            concole.log('keypressed')
-            hideSelectors();
-            var tempKeyHistory = [];
-            for(var i=0;i<keyHistory.length;i++)
-                tempKeyHistory.push(keyHistory[i]);
-            tempKeyHistory.push(keyCode);
-            if(tempKeyHistory.length > 10)
-                tempKeyHistory.shift();
-            keyHistory = tempKeyHistory;
-        }
-
         function hideMenu(){
             visible = false;
         }
 
         function showMenu(){
             visible = true;
-        }
-
-        property variant keyHistory: []
-        property variant keyCode: ['d','u','d','u','d','u','d','u','d','u']
-        onKeyHistoryChanged:{
-
-            if(keyHistory.length == 10){
-                for(var i=0;i<10;i++)
-                    if(keyHistory[i] !== keyCode[i])
-                        return;
-                showSelectors();
-                keyHistory = [];
-            }
+            debugStateSelector.currentIndex = stateEngine.currentStateIndex;
         }
 
         property variant addresses: [
@@ -240,6 +132,35 @@ ApplicationWindow {
                 connected: cellulo1.robotComm.connected
                 connecting: cellulo1.robotComm.connecting
             }
+        }
+
+        Row{
+            spacing: 5
+
+            Label{ text: "Change current state: " }
+            ComboBox{
+                id: debugStateSelector
+                model: stateEngine.states
+                onCurrentIndexChanged: {
+                    if(currentIndex >= 0)
+                        stateEngine.goToStateByIndex(currentIndex);
+                }
+            }
+        }
+    }
+
+    ZonesF{
+        id: playground
+        property real widthmm: 1700 // in mm
+        property real heightmm: 660 // in mm
+        property real gridSize: 0.508 //in mmm
+        function zonesByName(name) {
+            var res = []
+            for (var i = 0; i < zones.length; i++) {
+                if (zones[i]["name"] === name)
+                    res.push(zones[i]);
+            }
+            return res;
         }
     }
 
