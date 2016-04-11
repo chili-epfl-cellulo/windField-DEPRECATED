@@ -152,9 +152,9 @@ Item {
 
             //if(robot.connected && !collided)
             console.log(leafXV , leafYV )
-            console.log(leafXV/fieldWidth , leafYV /fieldHeight)
+            console.log(leafXV/fieldHeight *660*0.508, leafYV /fieldWidth*1800*0.508, 0.0)
             if(robot.robotComm.connected)
-            robot.setGlobalSpeeds(leafXV/fieldWidth , leafYV /fieldHeight, 0.0);
+            robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
 
 
             if(robot.checkZone()==='madrid'&& robot.robotComm.connected){

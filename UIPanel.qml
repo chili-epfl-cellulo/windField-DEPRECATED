@@ -342,7 +342,7 @@ Item {
                                         color: robot.robotComm.kidnapped ? "red" : "green"
                                     }
                                     Text{
-                                        text: "X=" + parseInt(robot.robotComm.x) + " Y=" + parseInt(robot.robotComm.y) + " Theta=" + parseInt(robot.robotComm.theta)
+                                        text: "X=" + parseInt(robot.robotComm.x) + "\n Y=" + parseInt(robot.robotComm.y) + " \nTheta=" + parseInt(robot.robotComm.theta)
                                     }
                                 }
                             }
