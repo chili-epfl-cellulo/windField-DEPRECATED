@@ -258,6 +258,7 @@ Item {
                                 windfield.setInitialConfiguration()
                                 windfield.setPressureFieldTextureDirty()
                                 windfield.pauseSimulation()
+                                if(robot.robotComm.connected)
                                 robot.robotComm.reset();
                                 timer.restart()
                             }
@@ -330,7 +331,7 @@ Item {
                                     spacing: 5
 
                                     Text{
-                                        text: "Battery State: " + robot.robotComm.batteryState
+                                        text: "Battery State: " + (robot.robotComm.connected? robot.robotComm.batteryState:"")
                                     }
                                 }
                                 Row{

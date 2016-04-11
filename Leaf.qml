@@ -37,17 +37,19 @@ Item {
     /***CELLULO SYNCHRONISATION METHODS***/
     function resetRobotVelocity(){
         //robot.setGlobalSpeeds(0.0 , 0.0 , 0.0);
+        if(robot.robotComm.connected)
         robot.robotComm.reset();
     }
 
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
 
-
+        if(robot.robotComm.connected){
         leafX = robot.coords.x* fieldWidth
         leafY = robot.coords.y * fieldHeight
         console.log(robot.coords.x, robot.coords.y)
         console.log(leafX, leafY)
+           }
 
     }
 
@@ -107,8 +109,12 @@ Item {
 
     // - check if the leaf is in a zone
     function inZone(zone){
+        if(robot.checkZone()!=="" && robot.robotComm.connected){
+            robot.blink("red")
+        }
         //TODO
         return false;
+
     }
 
     function updateLeaf() {
@@ -120,6 +126,9 @@ Item {
 
         if(tangible){
             updateCellulo()
+            if(robot.checkZone()==='madrid'&& robot.robotComm.connected){
+                controls.bonus = controls.bonus + 1
+            }
 
         }else{
 
@@ -140,11 +149,15 @@ Item {
             leafY += deltaY
 
 
-            robot.setGlobalSpeeds( leafXV/2, leafYV/2,0);
+
+            //if(robot.connected && !collided)
+            console.log(leafXV , leafYV )
+            console.log(leafXV/fieldWidth , leafYV /fieldHeight)
+            if(robot.robotComm.connected)
+            robot.setGlobalSpeeds(leafXV/fieldWidth , leafYV /fieldHeight, 0.0);
 
 
-
-            if(robot.checkZone()==='madrid'){
+            if(robot.checkZone()==='madrid'&& robot.robotComm.connected){
                 controls.bonus = controls.bonus + 1
             }
 
@@ -153,7 +166,7 @@ Item {
                 leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
-                if(robot.connected){
+                if(robot.robotComm.connected){
                     robot.alert(Qt.rgba(0.7,0,0,1), 5);
                     robot.setGlobalSpeeds(0,0,4);
                 }
@@ -163,7 +176,7 @@ Item {
                 leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
                 collided = true
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
-                if(robot.connected){
+                if(robot.robotComm.connected){
                     robot.alert(Qt.rgba(0.7,0,0,1),5);
                     robot.setGlobalSpeeds(0,0,4);
                 }
@@ -176,8 +189,8 @@ Item {
 
             }
 
-            if(robot.connected && !collided)
-                robot.setGoalVelocity(leafXV , leafYV , 0.0);
+            //if(robot.connected && !collided)
+            //    robot.setGlobalSpeeds(leafXV/fieldWidth , leafYV /fieldHeight, 0.0);
 
 
             if (collided) {

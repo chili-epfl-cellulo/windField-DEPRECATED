@@ -67,6 +67,16 @@ Item {
             pressurefield.addPressurePoint(r,c,pressureLevel)
         }
 
+        function setInitialConfiguration(){
+         switch (gameMode){
+         case 1:
+             setInitialConfigurationGame1()
+         case 2:
+             setInitialConfigurationGame2()
+         }
+
+        }
+
         function setInitialConfigurationGame1(){
             //setObstaclesfromZones()
             //Set test leaf info
@@ -114,7 +124,9 @@ Item {
             testLeaf.leafXFDrag = 0
             testLeaf.leafYFDrag = 0
             testLeaf.collided = false
-
+            robot.coords.x = center.x
+            robot.coords.y = center.y
+            //robot.setGoalPose(center.x, center.y, 0.0, 0.0, 0.0)
             pauseSimulation()
         }
 
