@@ -21,28 +21,33 @@ ApplicationWindow {
 
         states: [
             'MainMenu',
+            'Tutorial1',
             'Game1',
             'Game2'
         ]
 
         onCurrentStateChanged: {
+            mainMenu.visible = false;
+            mainMenu.enabled = false;
+            tutorial1.visible = false;
+            tutorial1.enabled = false;
+            mainGameField.visible = false;
+            mainGameField.enabled = false;
             switch(currentState){
             case 'MainMenu':
                 mainMenu.visible = true;
                 mainMenu.enabled = true;
-                mainGameField.visible = false;
-                mainGameField.enabled = false;
+                break;
+            case 'Tutorial1':
+                tutorial1.visible = true;
+                tutorial1.enabled = true;
                 break;
             case 'Game1':
-                mainMenu.visible = false;
-                mainMenu.enabled = false;
                 mainGameField.visible = true;
                 mainGameField.enabled = true;
                 mainGameField.windfield.gameMode = 1;
                 break;
             case 'Game2':
-                mainMenu.visible = false;
-                mainMenu.enabled = false;
                 mainGameField.visible = true;
                 mainGameField.enabled = true;
                 mainGameField.windfield.gameMode = 2;
@@ -56,8 +61,17 @@ ApplicationWindow {
     MainMenu{
         id: mainMenu
 
-        onGame1Clicked: stateEngine.goToStateByName('Game1')
+        onGame1Clicked: stateEngine.goToStateByName('Tutorial1')
         onGame2Clicked: stateEngine.goToStateByName('Game2')
+    }
+
+    Tutorial{
+        id: tutorial1
+        visible: false
+        enabled: false
+        baseName: 'Tutorial1'
+        numScreens: 5
+        onFinished: stateEngine.goToStateByName('Game1')
     }
 
     MainGameField{
