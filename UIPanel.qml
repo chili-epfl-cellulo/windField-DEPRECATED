@@ -21,7 +21,7 @@ Item {
     property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
-    property int bonus: 0
+    property variant bonus: windfield.bonus
 
     function togglePaused() {
         windfield.paused = !windfield.paused

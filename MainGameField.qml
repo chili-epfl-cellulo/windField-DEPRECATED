@@ -44,9 +44,11 @@ Item{
         property variant leaves: [testLeaf]
         property int numLeaves: 1
 
+
         //Game Logic stuff
         property int nblifes: 3
         property int gameMode: 0
+        property int bonus: 0
 
         // For Game 1
         property int nbOfHiddenPPoint:4
@@ -113,6 +115,8 @@ Item{
             var startp = playground.zones[0]["path"]
             var center = getCenterFromPoly(startp)
             var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth)/pressurefield.numCols)
+
+             //var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
             console.log("startpoints")
             //startcoords =  Qt.point(50,50)
             console.log(startcoords.x, startcoords.y)
@@ -127,8 +131,8 @@ Item{
             testLeaf.leafXFDrag = 0
             testLeaf.leafYFDrag = 0
             testLeaf.collided = false
-            robot.coords.x = center.x
-            robot.coords.y = center.y
+            //robot.coords.x = center.x
+            //robot.coords.y = center.y
             //robot.setGoalPose(center.x, center.y, 0.0, 0.0, 0.0)
             pauseSimulation()
         }
@@ -320,6 +324,8 @@ Item{
             console.log(gameMode)
         }
 
+
+
         ////////////////////// STATES
         states:[
             State{
@@ -363,7 +369,7 @@ Item{
             field: pressurefield
             robot: parent.parent.robot
             allzones: playground
-            controls: parent.controls
+
         }
 
         Timer {
@@ -386,6 +392,7 @@ Item{
         playground: playground
         startTime: startTime
         secondsElapsed: secondsElapsed
+        bonus:0
     }
 
 

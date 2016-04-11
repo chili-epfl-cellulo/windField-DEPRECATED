@@ -168,5 +168,21 @@ ApplicationWindow {
         id: cellulo1
         playground: playground
         robotId: 1
+
+        robotComm.macAddr : "00:06:66:74:40:DC"
+        robotComm.onKidnappedChanged:{
+            mainGameField.windfield.leaves[0].collided = robotComm.kidnapped
+        }
+        robotComm.onTouchBegan:{
+            mainGameField.windfield.leaves[0].tangible = true
+        }
+        robotComm.onTouchReleased:{
+            mainGameField.windfield.leaves[0].tangible = false
+        }
+        robotComm.onPoseChanged: {
+            mainGameField.windfield.leaves[0].updateCellulo()
+
+        }
+
     }
 }
