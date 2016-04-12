@@ -128,12 +128,12 @@ Item{
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 0
-            testLeaf.leafYFDrag = 0
+            testLeaf.leafXFDrag = 0.1
+            testLeaf.leafYFDrag = 0.1
             testLeaf.collided = false
             //robot.coords.x = center.x
             //robot.coords.y = center.y
-            //robot.setGoalPose(center.x, center.y, 0.0, 0.0, 0.0)
+            robot.setGobalPose(center.x, center.y, 0.0, 0.0, 0.0)
             pauseSimulation()
         }
 

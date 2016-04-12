@@ -22,7 +22,7 @@ Item {
     property bool tangible: false
     property bool robotkidnapped: false
 
-    readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
+    readonly property double mountainDragMultiplier: 100 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
     readonly property double maxVelocity: 50
     readonly property double timeStep: .25
@@ -115,25 +115,15 @@ Item {
 
         leafXFDrag = -leafXV * dragCoefficient
         leafYFDrag = -leafYV * dragCoefficient
-        if (!pressureGrid[rowIndex][colIndex][6]) {
+        if(currentZone.indexOf('obstacle')>=0 || currentZone.indexOf('clouds')>=0){
+            console.log(currentZone)
             leafXFDrag *= mountainDragMultiplier;
             leafYFDrag *= mountainDragMultiplier;
         }
     }
 
-    // - check if the leaf is in a zone
-    function inZone(zone){
-        if(robot.checkZone()!=="" && robot.robotComm.connected){
-            robot.blink("red")
-        }
-        //TODO
-        return false;
-
-    }
 
     function updateLeaf() {
-        //TODO CHEKC OBSTACLE REDUCE SPEED
-        //TODO CHECK ZONES AND BONUS POINTS
         if (collided) {
             return;
         }
@@ -161,14 +151,7 @@ Item {
 
 
             if( currentZone!==''){
-                console.log("__________________")
-                console.log(currentZone)
-                console.log(zoneNameList.indexOf(currentZone))
-                console.log(zoneHistory.indexOf(currentZone))
                 if(zoneNameList.indexOf(currentZone)>=0 && zoneHistory.indexOf(currentZone)<0){
-                    console.log("+++++++++++++++++++++++")
-                    console.log(zoneScoreList[currentZone])
-                    console.log(bonus)
                     bonus = bonus  + zoneScoreList[currentZone]
                     zoneHistory.push(currentZone)
                 }
