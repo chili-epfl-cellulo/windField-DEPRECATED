@@ -235,7 +235,7 @@ Item {
                             Image {
                                 id: playImage
                                 anchors.fill: parent
-                                source: (windfield.paused ? "../assets/buttons/playOn.png" : "../assets/buttons/playOff.png")
+                                source: (windfield.paused ? "../assets/buttons/playOn.svg" : "../assets/buttons/playOff.svg")
                             }
 
                             MouseArea {

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve">
+<g id="next" display="none">
+	<g display="inline">
+		<g>
+			<circle fill="none" stroke="#1C0030" stroke-width="3.3852" stroke-miterlimit="10" cx="128.1" cy="127.9" r="125.6"/>
+		</g>
+		<polyline fill="none" stroke="#1C0030" stroke-width="15.2332" stroke-miterlimit="10" points="102,75.7 154.2,127.9 102,180.2 		
+			"/>
+	</g>
+</g>
+<g id="play" display="none">
+	<g display="inline">
+		<g>
+			<circle fill="#00D25C" cx="128" cy="127.9" r="125.6"/>
+		</g>
+		<polygon fill="#FFFFFF" points="91.2,204.2 199.2,128.4 91.2,51.7 		"/>
+	</g>
+</g>
+<g id="pause">
+	<g>
+		<circle fill="#FF9517" cx="128" cy="127.9" r="125.6"/>
+	</g>
+	<g>
+		<rect x="79.9" y="83.5" fill="#FFFFFF" width="31.9" height="88.9"/>
+		<rect x="144.2" y="83.5" fill="#FFFFFF" width="31.9" height="88.9"/>
+	</g>
+</g>
+<g id="ok" display="none">
+	<g display="inline">
+		<rect x="33.9" y="96.9" fill="none" width="188.3" height="76.9"/>
+		<text transform="matrix(1 0 0 1 69.9771 153.7979)" fill="#1C0030" font-family="'Solomon-Black'" font-size="81.2436px">OK</text>
+		<g>
+			<circle fill="none" stroke="#1C0030" stroke-width="3.3852" stroke-miterlimit="10" cx="128.1" cy="128.6" r="125.6"/>
+		</g>
+	</g>
+</g>
+<g id="go" display="none">
+	<g display="inline">
+		<rect x="33.9" y="96.9" fill="none" width="188.3" height="76.9"/>
+		<text transform="matrix(1 0 0 1 49.748 153.7979)" fill="#1C0030" font-family="'Solomon-Black'" font-size="81.2436px">GO!</text>
+		<g>
+			<circle fill="none" stroke="#1C0030" stroke-width="3.3852" stroke-miterlimit="10" cx="128.1" cy="128.6" r="125.6"/>
+		</g>
+	</g>
+</g>
+<g id="help" display="none">
+	<g display="inline">
+		<rect x="37.6" y="78.8" fill="none" width="188.3" height="99.5"/>
+		<text transform="matrix(1 0 0 1 96.0967 174.7676)" fill="#1C0030" font-family="'Solomon-Black'" font-size="137.0986px">?</text>
+		<g>
+			<circle fill="none" stroke="#1C0030" stroke-width="3.3852" stroke-miterlimit="10" cx="128.1" cy="128.6" r="125.6"/>
+		</g>
+	</g>
+</g>
+<g id="replay" display="none">
+	<g display="inline">
+		<g>
+			<circle fill="none" stroke="#1C0030" stroke-width="3.3852" stroke-miterlimit="10" cx="128.1" cy="128.5" r="125.6"/>
+		</g>
+		<g>
+			<g>
+				<g>
+					<path fill="none" stroke="#1C0030" stroke-width="8.4629" stroke-miterlimit="10" d="M103.3,79.3c7.6-4,16.3-6.2,25.5-6.2
+						c30.6,0,55.5,24.8,55.5,55.5S159.4,184,128.8,184c-25.6,0-47.2-17.4-53.6-41"/>
+					<g>
+						<polygon fill="#1C0030" points="131.1,94.9 133.2,89.3 105.8,79.2 117.9,52.6 112.5,50.2 97.8,82.5 						"/>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

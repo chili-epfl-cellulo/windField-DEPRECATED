@@ -45,11 +45,11 @@ Image {
 
     Image{
         id: nextButton
-        width: parent.width/10
-        height: width
-        x: parent.width*3/4
-        y: parent.height*3/4
-        source: "../assets/buttons/playOn.png"
+        width: parent.width/12
+        fillMode: Image.PreserveAspectFit
+        x: parent.width*0.75
+        y: parent.height*0.68
+        source: "../assets/buttons/next.svg"
 
         MouseArea {
             anchors.fill: parent

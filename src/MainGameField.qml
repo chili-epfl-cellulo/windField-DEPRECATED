@@ -424,7 +424,7 @@ Item{
             Image {
                 id: backgroundImage
                 anchors.fill: parent
-                source:  "../assets/buttons/reset.png"
+                source:  "../assets/buttons/reset.svg"
                 MouseArea {
                     anchors.fill: backgroundImage
                     onClicked: { pressurefield.resetWindField()
@@ -442,12 +442,12 @@ Item{
             State{
                 name: "playagain"
                 PropertyChanges {target: thetext; text:"Play again?"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.svg"}
             },
             State{
                 name: "winr"
                 PropertyChanges {target: thetext; text:"You made it!"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.png"}
+                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.svg"}
                 //todo add time and total points
             },
             State{
