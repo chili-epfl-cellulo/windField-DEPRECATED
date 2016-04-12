@@ -30,9 +30,8 @@ Item {
     property variant field: null
     property variant allzones: null
     property variant robot: null
-    property variant uicontrols: null
 
-
+    property int bonus: 0
     property variant currentZone: ''
     property variant zoneHistory : []
     property variant zoneScoreList : {"madrid":1,"paris":4,"bern":5, "budapest":6, "kiev":8, "rome":3, "athens":2, "finish":2}
@@ -169,8 +168,8 @@ Item {
                 if(zoneNameList.indexOf(currentZone)>=0 && zoneHistory.indexOf(currentZone)<0){
                     console.log("+++++++++++++++++++++++")
                     console.log(zoneScoreList[currentZone])
-                    console.log(parent.controls.bonus)
-                    uicontrols.bonus = uicontrols.bonus  + zoneScoreList[currentZone]
+                    console.log(bonus)
+                    bonus = bonus  + zoneScoreList[currentZone]
                     zoneHistory.push(currentZone)
                 }
             }

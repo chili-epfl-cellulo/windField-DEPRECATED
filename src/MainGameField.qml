@@ -370,7 +370,11 @@ Item{
             robot: parent.parent.robot
             allzones: playground
             currentZone: ''
-            uicontrols : parent.parent.uicontrols
+            bonus:  0
+            onBonusChanged:{
+                console.log('the bonus is',bonus)
+                uicontrols.totalpoint = bonus
+            }
         }
 
         Timer {
@@ -393,7 +397,7 @@ Item{
         playground: playground
         startTime: startTime
         secondsElapsed: secondsElapsed
-        bonus:0
+        totalpoint:0
     }
 
 

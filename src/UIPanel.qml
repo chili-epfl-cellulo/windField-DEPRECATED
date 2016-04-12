@@ -21,7 +21,7 @@ Item {
     property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
-    property int bonus: windfield.bonus
+    property int totalpoint: 0
 
     function togglePaused() {
         windfield.paused = !windfield.paused
@@ -457,7 +457,7 @@ Item {
                         font.pointSize: 25
                         font.bold: true
                         color:"white"
-                        text: windfield.bonus
+                        text: totalpoint
                     }
                     }
 
