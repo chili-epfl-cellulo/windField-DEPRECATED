@@ -132,10 +132,10 @@ function createPressureFieldMaterial() {
     for (var row = 0; row < pressurefield.numRows; row++) {
         for (var col = 0; col < pressurefield.numCols; col++) {
             if (!pressurefield.pressureGrid[row][col][6]) {
-                data[index] = 255
+                data[index] = 0
                 data[index+1] = 0
                 data[index+2] = 0
-                data[index+3] = 155
+                data[index+3] = 255
             } else {
                 var pressure = pressurefield.pressureGrid[row][col][4];
                 //data[index] = pressure/100.0*255
@@ -229,33 +229,6 @@ function getRGBA(intensity){
 
 
 
-function drawPredictedPath(gl) {
-    var origLeafX = leafX
-    var origLeafY = leafY
-    var origLeafXV = leafXV
-    var origLeafYV = leafYV
-    var origLeafXF = leafXF
-    var origLeafYF = leafYF
-    var origLeafXDrag = leafXFDrag
-    var origLeafYDrag = leafYFDrag
-    var origCollisionX = collisionForceX
-    var origCollisionY = collisionForceY
-    for (var i = 0; i < 1800; i++){
-        updateLeaf()
-        gl.fillStyle = Qt.rgba(1,1,1,1)
-        gl.fillRect(leafX, leafY, 5, 5)
-    }
-    leafX = origLeafX
-    leafY = origLeafY
-    leafXV = origLeafXV
-    leafYV = origLeafYV
-    leafXF = origLeafXF
-    leafYF = origLeafYF
-    leafXFDrag = origLeafXDrag
-    leafYFDrag = origLeafYDrag
-    collisionForceX = origCollisionX
-    collisionForceY = origCollisionY
-}
 
 
 function paintGL(pressurefield, leaves, numLeaves) {

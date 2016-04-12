@@ -230,10 +230,10 @@ Item{
             pressurefield.addPressurePointHidden(50,15,-3,false) //todo remove this test
             pressurefield.addPressurePointHidden(50,15,-3,true) //todo remove this test
             for(var i=0; i< nbLow; i++){
-                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),getRandomInt(-1,-3), false)
+                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),-3, false)
             }
             for(var i=0; i< (nbOfHiddenPPoint- nbLow); i++){
-                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),getRandomInt(1,3), false)
+                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),3, false)
             }
         }
 
@@ -312,6 +312,13 @@ Item{
             if (!paused) {
                 for (var i = 0; i < numLeaves; i++)
                     leaves[i].updateLeaf()
+            }
+            if (gameMode===1) {
+                for (var i = 0; i < numLeaves; i++)
+                    if(leaves[i].tangible){
+                        console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
+                    leaves[i].updateLeaf()
+                    }
             }
             GLRender.paintGL(pressurefield, leaves, numLeaves)
         }

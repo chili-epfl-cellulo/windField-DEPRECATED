@@ -188,16 +188,20 @@ ApplicationWindow {
         robotId: 1
         robotComm.macAddr : "00:06:66:74:43:00"
         robotComm.onKidnappedChanged:{
-            if(state == "game1")
+            //if(state == "game1")
             mainGameField.windfield.leaves[0].robotkidnapped = robotComm.kidnapped
             mainGameField.windfield.leaves[0].setSpeedNull()
         }
         robotComm.onTouchBegan:{
+            //if(state == "game1")
             mainGameField.windfield.leaves[0].tangible = true
+            console.log(mainGameField.windfield.leaves[0].tangible)
         }
 
         robotComm.onTouchReleased:{
+            //if(state == "game1")
             mainGameField.windfield.leaves[0].tangible = false
+            console.log(mainGameField.windfield.leaves[0].tangible)
         }
         robotComm.onPoseChanged: {
             mainGameField.windfield.leaves[0].updateCellulo()

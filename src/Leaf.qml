@@ -21,7 +21,6 @@ Item {
     property bool collided: false
     property bool tangible: false
     property bool robotkidnapped: false
-    property bool feelOn: false
 
     readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
@@ -129,9 +128,29 @@ Item {
         if (collided) {
             return;
         }
-        if(tangible && feelOn){// motors of cellulo are off the leaf updates according to cellulo
+        if(tangible && robotkidnapped)
+            continue;
+        else if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
             updateCellulo()
+            console.log("=============================================")
+            var pressureGrid = field.pressureGrid
+            var yGridSpacing = field.yGridSpacing
+            var xGridSpacing = field.xGridSpacing
+            calculateForcesAtLeaf()
+            var netForceX = leafXF + leafXFDrag
+            var netForceY = leafYF + leafYFDrag
 
+            //update position from one time step given current velocity and current force
+            var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
+            var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
+
+            leafXV += netForceX/leafMass*timeStep
+            leafYV += netForceY/leafMass*timeStep
+            leafX += deltaX
+            leafY += deltaY
+
+            if(robot.robotComm.connected)
+                robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
         }else{
             var pressureGrid = field.pressureGrid
             var yGridSpacing = field.yGridSpacing
@@ -165,7 +184,7 @@ Item {
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
                 if(robot.robotComm.connected){
-                    robot.alert(Qt.rgba(0.7,0,0,1), 5);
+                    robot.alert(Qt.rgba(0,0.8,0,1), 3);
                     robot.setGlobalSpeeds(0,0,4);
                 }
             }
@@ -175,8 +194,8 @@ Item {
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
                 if(robot.robotComm.connected){
-                    robot.alert(Qt.rgba(0.7,0,0,1), 5);
-                    robot.setGlobalSpeeds(0,0,4);
+                    robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
+                    //robot.setGlobalSpeeds(0,0,4);
                 }
                 console.log("=========LEAF COLLIDED R1==========")
 
@@ -187,8 +206,8 @@ Item {
                 collided = true
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
                 if(robot.robotComm.connected){
-                    robot.alert(Qt.rgba(0.7,0,0,1),5);
-                    robot.setGlobalSpeeds(0,0,4);
+                    robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
+                    //robot.setGlobalSpeeds(0,0,4);
                 }
                 console.log("=========LEAF COLLIDED R2==========")
             }
