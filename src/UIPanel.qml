@@ -253,6 +253,7 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             onClicked: {
                                 startTime=0;
+                                pressurePointPanel.removeOwnedPressurePoints();
                                 pressurefield.resetWindField()
                                 //windfield.setInitialTestConfiguration()
                                 windfield.setInitialConfiguration()

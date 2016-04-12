@@ -4,7 +4,11 @@ import QtQuick.Window 2.2
 Rectangle{
     id: dialog
 
+    visible: false
+    opacity: 0
+
     property real visualMargin: 15
+    property real buttonHeight: Screen.height/6
 
     radius: visualMargin
 
@@ -16,7 +20,9 @@ Rectangle{
 
     property alias dialogModel: dialogList.model
 
-    signal clicked(int plevel, int index)
+    signal clicked(int plevel)
+    signal dialogShown()
+    signal dialogHidden()
 
     color: Qt.rgba(255, 255, 255, 0.9)
 
@@ -28,7 +34,7 @@ Rectangle{
         y: visualMargin
 
         width: childrenRect.width
-        height: Screen.height/6
+        height: buttonHeight
 
         interactive: false
         orientation: ListView.Horizontal
@@ -41,7 +47,7 @@ Rectangle{
 
             Image{
                 id: dialogListItemImg
-                height: Screen.height/6
+                height: buttonHeight
                 fillMode: Image.PreserveAspectFit
 
                 opacity: 1
@@ -50,22 +56,27 @@ Rectangle{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    console.log("Clicked PressurePointLevelDialogItem: " + plevel + " " + index);
-                    if(name === "cancel")
+                    if(name === "cancel"){
                         hideDialog();
+                        dialog.clicked(0);
+                    }
                     else
-                        dialog.clicked(plevel, index);
+                        dialog.clicked(plevel);
                 }
             }
         }
     }
 
-    function showDialog(){
+    function showDialog(targetX, targetY){
+        x = Math.min(targetX, Screen.width - width);
+        y = targetY;
         showDialogAnim.start();
+        dialogShown();
     }
 
     function hideDialog(){
         hideDialogAnim.start();
+        dialogHidden();
     }
 
     //Animations for showing and hiding
