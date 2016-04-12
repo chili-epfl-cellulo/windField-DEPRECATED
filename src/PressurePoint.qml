@@ -23,45 +23,57 @@ Item {
 
     ListModel{
         id: lowpressureModel
+
         ListElement{
-            imagePath:"../assets/lowPressure3.png"
-            name:"lll"
-            plevel:-3
+            imagePath: "../assets/lowPressure3.png"
+            name: "lll"
+            plevel: -3
         }
         ListElement{
-            imagePath:"../assets/lowPressure2.png"
-            name:"ll"
-            plevel:-2
+            imagePath: "../assets/lowPressure2.png"
+            name: "ll"
+            plevel: -2
         }
         ListElement{
-            imagePath:"../assets/lowPressure1.png"
-            name:"l"
-            plevel:-1
+            imagePath: "../assets/lowPressure1.png"
+            name: "l"
+            plevel: -1
+        }
+        ListElement{
+            imagePath: "../assets/buttons/cancelPDialog.svg"
+            name: "cancel"
+            plevel: 0
         }
     }
 
     ListModel{
         id: highpressureModel
+
         ListElement{
-            imagePath:"../assets/highPressure3.png"
-            name:"hhh"
-            plevel:3
+            imagePath: "../assets/highPressure3.png"
+            name: "hhh"
+            plevel: 3
         }
         ListElement{
-            imagePath:"../assets/highPressure2.png"
-            name:"hh"
-            plevel:2
+            imagePath: "../assets/highPressure2.png"
+            name: "hh"
+            plevel: 2
         }
         ListElement{
-            imagePath:"../assets/highPressure1.png"
-            name:"h"
-            plevel:1
+            imagePath: "../assets/highPressure1.png"
+            name: "h"
+            plevel: 1
+        }
+        ListElement{
+            imagePath: "../assets/buttons/cancelPDialog.svg"
+            name: "cancel"
+            plevel: 0
         }
     }
 
     PressurePointLevelDialog{
         id: newpDialog
-        dialogModel:ilevel <0 ?lowpressureModel :highpressureModel
+        dialogModel: ilevel < 0 ? lowpressureModel : highpressureModel
         opacity: 0
         onClicked: {
             // add pressure point of the level at the position
@@ -73,7 +85,7 @@ Item {
             //field.addPressurePoint(row,col,ilevel)
 
             // Dismiss new game dialog
-            newpDialog.hideDialog= true;
+            newpDialog.hideDialog();
 
             //Set the new level
             ilevel = plevel
@@ -122,14 +134,14 @@ Item {
                 //if(root.state == "exited"){
                 newpDialog.x = ppImg.x
                 newpDialog.y = ppImg.y - ppImg.height
-                newpDialog.showDialog =true
+                newpDialog.showDialog();
                 //}
             }
             onClicked:{
                 //if(root.state == "exited"){
                 newpDialog.x = ppImg.x
                 newpDialog.y = ppImg.y - ppImg.height
-                newpDialog.showDialog =true
+                newpDialog.showDialog();
                 //}
             }
             /*onExited:{
