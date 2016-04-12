@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>src/main.qml</file>
+        <file>src/three.js</file>
+        <file>src/renderer.js</file>
+        <file>src/PressureField.qml</file>
+        <file>src/Leaf.qml</file>
+        <file>src/MainGameField.qml</file>
+        <file>src/MainMenu.qml</file>
+        <file>src/PressurePointPanel.qml</file>
+        <file>src/UIPanel.qml</file>
+        <file>src/PressurePoint.qml</file>
+        <file>src/PressurePointLevelDialog.qml</file>
+        <file>src/ZonesF.qml</file>
+        <file>src/StateEngine.qml</file>
+        <file>src/Tutorial.qml</file>
+        <file>src/TutorialAnimation.qml</file>
+        <file>src/main.cpp</file>
+    </qresource>
+</RCC>
