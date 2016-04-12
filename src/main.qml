@@ -188,6 +188,7 @@ ApplicationWindow {
         robotId: 1
         robotComm.macAddr : "00:06:66:74:43:00"
         robotComm.onKidnappedChanged:{
+            if(state == "game1")
             mainGameField.windfield.leaves[0].robotkidnapped = robotComm.kidnapped
             mainGameField.windfield.leaves[0].setSpeedNull()
         }

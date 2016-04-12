@@ -1,6 +1,12 @@
-import QtQuick 2.0
+import QtQuick 2.5
 import QtCanvas3D 1.0
 import QtPositioning 5.2
+import QtQuick.Window 2.1
+import QtQuick.Layouts 1.1
+import QtQuick.Controls 1.2
+import QtQuick.Controls.Private 1.0
+import QtQuick.Controls.Styles 1.3
+import QtBluetooth 5.2
 import Cellulo 1.0
 import "renderer.js" as GLRender
 
@@ -128,12 +134,12 @@ Item{
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 0.1
-            testLeaf.leafYFDrag = 0.1
+            testLeaf.leafXFDrag = 0
+            testLeaf.leafYFDrag = 0
             testLeaf.collided = false
             //robot.coords.x = center.x
             //robot.coords.y = center.y
-            robot.setGobalPose(center.x, center.y, 0.0, 0.0, 0.0)
+            //robot.setGobalPose(center.x, center.y, 0.0, 0.0, 0.0)
             pauseSimulation()
         }
 
@@ -332,13 +338,13 @@ Item{
                 name: "lost"
                 PropertyChanges {target: ontopPanel; state:"playagain"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windField; nblifes: (windField.nblifes-1)}
+                PropertyChanges {target: windField; nblifes: (windField.nblifes<=0 ? 0 : windField.nblifes-1)}
             },
             State{
                 name: "over"
                 PropertyChanges {target: ontopPanel; state:"gameover"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windField; nblifes: (windField.nblifes-1)}
+                PropertyChanges {target: windField; nblifes: (windField.nblifes<=0 ? 0 : windField.nblifes-1)}
             },
             State{
                 name: "win"
@@ -447,29 +453,29 @@ Item{
             State{
                 name: "playagain"
                 PropertyChanges {target: thetext; text:"Play again?"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.svg"}
+                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/reset.svg"}
             },
             State{
                 name: "winr"
                 PropertyChanges {target: thetext; text:"You made it!"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/reset.svg"}
+                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/reset.svg"}
                 //todo add time and total points
             },
             State{
                 name: "wins"
                 PropertyChanges {target: thetext; text:"You made it!"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
+                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/gameover.png"}
                 //todo add time and total points
             },
             State{
                 name: "gameover"
                 PropertyChanges {target: thetext; text:"Game Over"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/gameover.png"}
+                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/gameover.png"}
             },
             State{
                 name: "info"
                 PropertyChanges {target: thetext; text:"Here some infos"}
-                PropertyChanges {target: backgroundImage; source:  "assets/buttons/info.png"}
+                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/info.png"}
             }
         ]
 

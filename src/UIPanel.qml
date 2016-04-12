@@ -364,16 +364,14 @@ Item {
                     Repeater {
                         model: numberOfLifes
                         Image {
-                            width: 50
-                            height: 50
+
                             source: "../assets/lifeOn.png"
                         }
                     }
                     Repeater {
                         model: (3 - numberOfLifes)
                         Image {
-                            width: 50
-                            height: 50
+
                             source: "../assets/lifeOff.png"
                         }
                     }
@@ -395,7 +393,7 @@ Item {
             }
 
 
-            Column{
+           /* Column{
                 id:zoneMenu
                 //anchors.right: bonusMenu.left
                 Rectangle{
@@ -413,7 +411,7 @@ Item {
                         text: cellulo1.checkZone()
                     }
                 }
-               }
+               }*/
 
             Column{
                 id:timerMenu

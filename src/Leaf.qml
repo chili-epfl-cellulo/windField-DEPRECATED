@@ -21,8 +21,9 @@ Item {
     property bool collided: false
     property bool tangible: false
     property bool robotkidnapped: false
+    property bool feelOn: false
 
-    readonly property double mountainDragMultiplier: 100 //to adjust for obstacle
+    readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
     readonly property double maxVelocity: 50
     readonly property double timeStep: .25
@@ -50,8 +51,9 @@ Item {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
 
         if(robot.robotComm.connected){
+            //robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
             leafX = robot.coords.x* fieldWidth
-            leafY = robot.coords.y * fieldHeight
+            leafY = robot.coords.y *fieldHeight
         }
 
     }
@@ -127,8 +129,9 @@ Item {
         if (collided) {
             return;
         }
-        if(tangible){// motors of cellulo are off the leaf updates according to cellulo
+        if(tangible && feelOn){// motors of cellulo are off the leaf updates according to cellulo
             updateCellulo()
+
         }else{
             var pressureGrid = field.pressureGrid
             var yGridSpacing = field.yGridSpacing
@@ -149,7 +152,6 @@ Item {
             if(robot.robotComm.connected)
                 robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
 
-
             if( currentZone!==''){
                 if(zoneNameList.indexOf(currentZone)>=0 && zoneHistory.indexOf(currentZone)<0){
                     bonus = bonus  + zoneScoreList[currentZone]
@@ -158,7 +160,7 @@ Item {
             }
 
             // Arrived at the end of the map: WINS
-            if (leafX > windField.fieldWidth) {
+            if (leafX -leafSize/4> windField.fieldWidth) {
                 leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
@@ -168,7 +170,7 @@ Item {
                 }
             }
              // Collide to the left side of the map
-            else if (leafX < 0) {
+            else if (leafX-leafSize/4 < 0) {
                 leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
@@ -180,7 +182,7 @@ Item {
 
             }
             // Collide to the top or bottom
-            else if (leafY > windField.fieldHeight || leafY < 0) {
+            else if (leafY+leafSize/4  > windField.fieldHeight || leafY-leafSize/4 < 0) {
                 leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
                 collided = true
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
