@@ -21,5 +21,7 @@
         <file>assets/buttons/reset.svg</file>
         <file>assets/buttons/next.svg</file>
         <file>assets/buttons/cancelPDialog.svg</file>
+        <file>assets/lifeOn.png</file>
+        <file>assets/lifeOff.png</file>
     </qresource>
 </RCC>

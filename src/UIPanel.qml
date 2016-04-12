@@ -363,20 +363,18 @@ Item {
                     spacing: 5
                     Repeater {
                         model: numberOfLifes
-                        Rectangle {
+                        Image {
                             width: 50
                             height: 50
-                            border.width: 1
-                            color: "yellow"
+                            source: "../assets/lifeOn.png"
                         }
                     }
                     Repeater {
                         model: (3 - numberOfLifes)
-                        Rectangle {
+                        Image {
                             width: 50
                             height: 50
-                            border.width: 1
-                            color: "black"
+                            source: "../assets/lifeOff.png"
                         }
                     }
                 }
