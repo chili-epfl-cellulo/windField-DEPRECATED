@@ -278,10 +278,34 @@ Item {
         addPressurePointHidden(r,c,pressureLevel, true)
     }
 
+    function addOrUpdatePressurePoint(prevr, prevc, r, c, pressureLevel) {
+        addOrUpdatePressurePointHidden(prevr, prevc, r, c, pressureLevel, true)
+    }
+
+    function addOrUpdatePressurePointHidden(prevr, prevc, r, c, pressureLevel, visible){
+        console.info("===================adding pressure point========================")
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6])
+            return false;
+
+        for (var p = 0; p < maxPressurePoints; p++) {
+            if (!pressurePoints[p].state) {
+                removePressurePoint(prevr, prevc);
+                pressurePoints[p].gridIndex = Qt.point(r,c)
+                pressurePoints[p].position = Qt.point(c*xGridSpacing+xGridSpacing/2, r*yGridSpacing+yGridSpacing/2);
+                pressurePoints[p].state = active
+                pressurePoints[p].strength = pressureLevelToStrength(pressureLevel)
+                pressurePoints[p].visible = visible
+                numPressurePoints++
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function addPressurePointHidden(r,c,pressureLevel, visible) {
-        console.info("===================pressure added========================")
-        //console.info(numRows,numCols)
-        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6] )//|| pressureGrid[r][c][6]!=2)
+        console.info("===================adding pressure point========================")
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6] )
             return;
 
         //First make sure the point doesn't already exist, do nothing if it already does

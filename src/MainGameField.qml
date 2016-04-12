@@ -1,4 +1,5 @@
-import QtQuick 2.5
+import QtQuick 2.0
+import QtQuick.Window 2.0
 import QtCanvas3D 1.0
 import QtPositioning 5.2
 import QtQuick.Window 2.1
@@ -27,8 +28,6 @@ Item{
         width: parent.width
         height: parent.height
 
-
-        property int menuMargin: 50
         property int fieldWidth: 2418
         property int fieldHeight: 950
 
@@ -481,42 +480,39 @@ Item{
 
     }
     ////////////////////// BOTTOM PANEL
-    Rectangle {
-        id: stockView
-        y: parent.height -  uicontrols.height
-        anchors.left : windField.left
-        width: uicontrols.width
-        height:  uicontrols.height
-        color: Qt.rgba(1,1,1,0.6)
-        radius:155
+    PressurePointPanel{
+        id: pressurePointPanel
 
-        Row {
-            id:rowPressure
-            width:parent.width
-            height: parent.height
-            spacing: 50
+        PressurePoint{
+            ilevel: 3
 
-            //Pressure points in the stock
-            PressurePoint{
-                id: pressurePoint1
-                field: pressurefield
-                ilevel: 3
-            }
-            PressurePoint{
-                id: pressurePoint10
-                field: pressurefield
-                ilevel: 3
-            }
-            PressurePoint{
-                id: pressurePoint2
-                field: pressurefield
-                ilevel: -3
-            }
-            PressurePoint{
-                id: pressurePoint3
-                field: pressurefield
-                ilevel: -3
-            }
+            onPutInGame: console.log("****1****putInGame****"+r+" "+c+" "+level)
+            onUpdated: console.log("****1****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
+            onRemovedFromGame: console.log("****1****removedFromGame****"+prevr+" "+prevc)
+        }
+
+        PressurePoint{
+            ilevel: 3
+
+            onPutInGame: console.log("****2****putInGame****"+r+" "+c+" "+level)
+            onUpdated: console.log("****2****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
+            onRemovedFromGame: console.log("****2****removedFromGame****"+prevr+" "+prevc)
+        }
+
+        PressurePoint{
+            ilevel: -3
+
+            onPutInGame: console.log("****3****putInGame****"+r+" "+c+" "+level)
+            onUpdated: console.log("****3****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
+            onRemovedFromGame: console.log("****3****removedFromGame****"+prevr+" "+prevc)
+        }
+
+        PressurePoint{
+            ilevel: -3
+
+            onPutInGame: console.log("****4****putInGame****"+r+" "+c+" "+level)
+            onUpdated: console.log("****4****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
+            onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)
         }
     }
 }

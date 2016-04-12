@@ -1,25 +1,84 @@
 import QtQuick 2.0
+import QtQuick.Window 2.0
 
 Item {
-    id:root
-    //width: 2*parent.height/3
-    //height: 2*parent.height/3
-    width: 2*rowPressure.height/3
-    height: 2*rowPressure.height/3
-    visible: true
-    opacity:1
-    anchors.verticalCenter: parent.verticalCenter
-    property bool activated: false
-    property bool reset: false
-    property int ilevel: -3
-    property variant windfield: windField
-    property variant ppointpanel:rowPressure
-    readonly property double xGridSpacing: 12
-    readonly property double yGridSpacing: 12
-    property variant field: null
-    property int xOffst: parent.x
-    property int yOffst: windfield.fieldHeight
+    id: root
+    objectName: "PressurePoint"
 
+    property real imageWidth: imageHeight
+    property real imageHeight: Screen.height/6
+
+    property real xOffset: Screen.width/1800*50 + 20
+    property real yOffset: Screen.width/1800*50 + Screen.height*(1 - (760/(1800/Screen.width*Screen.height)))/2
+
+    property int ilevel: -3
+
+    property real initialImgX: 0
+    property real initialImgY: 0
+
+    property int row: -1
+    property int col: -1
+
+    signal putInGame(int r, int c, int level)
+    signal updated(int prevr, int prevc, int r, int c, int level)
+    signal removedFromGame(int prevr, int prevc)
+
+    function removeForcefully(){
+        choosePointLevelDialog.hideDialog();
+        putImageBack();
+        if(row >= 0 && col >= 0){
+            removedFromGame(row, col);
+            pressurefield.removePressurePoint(row, col);
+        }
+        row = -1;
+        col = -1;
+    }
+
+    function putImageBack(){
+        img.x = initialImgX;
+        img.y = initialImgY;
+    }
+
+    function updateProperties(plevel){
+
+        //Add pressure point of the level at the position
+        var p = img.mapToItem(null, 0, 0);
+        var prevRow = row;
+        var prevCol = col;
+        row = Math.floor((p.y + imageHeight/2 - yOffset)/Screen.height*1600/pressurefield.yGridSpacing);
+        col = Math.floor((p.x + imageWidth/2 - xOffset)/Screen.width*2560/pressurefield.xGridSpacing);
+
+        console.log((p.x + imageWidth/2 - xOffset)/Screen.width*2560/pressurefield.xGridSpacing);
+
+        //Set the new level
+        if(plevel !== 0)
+            ilevel = plevel;
+
+        //Moved outside game area
+        if(row < 0 || col < 0 || col >= pressurefield.numCols || row >= pressurefield.numRows){
+            choosePointLevelDialog.hideDialog();
+            putImageBack();
+            if(prevRow >= 0 && prevCol >= 0){
+                removedFromGame(prevRow, prevCol);
+                pressurefield.removePressurePoint(prevRow,prevCol);
+            }
+            row = -1;
+            col = -1;
+        }
+
+        //Moved inside game area
+        else{
+            choosePointLevelDialog.showDialog(img.x, img.y - img.height);
+            if(prevRow < 0 || prevCol < 0){
+                putInGame(row, col, ilevel);
+                pressurefield.addPressurePoint(row,col,ilevel);
+            }
+            else{
+                updated(prevRow, prevCol, row, col, ilevel);
+                pressurefield.addOrUpdatePressurePoint(prevRow,prevCol,row,col,ilevel);
+            }
+        }
+    }
 
     ListModel{
         id: lowpressureModel
@@ -72,32 +131,19 @@ Item {
     }
 
     PressurePointLevelDialog{
-        id: newpDialog
+        id: choosePointLevelDialog
         dialogModel: ilevel < 0 ? lowpressureModel : highpressureModel
         opacity: 0
         onClicked: {
-            // add pressure point of the level at the position
-            var p = mapFromItem(root, root.x, root.y )
-            console.log('adding p poin')
-            var row = Math.floor((yOffst-p.y)/yGridSpacing)
-            var col = Math.floor((p.x+xOffst)/xGridSpacing)
-            console.info(row,col, p.x, p.y, root.x, root.y, x,y)
-            //field.addPressurePoint(row,col,ilevel)
-
-            // Dismiss new game dialog
-            newpDialog.hideDialog();
-
-            //Set the new level
-            ilevel = plevel
-
-            //activate the pressure point (as it is on the field
-            activated = true
+            updateProperties(plevel);
+            hideDialog();
         }
     }
 
     Image {
-        id: ppImg
-        opacity:1
+        id: img
+
+        opacity: 1
         source:
             switch (ilevel){
             case -1:
@@ -119,54 +165,18 @@ Item {
                 "../assets/highPressure3.png"
                 break;
             }
+        height: imageHeight
+        fillMode: Image.PreserveAspectFit
 
         Drag.active: mouseArea.drag.active
         Drag.hotSpot.x: width/2
         Drag.hotSpot.y: height/2
 
         MouseArea{
-            id:mouseArea
-            width: parent.width
-            height: parent.height
-            drag.target:ppImg
-            //propagateComposedEvents: true
-            onReleased:{
-                //if(root.state == "exited"){
-                newpDialog.x = ppImg.x
-                newpDialog.y = ppImg.y - ppImg.height
-                newpDialog.showDialog();
-                //}
-            }
-            onClicked:{
-                //if(root.state == "exited"){
-                newpDialog.x = ppImg.x
-                newpDialog.y = ppImg.y - ppImg.height
-                newpDialog.showDialog();
-                //}
-            }
-            /*onExited:{
-                console.log("exit p point")
-                root.state = "exited"
-                console.log(root.parent)
-                console.log(root.x, root.y)
-            }
-            onEntered:{
-                console.log("entered p point")
-                root.state = "backin"
-                console.log(root.parent)
-                console.log(root.x, root.y)
-            }*/
+            id: mouseArea
+            anchors.fill: parent
+            drag.target: img
+            onReleased: updateProperties(0)
         }
-
-        states:
-        State {
-            name:"exited"
-            ParentChange{target:root; parent:windfield}
-         }
-        State {
-           name:"backin"
-           ParentChange{target:root; parent:parent}
-        }
-
-        }
+    }
 }
