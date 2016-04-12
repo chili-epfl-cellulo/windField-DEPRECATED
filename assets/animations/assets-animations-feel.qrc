@@ -1,0 +1,40 @@
+<RCC>
+    <qresource prefix="/assets/animations/">
+        <file>feel/0.png</file>
+        <file>feel/1.png</file>
+        <file>feel/2.png</file>
+        <file>feel/3.png</file>
+        <file>feel/4.png</file>
+        <file>feel/5.png</file>
+        <file>feel/6.png</file>
+        <file>feel/7.png</file>
+        <file>feel/8.png</file>
+        <file>feel/9.png</file>
+        <file>feel/10.png</file>
+        <file>feel/11.png</file>
+        <file>feel/12.png</file>
+        <file>feel/13.png</file>
+        <file>feel/14.png</file>
+        <file>feel/15.png</file>
+        <file>feel/16.png</file>
+        <file>feel/17.png</file>
+        <file>feel/18.png</file>
+        <file>feel/19.png</file>
+        <file>feel/20.png</file>
+        <file>feel/21.png</file>
+        <file>feel/22.png</file>
+        <file>feel/23.png</file>
+        <file>feel/24.png</file>
+        <file>feel/25.png</file>
+        <file>feel/26.png</file>
+        <file>feel/27.png</file>
+        <file>feel/28.png</file>
+        <file>feel/29.png</file>
+        <file>feel/30.png</file>
+        <file>feel/31.png</file>
+        <file>feel/32.png</file>
+        <file>feel/33.png</file>
+        <file>feel/34.png</file>
+        <file>feel/35.png</file>
+    </qresource>
+</RCC>

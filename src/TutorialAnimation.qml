@@ -1,24 +1,29 @@
 import QtQuick 2.0
 
 Image {
+    id: img
+
     property string baseName: ''
     property int currentIndex: 0
     property int numImages: 1
-    property int duration: 1000
+    property int durationMillis: 1000
+
+   // onNumImagesChanged: anim.stop();
 
     source: '../assets/animations/' + baseName + '/' + currentIndex + '.png'
 
+    fillMode: Image.PreserveAspectFit
+
     SequentialAnimation on currentIndex{
+        id: anim
         loops: Animation.Infinite
-        running:  true
+        running: true
 
         PropertyAnimation{
-            to: 0
-            duration: 1000
-        }
-        PropertyAnimation{
+            from: 0
             to: numImages - 1
-            duration: 1000
+            duration: durationMillis
+            onToChanged: anim.restart()
         }
     }
 }

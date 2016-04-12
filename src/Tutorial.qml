@@ -5,6 +5,11 @@ Image {
     property int currentScreen: 0
     property int numScreens: 1
 
+    property variant animBaseNames: []
+    property variant animNumImages: []
+    property variant animDurations: []
+    property variant animSizeCoeffs: []
+
     width: parent.width
     height: parent.height
 
@@ -22,11 +27,20 @@ Image {
             reset();
             finished();
         }
+
+        console.log(animNumImages);
     }
 
     TutorialAnimation{
-        baseName: 'ballon'
-        numImages: 120
+        baseName: animBaseNames[currentScreen]
+        numImages: animNumImages[currentScreen]
+        durationMillis: animDurations[currentScreen]
+
+        width: parent.width*animSizeCoeffs[currentScreen]
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: parent.height/15
     }
 
     Image{

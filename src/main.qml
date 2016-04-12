@@ -71,6 +71,10 @@ ApplicationWindow {
         enabled: false
         baseName: 'Tutorial1'
         numScreens: 5
+        animBaseNames:  ['ballon',  '',         '',             '',             'feel']
+        animNumImages:  [120,       120,        51,             51,             36]
+        animDurations:  [2400,      2400,       2000,           2000,           1400]
+        animSizeCoeffs: [0.5,       0.5,        0.5,            0.5,            0.35]
         onFinished: stateEngine.goToStateByName('Game1')
     }
 
