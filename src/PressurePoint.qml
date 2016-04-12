@@ -133,11 +133,12 @@ Item {
     PressurePointLevelDialog{
         id: choosePointLevelDialog
         dialogModel: ilevel < 0 ? lowpressureModel : highpressureModel
-        opacity: 0
         onClicked: {
             updateProperties(plevel);
             hideDialog();
         }
+        onDialogShown: root.z = 100
+        onDialogHidden: root.z = 0
     }
 
     Image {

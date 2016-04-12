@@ -21,6 +21,8 @@ Rectangle{
     property alias dialogModel: dialogList.model
 
     signal clicked(int plevel)
+    signal dialogShown()
+    signal dialogHidden()
 
     color: Qt.rgba(255, 255, 255, 0.9)
 
@@ -69,10 +71,12 @@ Rectangle{
         x = Math.min(targetX, Screen.width - width);
         y = targetY;
         showDialogAnim.start();
+        dialogShown();
     }
 
     function hideDialog(){
         hideDialogAnim.start();
+        dialogHidden();
     }
 
     //Animations for showing and hiding
