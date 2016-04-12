@@ -424,7 +424,7 @@ Item{
             Image {
                 id: backgroundImage
                 anchors.fill: parent
-                source:  "assets/buttons/reset.png"
+                source:  "../assets/buttons/reset.png"
                 MouseArea {
                     anchors.fill: backgroundImage
                     onClicked: { pressurefield.resetWindField()

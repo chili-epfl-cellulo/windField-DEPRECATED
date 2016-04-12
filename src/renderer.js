@@ -103,7 +103,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     //Init shaders and textures
 
     //Background Material
-    var bgtexture =  THREE.ImageUtils.loadTexture('assets/backgrounds/MainGameBackground.png')
+    var bgtexture =  THREE.ImageUtils.loadTexture('../assets/backgrounds/MainGameBackground.png')
     bgtexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
     backgroundMaterial = new THREE.MeshBasicMaterial( { map:bgtexture} );
 
@@ -111,7 +111,7 @@ function initMaterials(pressurefield, leaves, numLeaves) {
 
     //Leaf Material - may want to change material based on leaf properties
     for (var i = 0; i < numLeaves; i++) {
-        var leaftexture =  THREE.ImageUtils.loadTexture('assets/cellulo_balloon.png')
+        var leaftexture =  THREE.ImageUtils.loadTexture('../assets/cellulo_balloon.png')
         leaftexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
        leafMaterials[i]  = new THREE.MeshBasicMaterial( { map:leaftexture ,transparent: true, opacity: 0.9});
 
