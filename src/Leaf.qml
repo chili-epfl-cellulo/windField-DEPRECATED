@@ -29,8 +29,10 @@ Item {
     property variant field: null
     property variant allzones: null
     property variant robot: null
-    property variant controls: null
+    //property variant controls: parent.controls
 
+    property variant zoneHistory : []
+    property variant zoneNameList : {"madrid":1,"paris":4,"bern":5, "budapest":6, "kiev":8, "rome":3, "athens":2, "finish":2}
 
 
 
@@ -38,18 +40,18 @@ Item {
     function resetRobotVelocity(){
         //robot.setGlobalSpeeds(0.0 , 0.0 , 0.0);
         if(robot.robotComm.connected)
-        robot.robotComm.reset();
+            robot.robotComm.reset();
     }
 
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
 
         if(robot.robotComm.connected){
-        leafX = robot.coords.x* fieldWidth
-        leafY = robot.coords.y * fieldHeight
-        console.log(robot.coords.x, robot.coords.y)
-        console.log(leafX, leafY)
-           }
+            leafX = robot.coords.x* fieldWidth
+            leafY = robot.coords.y * fieldHeight
+            //console.log(robot.coords.x, robot.coords.y)
+            //console.log(leafX, leafY)
+        }
 
     }
 
@@ -118,20 +120,14 @@ Item {
     }
 
     function updateLeaf() {
-
+        //TODO CHEKC OBSTACLE REDUCE SPEED
+        //TODO CHECK ZONES AND BONUS POINTS
         if (collided) {
-
             return;
         }
-
-        if(tangible){
+        if(tangible){// motors of cellulo are off the leaf updates according to cellulo
             updateCellulo()
-            if(robot.checkZone()==='madrid'&& robot.robotComm.connected){
-                controls.bonus = controls.bonus + 1
-            }
-
         }else{
-
             var pressureGrid = field.pressureGrid
             var yGridSpacing = field.yGridSpacing
             var xGridSpacing = field.xGridSpacing
@@ -154,15 +150,33 @@ Item {
             console.log(leafXV , leafYV )
             console.log(leafXV/fieldHeight *660*0.508, leafYV /fieldWidth*1800*0.508, 0.0)
             if(robot.robotComm.connected)
-            robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
+                robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
 
 
-            if(robot.checkZone()==='madrid'&& robot.robotComm.connected){
-                controls.bonus = controls.bonus + 1
+            if(robot.checkZone()!==''&& robot.robotComm.connected){
+                //controls.bonus = controls.bonus + 1
+                var thezone =robot.checkZone()
+                console.log(thezone)
+                if(zoneNameList.valueOf(thezone)>0 && zoneHistory.indexOf(thezone)<0){
+                    console.log("__________________")
+                    console.log(zoneNameList[thezone])
+                    console.log(parent.bonus)
+                    controls.bonus = controls.bonus  + zoneNameList[thezone]
+                    zoneHistory.push(thezone)
+                }
             }
 
             //if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
-            if (leafX > windField.fieldWidth || leafX < 0) {
+            if (leafX > windField.fieldWidth) {
+                leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
+                collided = true;
+                windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
+                if(robot.robotComm.connected){
+                    robot.alert(Qt.rgba(0.7,0,0,1), 5);
+                    robot.setGlobalSpeeds(0,0,4);
+                }
+            }
+            else if (leafX < 0) {
                 leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
@@ -188,11 +202,6 @@ Item {
                 windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
 
             }
-
-            //if(robot.connected && !collided)
-            //    robot.setGlobalSpeeds(leafXV/fieldWidth , leafYV /fieldHeight, 0.0);
-
-
             if (collided) {
                 leafXV = 0
                 leafYV = 0
@@ -200,17 +209,9 @@ Item {
                 leafYF = 0
                 leafXFDrag = 0
                 leafYFDrag = 0
-
+                robot.setGlobalSpeeds(0,0,0);
             }
         }
-        //console.log('new leaf positions',leafX, leafY)
-        //console.log("===================")
-
-        //TESTING
-        //leafX = (robot.y/575)*robotMaxX
-        //leafY = robotMaxY-(robot.x/400)*robotMaxY
-
     }
-
-
 }
+

@@ -21,7 +21,7 @@ Item {
     property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
-    property int bonus: 0
+    property variant bonus: windfield.bonus
 
     function togglePaused() {
         windfield.paused = !windfield.paused
@@ -210,14 +210,14 @@ Item {
                             Image {
                                 id: backgroundImage
                                 anchors.fill: parent
-                                source: (button.enabled ? "../assets/buttons/updateOn.png" : "../assets/buttons/updateOff.png")
+                                source: (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
 
 
                                 //Mouse area to react on click events
                                 MouseArea {
                                     anchors.fill: backgroundImage
                                     onClicked: { updateSimulation()
-                                        backgroundImage.source = (button.enabled ? "../assets/buttons/updateOn.png" : "../assets/buttons/updateOff.png")
+                                        backgroundImage.source = (button.enabled ? "assets/buttons/updateOn.png" : "assets/buttons/updateOff.png")
                                     }
 
                                 }
@@ -235,13 +235,13 @@ Item {
                             Image {
                                 id: playImage
                                 anchors.fill: parent
-                                source: (windfield.paused ? "../assets/buttons/playOn.png" : "../assets/buttons/playOff.png")
+                                source: (windfield.paused ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
                             }
 
                             MouseArea {
                                 anchors.fill: buttonPause
                                 onClicked: {togglePaused()
-                                   // playImage.source = (windfield.paused ? "../assets/buttons/playOn.png" : "../assets/buttons/playOff.png")
+                                   // playImage.source = (windfield.paused ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
                                 }
                             }
                         }
