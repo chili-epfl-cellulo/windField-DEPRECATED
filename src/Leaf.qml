@@ -20,6 +20,7 @@ Item {
     property double leafSize: 0
     property bool collided: false
     property bool tangible: false
+    property bool robotkidnapped: false
 
     readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
@@ -29,10 +30,13 @@ Item {
     property variant field: null
     property variant allzones: null
     property variant robot: null
-    //property variant controls: parent.controls
+    property variant uicontrols: null
 
+
+    property variant currentZone: ''
     property variant zoneHistory : []
-    property variant zoneNameList : {"madrid":1,"paris":4,"bern":5, "budapest":6, "kiev":8, "rome":3, "athens":2, "finish":2}
+    property variant zoneScoreList : {"madrid":1,"paris":4,"bern":5, "budapest":6, "kiev":8, "rome":3, "athens":2, "finish":2}
+    property variant zoneNameList : ["madrid","paris","bern", "budapest", "kiev", "rome", "athens", "finish"]
 
 
 
@@ -49,13 +53,22 @@ Item {
         if(robot.robotComm.connected){
             leafX = robot.coords.x* fieldWidth
             leafY = robot.coords.y * fieldHeight
-            //console.log(robot.coords.x, robot.coords.y)
-            //console.log(leafX, leafY)
         }
 
     }
 
     /***LEAF STATE UPDATE METHODS***/
+    function setSpeedNull(){
+        leafXV = 0
+        leafYV = 0
+        leafXF = 0
+        leafYF = 0
+        leafXFDrag = 0
+        leafYFDrag = 0
+        robot.setGlobalSpeeds(0,0,0);
+    }
+
+
     function calculateForcesAtLeaf() {
         //Calculate force acting on the leaf at current pressure conditions
         var yGridSpacing = field.yGridSpacing
@@ -144,29 +157,25 @@ Item {
             leafX += deltaX
             leafY += deltaY
 
-
-
-            //if(robot.connected && !collided)
-            console.log(leafXV , leafYV )
-            console.log(leafXV/fieldHeight *660*0.508, leafYV /fieldWidth*1800*0.508, 0.0)
             if(robot.robotComm.connected)
                 robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
 
 
-            if(robot.checkZone()!==''&& robot.robotComm.connected){
-                //controls.bonus = controls.bonus + 1
-                var thezone =robot.checkZone()
-                console.log(thezone)
-                if(zoneNameList.valueOf(thezone)>0 && zoneHistory.indexOf(thezone)<0){
-                    console.log("__________________")
-                    console.log(zoneNameList[thezone])
-                    console.log(parent.bonus)
-                    controls.bonus = controls.bonus  + zoneNameList[thezone]
-                    zoneHistory.push(thezone)
+            if( currentZone!==''){
+                console.log("__________________")
+                console.log(currentZone)
+                console.log(zoneNameList.indexOf(currentZone))
+                console.log(zoneHistory.indexOf(currentZone))
+                if(zoneNameList.indexOf(currentZone)>=0 && zoneHistory.indexOf(currentZone)<0){
+                    console.log("+++++++++++++++++++++++")
+                    console.log(zoneScoreList[currentZone])
+                    console.log(parent.controls.bonus)
+                    uicontrols.bonus = uicontrols.bonus  + zoneScoreList[currentZone]
+                    zoneHistory.push(currentZone)
                 }
             }
 
-            //if (leafX > windField.fieldWidth-leafSize/2 || leafX < leafSize/2) {
+            // Arrived at the end of the map: WINS
             if (leafX > windField.fieldWidth) {
                 leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
                 collided = true;
@@ -176,6 +185,7 @@ Item {
                     robot.setGlobalSpeeds(0,0,4);
                 }
             }
+             // Collide to the left side of the map
             else if (leafX < 0) {
                 leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
                 collided = true;
@@ -185,8 +195,10 @@ Item {
                     robot.setGlobalSpeeds(0,0,4);
                 }
                 console.log("=========LEAF COLLIDED R1==========")
-                //} else if (leafY > windField.fieldHeight-leafSize/2 || leafY < leafSize/2) {
-            } else if (leafY > windField.fieldHeight || leafY < 0) {
+
+            }
+            // Collide to the top or bottom
+            else if (leafY > windField.fieldHeight || leafY < 0) {
                 leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
                 collided = true
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
@@ -195,12 +207,6 @@ Item {
                     robot.setGlobalSpeeds(0,0,4);
                 }
                 console.log("=========LEAF COLLIDED R2==========")
-            }
-            else if (inZone(allzones.zones[allzones.zones.length-1])) {
-                leafXV = 0
-                leafYV = 0
-                windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
-
             }
             if (collided) {
                 leafXV = 0

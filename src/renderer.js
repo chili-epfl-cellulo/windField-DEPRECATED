@@ -68,7 +68,7 @@ function initScene(pressurefield, leaves, numLeaves) {
         //Vectors: just initialize arrows for now, updating from leaf info happens on paint
         var dir = new THREE.Vector3( 1, 0, 0 );
         var origin = new THREE.Vector3( 0, 0, 0 );
-        var length = 500;
+        var length = 50;
         //var lgeometry = new THREE.Geometry();
         //var lmaterial = new THREE.LineBasicMaterial( { linewidth: 100, transparent: false } );
         //var lline = new THREE.Line( lgeometry, lmaterial );
@@ -295,7 +295,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
             leafForceVectors[i].position.x = leafObjects[i].position.x;
             leafForceVectors[i].position.y = leafObjects[i].position.y;
             leafForceVectors[i].position.z = leafObjects[i].position.z;
-            leafForceVectors[i].setLength(leafForceDirection.length()*2500/pressurefield.maxForce);
+            leafForceVectors[i].setLength(leafForceDirection.length()*1500/pressurefield.maxForce);
         }
 
         var leafVelocityDirection = new THREE.Vector3(leaves[i].leafXV, -leaves[i].leafYV, 0);
@@ -305,7 +305,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
             leafVelocityVectors[i].position.x = leafObjects[i].position.x;
             leafVelocityVectors[i].position.y = leafObjects[i].position.y;
             leafVelocityVectors[i].position.z = leafObjects[i].position.z;
-            leafVelocityVectors[i].setLength(leafVelocityDirection.length()*800);
+            leafVelocityVectors[i].setLength(leafVelocityDirection.length()*200);
         }
 
         leafDragVectors[i].visible = windField.drawLeafForceVectors && (dragLength > 0);

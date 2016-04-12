@@ -16,12 +16,12 @@ Item {
     property bool mobile: Qt.platform.os === "android"
     property real gWidth: mobile ? Screen.width : 640
     property variant windfield: windField
-    property variant robot: null
+    property variant robot: cellulo1
     property double startTime: 0
     property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
-    property variant bonus: windfield.bonus
+    property int bonus: windfield.bonus
 
     function togglePaused() {
         windfield.paused = !windfield.paused
@@ -395,9 +395,31 @@ Item {
                     color:"white"
                 }
             }
+
+
+            Column{
+                id:zoneMenu
+                //anchors.right: bonusMenu.left
+                Rectangle{
+                    width: 270
+                    height: 100
+                    radius:30
+
+                    color:"transparent"
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.family: "Helvetica"
+                        font.pointSize: 25
+                        font.bold: true
+                        text: cellulo1.checkZone()
+                    }
+                }
+               }
+
             Column{
                 id:timerMenu
-                anchors.right: bonusMenu.left
+                //anchors.right: bonusMenu.left
                 Rectangle{
                     width: 270
                     height: 100
@@ -423,9 +445,9 @@ Item {
                         width: 100
                         height: 100
                         radius:width*0.5
-                        border.width:3
+                        border.width:2
                         border.color: "black"
-                        color:"yellow"
+                        color:"#00a4e3"
 
                     Text {
                         id: scoretext
@@ -434,7 +456,8 @@ Item {
                         font.family: "Helvetica"
                         font.pointSize: 25
                         font.bold: true
-                        text: bonus
+                        color:"white"
+                        text: windfield.bonus
                     }
                     }
 

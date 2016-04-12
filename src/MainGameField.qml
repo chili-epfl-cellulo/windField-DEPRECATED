@@ -209,7 +209,7 @@ Item{
 
         function pauseSimulation() {
             paused = false;
-            controls.togglePaused()
+            uicontrols.togglePaused()
             //timer.stop()
             //secondsElapsed = 0
             //startTime = 0
@@ -251,8 +251,8 @@ Item{
                 leaves[0].tangible = true
                 hidePressurePoint()
                 windfield.drawPressureGrid = false
-                controls.updateSimulation()
-                controls.enabled = true //TODO CHnage in false
+                uicontrols.updateSimulation()
+                uicontrols.enabled = true //TODO CHnage in false
                 leaves[0].updateCellulo()
             case 2:
                 setInitialConfigurationGame2()
@@ -369,7 +369,8 @@ Item{
             field: pressurefield
             robot: parent.parent.robot
             allzones: playground
-
+            currentZone: ''
+            uicontrols : parent.parent.uicontrols
         }
 
         Timer {
@@ -384,7 +385,7 @@ Item{
     ////////////////////// TOP PANEL
     UIPanel {
         //anchors.fill: parent
-        id: controls
+        id: uicontrols
         robot: parent.robot
         windfield: windField
         width: parent.width
@@ -472,10 +473,10 @@ Item{
     ////////////////////// BOTTOM PANEL
     Rectangle {
         id: stockView
-        y: parent.height -  controls.height
+        y: parent.height -  uicontrols.height
         anchors.left : windField.left
-        width: controls.width
-        height:  controls.height
+        width: uicontrols.width
+        height:  uicontrols.height
         color: Qt.rgba(1,1,1,0.6)
         radius:155
 
