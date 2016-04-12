@@ -61,7 +61,7 @@ ApplicationWindow {
     MainMenu{
         id: mainMenu
 
-        onGame1Clicked: stateEngine.goToStateByName('Tutorial1')
+        onGame1Clicked: stateEngine.goToStateByName('Game1')
         onGame2Clicked: stateEngine.goToStateByName('Game2')
     }
 

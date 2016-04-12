@@ -20,5 +20,6 @@
         <file>assets/buttons/playOff.svg</file>
         <file>assets/buttons/reset.svg</file>
         <file>assets/buttons/next.svg</file>
+        <file>assets/buttons/cancelPDialog.svg</file>
     </qresource>
 </RCC>
