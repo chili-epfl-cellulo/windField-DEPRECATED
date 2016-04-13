@@ -10,7 +10,8 @@ RESOURCES += \
     assets/animations/assets-animations-ballon.qrc \
     assets/animations/assets-animations-drag.qrc \
     assets/animations/assets-animations-feel.qrc \
-    assets/animations/assets-animations-intensite.qrc
+    assets/animations/assets-animations-intensite.qrc \
+    assets/animations/assets-animations-wind1.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
