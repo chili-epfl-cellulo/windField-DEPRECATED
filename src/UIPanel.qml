@@ -61,13 +61,10 @@ Rectangle {
         console.log("showInfo clicked");
     }
 
-
-    x: 20
-    y: 5
-    width: parent.width - 40
+    width: parent.width
     height: 0.19375*Screen.height
     color: Qt.rgba(1,1,1,0.6)
-    radius:155
+    radius: 155
 
     RowLayout {
         anchors.margins: 20
@@ -258,7 +255,7 @@ Rectangle {
                 width: 0.15*Screen.width
                 height: 0.1*Screen.height
                 radius: 30
-                border.width:3
+                border.width: 3
                 border.color: "black"
                 color: "transparent"
 
@@ -285,19 +282,22 @@ Rectangle {
             }
         }
 
-        Column{
-            id:bonusMenu
-            //anchors.right: parent.right
+        //Score
+        Item{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
             Rectangle{
-                width: 100
-                height: 100
-                radius:width*0.5
-                border.width:2
+                anchors.verticalCenter: parent.verticalCenter
+                width: 0.07*Screen.width
+                height: width
+                radius: width*0.5
+                border.width: 3
                 border.color: "black"
-                color:"#00a4e3"
+                color:"#14b4f0"
 
                 Text {
-                    id: scoretext
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     font.family: "Helvetica"
@@ -307,10 +307,6 @@ Rectangle {
                     text: totalpoint
                 }
             }
-
-
         }
-
     }
-
 }
