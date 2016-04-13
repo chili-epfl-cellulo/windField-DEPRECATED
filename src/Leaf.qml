@@ -179,8 +179,8 @@ Item {
             }
 
             // Arrived at the end of the map: WINS
-            if (leafX -leafSize/4> windField.fieldWidth) {
-                leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
+            if (leafX -leafSize/4> windfield.fieldWidth) {
+                leafX = Math.max(Math.min(leafX, windfield.fieldWidth-leafSize/2), 0.0)
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
                 if(robot.robotComm.connected){
@@ -190,7 +190,7 @@ Item {
             }
              // Collide to the left side of the map
             else if (leafX-leafSize/4 < 0) {
-                leafX = Math.max(Math.min(leafX, windField.fieldWidth-leafSize/2), 0.0)
+                leafX = Math.max(Math.min(leafX, windfield.fieldWidth-leafSize/2), 0.0)
                 collided = true;
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
                 if(robot.robotComm.connected){
@@ -201,8 +201,8 @@ Item {
 
             }
             // Collide to the top or bottom
-            else if (leafY+leafSize/4  > windField.fieldHeight || leafY-leafSize/4 < 0) {
-                leafY = Math.max(Math.min(leafY, windField.fieldHeight-leafSize/2), 0.0)
+            else if (leafY+leafSize/4  > windfield.fieldHeight || leafY-leafSize/4 < 0) {
+                leafY = Math.max(Math.min(leafY, windfield.fieldHeight-leafSize/2), 0.0)
                 collided = true
                 windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
                 if(robot.robotComm.connected){

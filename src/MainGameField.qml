@@ -17,28 +17,29 @@ Item{
 
     property variant robot: null
     property variant playground: playground
-    property variant windfield: windField
     property int fieldWidth: 2418
     property int fieldHeight: 950
+
+    property alias windfield: windfield
 
     visible: false
 
     Canvas3D {
-        id: windField
+        id: windfield
         width: parent.width
         height: parent.height
 
         property int fieldWidth: 2418
         property int fieldHeight: 950
 
-        property int robotMinX: (windField.width - windField.fieldWidth)/2
-        property int robotMinY: (windField.height - windField.fieldHeight)/2
-        property int robotMaxX: robotMinX + windField.fieldWidth
-        property int robotMaxY: robotMinY + windField.fieldHeight
+        property int robotMinX: (windfield.width - windfield.fieldWidth)/2
+        property int robotMinY: (windfield.height - windfield.fieldHeight)/2
+        property int robotMaxX: robotMinX + windfield.fieldWidth
+        property int robotMaxY: robotMinY + windfield.fieldHeight
 
         //Game UI variables, kept here so that all components can have access to them
         property bool paused: true
-        property bool drawPressureGrid: true
+        property bool drawPressureGrid: false
         property bool drawForceGrid: true
         property bool drawLeafVelocityVector: true
         property bool drawLeafForceVectors: true
@@ -303,7 +304,7 @@ Item{
         }
         ////////////////////// GL STUFFS
         onInitializeGL: {
-            GLRender.initializeGL(windField, pressurefield, leaves, numLeaves)
+            GLRender.initializeGL(windfield, pressurefield, leaves, numLeaves)
         }
 
         //Since we do no update the pressure grid while the simulation is running, the only thing we have to update then are the leaves
@@ -327,7 +328,7 @@ Item{
         }
 
         Component.onCompleted: {
-            pressurefield.resetWindField()
+            pressurefield.resetwindfield()
         }
 
         onGameModeChanged: {
@@ -344,24 +345,24 @@ Item{
                 name: "lost"
                 PropertyChanges {target: ontopPanel; state:"playagain"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windField; nblifes: (windField.nblifes<=0 ? 0 : windField.nblifes-1)}
+                PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
             },
             State{
                 name: "over"
                 PropertyChanges {target: ontopPanel; state:"gameover"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windField; nblifes: (windField.nblifes<=0 ? 0 : windField.nblifes-1)}
+                PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
             },
             State{
                 name: "win"
                 PropertyChanges {target: ontopPanel; state:"winr"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windField; nblifes:windField.nblifes}
+                PropertyChanges {target: windfield; nblifes:windfield.nblifes}
             },
             State{
                 name: "ready"
                 PropertyChanges {target: ontopPanel; visible:false}
-                PropertyChanges {target: windField; nblifes:windField.nblifes}
+                PropertyChanges {target: windfield; nblifes:windfield.nblifes}
             }
         ]
 
@@ -369,10 +370,10 @@ Item{
 
         ////////////////////// EMBEDDED ITEMS
         PressureField {
-            width: windField.fieldWidth
-            height: windField.fieldHeight
-            x: windField.robotMinX
-            y: windField.robotMinY
+            width: windfield.fieldWidth
+            height: windfield.fieldHeight
+            x: windfield.robotMinX
+            y: windfield.robotMinY
             id: pressurefield
         }
 
@@ -403,7 +404,6 @@ Item{
         //anchors.fill: parent
         id: uicontrols
         robot: parent.robot
-        windfield: windField
         width: parent.width
         height: parent.height /5
         playground: playground
@@ -444,7 +444,7 @@ Item{
                 source:  "../assets/buttons/reset.svg"
                 MouseArea {
                     anchors.fill: backgroundImage
-                    onClicked: { pressurefield.resetWindField()
+                    onClicked: { pressurefield.resetwindfield()
                         windfield.setInitialConfiguration()
                         windfield.setPressureFieldTextureDirty()
                         windfield.pauseSimulation()

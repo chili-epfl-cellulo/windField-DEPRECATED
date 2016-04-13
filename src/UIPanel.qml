@@ -13,7 +13,6 @@ Rectangle {
 
     property bool mobile: Qt.platform.os === "android"
     property real gWidth: mobile ? Screen.width : 640
-    property variant windfield: windField
     property variant robot: cellulo1
     property double startTime: 0
     property variant playground: playground
@@ -116,6 +115,8 @@ Rectangle {
                         onClicked: {
                             pressureButton.switchOn = !pressureButton.switchOn;
                             windfield.drawPressureGrid = pressureButton.switchOn;
+                            if(pressureButton.switchOn)
+                                updateSimulation();
                         }
                     }
                 }
@@ -141,54 +142,23 @@ Rectangle {
             color:"white"
         }
 
-        Column {
-            id:hiddenMenuView
-            spacing:0
-            RowLayout{
-                Column {
-                    Item {
-                        id: button
-                        width: 100
-                        height: 100
-                        signal clicked
-                        enabled: windfield.paused
-                        Image {
-                            id: backgroundImage
-                            anchors.fill: parent
-                            source: (button.enabled ? "../assets/buttons/updateOn.png" : "../assets/buttons/updateOff.png")
+        //Play button
+        Item{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
 
+            Image{
+                anchors.verticalCenter: parent.verticalCenter
+                height: 0.15*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/" + (windfield.paused ? "playOn.svg" : "playOff.svg")
 
-                            //Mouse area to react on click events
-                            MouseArea {
-                                anchors.fill: backgroundImage
-                                onClicked: { updateSimulation()
-                                    backgroundImage.source = (button.enabled ? "../assets/buttons/updateOn.png" : "../assets/buttons/updateOff.png")
-                                }
-
-                            }
-                        }
-                    }
-                }
-
-                Column {
-                    id:menu
-                    spacing:0
-                    Item {
-                        id: buttonPause
-                        width: 100
-                        height: 100
-                        Image {
-                            id: playImage
-                            anchors.fill: parent
-                            source: (windfield.paused ? "../assets/buttons/playOn.svg" : "../assets/buttons/playOff.svg")
-                        }
-
-                        MouseArea {
-                            anchors.fill: buttonPause
-                            onClicked: {togglePaused()
-                                // playImage.source = (windfield.paused ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
-                            }
-                        }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked:{
+                        updateSimulation();
+                        togglePaused();
                     }
                 }
             }

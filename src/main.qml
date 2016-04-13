@@ -87,7 +87,6 @@ ApplicationWindow {
         visible: false
         enabled: false
         playground: playground
-        //  property alias windfield: windfield
     }
 
     MouseArea {
