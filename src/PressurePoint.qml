@@ -181,41 +181,41 @@ Item {
             drag.target: img
             onReleased: updateProperties(0)
             enabled: true
-        }
-        Image {
-            id: checkImage
-            visible:false
-            opacity: 1
-            source:
-                switch (root.state){
-                case "correct":
-                    "../assets/buttons/right.png"
-                    break;
-                case "incorrect":
-                    "../assets/buttons/wrong.png"
-                    break;
-                }
-            height: imageHeight
-            fillMode: Image.PreserveAspectFit
 
-        }
+            Image {
+                id: checkImage
+                visible:false
+                opacity: 1
+                source:"../assets/buttons/right.png"
+                 /**   switch (root.state){
+                    case "correct":
+                        "../assets/buttons/right.png"
+                        break;
+                    case "incorrect":
+                        "../assets/buttons/wrong.png"
+                        break;
+                    }**/
+                height: imageHeight
+                fillMode: Image.PreserveAspectFit
 
-        }
-        states:[
-            State{
-                name: "correct"
-                PropertyChanges {target: checkImage; source:"../assets/buttons/right.png"}
-                PropertyChanges {target: checkImage; visible:true}
-                PropertyChanges {target: mouseArea; enabled:false}
-            },
-            State{
-                name: "incorrect"
-                PropertyChanges {target: checkImage; source:"../assets/buttons/wrong.png"}
-                PropertyChanges {target: checkImage; visible:true}
-            },
-            State{
-                name: "inPlay"
-                PropertyChanges {target: checkImage; visible:false}
             }
-        ]
+        }
     }
+    states:[
+        State{
+            name: "correct"
+            PropertyChanges {target: checkImage; source:"../assets/buttons/right.png"}
+            PropertyChanges {target: checkImage; visible:true}
+            PropertyChanges {target: mouseArea; enabled:false}
+        },
+        State{
+            name: "incorrect"
+            PropertyChanges {target: checkImage; source:"../assets/buttons/wrong.png"}
+            PropertyChanges {target: checkImage; visible:true}
+        },
+        State{
+            name: "inPlay"
+            PropertyChanges {target: checkImage; visible:false}
+        }
+    ]
+}

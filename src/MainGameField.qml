@@ -61,6 +61,8 @@ Item{
         property variant hiddenPPointList:[]
         property variant foundPPointList:[]
         property variant userPPoint: [ppoint1,ppoint2,ppoint3,ppoint4]
+        property int sumDist: 0
+
         // Time management
         property double startTime: 0
         property double secondsElapsed: 0
@@ -229,6 +231,7 @@ Item{
 
         ////////////////////// GAME LOGIC RELATED FUNCTIONS
         function checkPPoint(){
+
             for(var hp = 0; hp < nbOfHiddenPPoint;hp++){
                 console.log('hiddeen at ', hiddenPPointList[hp][0], hiddenPPointList[hp][1])
                 for(var up = 0; up < userPPoint.length;up++){
@@ -236,6 +239,7 @@ Item{
                     if(hiddenPPointList[hp][2]===userPPoint[up].ilevel){ // check if pressure level is the same
                         var d = Math.sqrt((hiddenPPointList[hp][0]-userPPoint[up].row)*(hiddenPPointList[hp][0]-userPPoint[up].row) + (hiddenPPointList[hp][1]-userPPoint[up].col)*(hiddenPPointList[hp][1]-userPPoint[up].col))
                         console.log('distance of ', d)
+                        sumDist+=d
                         if(d < 10){
                             foundPPointList.push(userPPoint[up])
 
@@ -247,6 +251,7 @@ Item{
                 }
             }
             showChecked()
+            uicontrols.totalpoint  = 1/sumDist
         }
 
         function showChecked(){
@@ -370,6 +375,7 @@ Item{
                     paused=true
                 }
             }
+             GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
         function setPressureFieldTextureDirty() {
             GLRender.pressureFieldUpdated = true;
