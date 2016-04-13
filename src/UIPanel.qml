@@ -170,36 +170,27 @@ Rectangle {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
 
-            spacing: 10
+            spacing: 20
 
-            Repeater {
-                model: numberOfLifes
-                Item{
-                    anchors.top: livesBox.top
-                    anchors.bottom: livesBox.bottom
-                    width: childrenRect.width
-                    Image{
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: 0.15*Screen.height
-                        fillMode: Image.PreserveAspectFit
-                        source: "../assets/lifeOn.png"
-                    }
+            Item{
+                anchors.top: livesBox.top
+                anchors.bottom: livesBox.bottom
+                width: childrenRect.width
+
+                Image{
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: 0.15*Screen.height
+                    fillMode: Image.PreserveAspectFit
+                    source: "../assets/lifeOn.png"
                 }
             }
 
-            Repeater {
-                model: 3 - numberOfLifes
-                Item{
-                    anchors.top: livesBox.top
-                    anchors.bottom: livesBox.bottom
-                    width: childrenRect.width
-                    Image{
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: 0.15*Screen.height
-                        fillMode: Image.PreserveAspectFit
-                        source: "../assets/lifeOn.png"
-                    }
-                }
+            Text{
+                anchors.verticalCenter: parent.verticalCenter
+                font.family: "Helvetica"
+                font.pointSize: 36
+                font.bold: true
+                text:"x" + numberOfLifes
             }
         }
 
