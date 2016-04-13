@@ -58,7 +58,9 @@ Item{
 
         // For Game 1
         property int nbOfHiddenPPoint:4
-
+        property variant hiddenPPointList:[]
+        property variant foundPPointList:[]
+        property variant userPPoint: [ppoint1,ppoint2,ppoint3,ppoint4]
         // Time management
         property double startTime: 0
         property double secondsElapsed: 0
@@ -218,9 +220,6 @@ Item{
         function pauseSimulation() {
             paused = false;
             uicontrols.togglePaused()
-            //timer.stop()
-            //secondsElapsed = 0
-            //startTime = 0
         }
 
         function initGame(){
@@ -414,11 +413,11 @@ Item{
                 PropertyChanges {target: windfield; nblifes:windfield.nblifes}
             },
             State{
-                           name: "checked" //game 1
-                           PropertyChanges {target: ontopPanel; visible:"playagain"}
-                           PropertyChanges {target: windField; nblifes:(windField.nblifes<=0 ? 0 : windField.nblifes-1)}
-                           //PropertyChanges {target: windField; foundPPointList.length: }
-                       }
+                name: "checked" //game 1
+                PropertyChanges {target: ontopPanel; visible:"playagain"}
+                PropertyChanges {target: windField; nblifes:(windField.nblifes<=0 ? 0 : windField.nblifes-1)}
+                //PropertyChanges {target: windField; foundPPointList.length: }
+            }
         ]
 
 
@@ -547,7 +546,7 @@ Item{
 
         PressurePoint{
             ilevel: 3
-
+            id:ppoint1
             onPutInGame: console.log("****1****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****1****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****1****removedFromGame****"+prevr+" "+prevc)
@@ -555,7 +554,7 @@ Item{
 
         PressurePoint{
             ilevel: 3
-
+            id:ppoint2
             onPutInGame: console.log("****2****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****2****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****2****removedFromGame****"+prevr+" "+prevc)
@@ -563,7 +562,7 @@ Item{
 
         PressurePoint{
             ilevel: -3
-
+            id:ppoint3
             onPutInGame: console.log("****3****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****3****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****3****removedFromGame****"+prevr+" "+prevc)
@@ -571,7 +570,7 @@ Item{
 
         PressurePoint{
             ilevel: -3
-
+            id:ppoint4
             onPutInGame: console.log("****4****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****4****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)

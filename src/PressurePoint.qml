@@ -200,7 +200,7 @@ Item {
 
         }
 
-
+        }
         states:[
             State{
                 name: "correct"

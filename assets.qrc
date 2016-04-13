@@ -28,5 +28,7 @@
         <file>assets/buttons/help.svg</file>
         <file>assets/time.svg</file>
         <file>assets/buttons/go.svg</file>
+        <file>assets/buttons/right.png</file>
+        <file>assets/buttons/wrong.png</file>
     </qresource>
 </RCC>
