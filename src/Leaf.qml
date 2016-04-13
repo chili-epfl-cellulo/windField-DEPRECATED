@@ -128,9 +128,11 @@ Item {
         if (collided) {
             return;
         }
-        //if(tangible && robotkidnapped)
-        //    continue;
-        if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
+
+        if(tangible && robotkidnapped){}
+            //continue;
+        else if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
+
             updateCellulo()
             var pressureGrid = field.pressureGrid
             var yGridSpacing = field.yGridSpacing

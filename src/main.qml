@@ -61,7 +61,7 @@ ApplicationWindow {
     MainMenu{
         id: mainMenu
 
-        onGame1Clicked: stateEngine.goToStateByName('Game1')
+        onGame1Clicked: stateEngine.goToStateByName('Tutorial1')
         onGame2Clicked: stateEngine.goToStateByName('Game2')
     }
 
@@ -71,11 +71,13 @@ ApplicationWindow {
         enabled: false
         baseName: 'Tutorial1'
         numScreens: 5
-        animBaseNames:  ['ballon',  '',         '',             '',             'feel']
-        animNumImages:  [120,       120,        51,             51,             36]
-        animDurations:  [2400,      2400,       2000,           2000,           1400]
-        animSizeCoeffs: [0.5,       0.5,        0.5,            0.5,            0.35]
+        animBaseNames:          ['ballon',  '',         '',             'wind1',        'feel']
+        animNumImages:          [120,       80,         51,             80,             36]
+        animDurations:          [2400,      2000,       2000,           2000,           1400]
+        animSizeCoeffs:         [0.5,       0.5,        0.5,            0.7,            0.35]
+        animBottomMarginCoeffs: [0.07,      0.07,       0.07,           0.15,           0.07]
         onFinished: stateEngine.goToStateByName('Game1')
+        onWentBack: stateEngine.goToStateByName('MainMenu')
     }
 
     MainGameField{
