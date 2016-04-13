@@ -102,7 +102,7 @@ Item{
             testLeaf.leafY = startcoords.y
             testLeaf.leafXV = 0
             testLeaf.leafYV = 0
-            testLeaf.leafMass = 2
+            //testLeaf.leafMass = 2
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
@@ -130,7 +130,7 @@ Item{
             testLeaf.leafY = startcoords.y
             testLeaf.leafXV = 0
             testLeaf.leafYV = 0
-            testLeaf.leafMass = 2
+            //testLeaf.leafMass = 2
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
@@ -161,7 +161,7 @@ Item{
             testLeaf.leafY = pressurefield.height/2
             testLeaf.leafXV = 0
             testLeaf.leafYV = 0
-            testLeaf.leafMass = 1
+            //testLeaf.leafMass = 1
             testLeaf.leafSize = 150
             testLeaf.leafXF = 0
             testLeaf.leafYF = 0
@@ -262,6 +262,7 @@ Item{
                 leaves[0].updateCellulo()
             case 2:
                 setInitialConfigurationGame2()
+                leaves[0].updateCellulo()
             }
         }
 
@@ -313,6 +314,11 @@ Item{
                 for (var i = 0; i < numLeaves; i++)
                     leaves[i].updateLeaf()
             }
+            else{
+                for (var i = 0; i < numLeaves; i++)
+                    leaves[i].updateCellulo()
+            }
+
             if (gameMode===1) {
                 for (var i = 0; i < numLeaves; i++)
                     if(leaves[i].tangible){

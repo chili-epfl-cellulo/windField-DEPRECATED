@@ -198,7 +198,7 @@ Rectangle {
         }
 
         //Lives
-        Row{
+        /*Row{
             id: livesBox
             anchors.top: parent.top
             anchors.bottom: parent.bottom
@@ -225,7 +225,7 @@ Rectangle {
                 font.bold: true
                 text:"x" + numberOfLifes
             }
-        }
+        }*/
 
         //Separator
         Rectangle{
@@ -239,7 +239,7 @@ Rectangle {
         }
 
         //Timer
-        Item{
+        /*Item{
             enabled: gameMode === 2
             visible: enabled
 
@@ -277,7 +277,7 @@ Rectangle {
                     }
                 }
             }
-        }
+        }*/
 
         //Score in game 1
         Item{
