@@ -15,6 +15,10 @@ Item{
     width: parent.width
     height: parent.height
 
+    readonly property real startX: 95
+    readonly property real startY: 960
+    readonly property real startTheta: 90
+
     property variant robot: null
     property variant playground: playground
     property int fieldWidth: 2418
@@ -23,6 +27,99 @@ Item{
     property alias windfield: windfield
 
     visible: false
+
+    StateEngine{
+        id: mainGameFieldStateEngine
+
+        states: [
+            'OutsideStartArea',
+            'ReadyToStart',
+            'Running',
+            'CollidedWithWall',
+            'Won'
+        ]
+
+        onCurrentStateChanged: {
+            console.log("*********state***********" + currentState)
+            switch(currentState){
+            case 'OutsideStartArea':
+                cellulo1.robotComm.setGoalPose(startX, startY, startTheta, 150, 5);
+                cellulo1.alert(Qt.rgba(1,0,0,1),2);
+                break;
+            case 'ReadyToStart':
+                cellulo1.alert(Qt.rgba(0,1,0,1),2);
+                break;
+            case 'Running':
+
+                break;
+            case 'CollidedWithWall':
+
+                break;
+            case 'Won':
+
+                break;
+            default:
+                break;
+            }
+        }
+
+        Component.onCompleted: {
+            cellulo1.robotComm.onKidnappedChanged.connect(robotKidnappedChanged);
+            cellulo1.robotComm.onPoseChanged.connect(robotPoseChanged);
+        }
+
+        function robotOnStart(){
+            var xDiff = cellulo1.robotComm.x - startX;
+            var yDiff = cellulo1.robotComm.y - startY;
+            return Math.sqrt(xDiff*xDiff + yDiff*yDiff) < 20 && !cellulo1.robotComm.kidnapped;
+        }
+
+        function robotPoseChanged(){
+            switch(currentState){
+            case 'OutsideStartArea':
+                if(robotOnStart())
+                    goToStateByName('ReadyToStart');
+                break;
+            case 'ReadyToStart':
+                if(!robotOnStart())
+                    goToStateByName('OutsideStartArea');
+                break;
+            case 'Running':
+
+                break;
+            case 'CollidedWithWall':
+
+                break;
+            case 'Won':
+
+                break;
+            default:
+                break;
+            }
+        }
+
+        function robotKidnappedChanged(){
+            switch(currentState){
+            case 'OutsideStartArea':
+                break;
+            case 'ReadyToStart':
+                if(cellulo1.robotComm.kidnapped)
+                    goToStateByName('OutsideStartArea');
+                break;
+            case 'Running':
+
+                break;
+            case 'CollidedWithWall':
+
+                break;
+            case 'Won':
+
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
     Canvas3D {
         id: windfield
@@ -47,13 +144,13 @@ Item{
         property int currentAction: 0
 
         //Set the leaves here
-        property variant leaves: [testLeaf]
+        property variant leaves: [theLeaf]
         property int numLeaves: 1
 
 
         //Game Logic stuff
         property int nblifes: 3
-        property int gameMode: 0
+        property int gameMode: 2
         property int bonus: 0
 
         // For Game 1
@@ -98,17 +195,17 @@ Item{
             console.log("startpoints")
             //startcoords =  Qt.point(50,50)
             console.log(startcoords.x, startcoords.y)
-            testLeaf.leafX = startcoords.x
-            testLeaf.leafY = startcoords.y
-            testLeaf.leafXV = 0
-            testLeaf.leafYV = 0
-            //testLeaf.leafMass = 2
-            testLeaf.leafSize = 150
-            testLeaf.leafXF = 0
-            testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 0
-            testLeaf.leafYFDrag = 0
-            testLeaf.collided = false
+            theLeaf.leafX = startcoords.x
+            theLeaf.leafY = startcoords.y
+            theLeaf.leafXV = 0
+            theLeaf.leafYV = 0
+            //theLeaf.leafMass = 2
+            theLeaf.leafSize = 150
+            theLeaf.leafXF = 0
+            theLeaf.leafYF = 0
+            theLeaf.leafXFDrag = 0
+            theLeaf.leafYFDrag = 0
+            theLeaf.collided = false
 
             pauseSimulation()
         }
@@ -126,17 +223,17 @@ Item{
             console.log("startpoints")
             //startcoords =  Qt.point(50,50)
             console.log(startcoords.x, startcoords.y)
-            testLeaf.leafX = startcoords.x
-            testLeaf.leafY = startcoords.y
-            testLeaf.leafXV = 0
-            testLeaf.leafYV = 0
-            //testLeaf.leafMass = 2
-            testLeaf.leafSize = 150
-            testLeaf.leafXF = 0
-            testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 0
-            testLeaf.leafYFDrag = 0
-            testLeaf.collided = false
+            theLeaf.leafX = startcoords.x
+            theLeaf.leafY = startcoords.y
+            theLeaf.leafXV = 0
+            theLeaf.leafYV = 0
+            //theLeaf.leafMass = 2
+            theLeaf.leafSize = 150
+            theLeaf.leafXF = 0
+            theLeaf.leafYF = 0
+            theLeaf.leafXFDrag = 0
+            theLeaf.leafYFDrag = 0
+            theLeaf.collided = false
             //robot.coords.x = center.x
             //robot.coords.y = center.y
             //robot.setGobalPose(center.x, center.y, 0.0, 0.0, 0.0)
@@ -157,17 +254,17 @@ Item{
 
 
             //Set test leaf info
-            testLeaf.leafX = 10*pressurefield.xGridSpacing
-            testLeaf.leafY = pressurefield.height/2
-            testLeaf.leafXV = 0
-            testLeaf.leafYV = 0
-            //testLeaf.leafMass = 1
-            testLeaf.leafSize = 150
-            testLeaf.leafXF = 0
-            testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 0
-            testLeaf.leafYFDrag = 0
-            testLeaf.collided = false
+            theLeaf.leafX = 10*pressurefield.xGridSpacing
+            theLeaf.leafY = pressurefield.height/2
+            theLeaf.leafXV = 0
+            theLeaf.leafYV = 0
+            //theLeaf.leafMass = 1
+            theLeaf.leafSize = 150
+            theLeaf.leafXF = 0
+            theLeaf.leafYF = 0
+            theLeaf.leafXFDrag = 0
+            theLeaf.leafYFDrag = 0
+            theLeaf.collided = false
 
             pauseSimulation()
 
@@ -384,7 +481,7 @@ Item{
         }
 
         Leaf {
-            id: testLeaf
+            id: theLeaf
             field: pressurefield
             robot: parent.parent.robot
             allzones: playground

@@ -132,32 +132,6 @@ Item {
             timeStep = (currentMillis - lastMillis)/1000;
         lastMillis = currentMillis;
 
-        /*if (collided) {
-            return;
-        }*/
-        /*else if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
-            updateCellulo()
-            console.log("=============================================")
-            var pressureGrid = field.pressureGrid
-            var yGridSpacing = field.yGridSpacing
-            var xGridSpacing = field.xGridSpacing
-            calculateForcesAtLeaf()
-            var netForceX = leafXF + leafXFDrag
-            var netForceY = leafYF + leafYFDrag
-
-            //update position from one time step given current velocity and current force
-            var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
-            var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
-
-            leafXV += netForceX/leafMass*timeStep
-            leafYV += netForceY/leafMass*timeStep
-            leafX += deltaX
-            leafY += deltaY
-
-            if(robot.robotComm.connected)
-                robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
-        }else{*/
-
         //Game 2
         if(windfield.gameMode === 2){
 
