@@ -7,21 +7,19 @@ import QtQuick.Controls.Styles 1.3
 import QtBluetooth 5.2
 import Cellulo 1.0
 
-
-
-Item {
+Rectangle {
 
     function em(x){ return Math.round(x*TextSingleton.font.pixelSize); }
 
     property bool mobile: Qt.platform.os === "android"
     property real gWidth: mobile ? Screen.width : 640
-    property variant windfield: windField
     property variant robot: cellulo1
     property double startTime: 0
     property variant playground: playground
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
     property int totalpoint: 0
+    property int gameMode: windfield.gameMode
 
     function togglePaused() {
         windfield.paused = !windfield.paused
@@ -59,409 +57,286 @@ Item {
             windfield.leaves[i].calculateForcesAtLeaf()
     }
 
-    function showInfo(){}
+    function showInfo(){
+        console.log("showInfo clicked");
+    }
 
-    Column {
-        id: menuView
-        x: 20
-        y: 5
-        width: parent.width - 40
-        //state: "CLOSED"
-        height: 310
+    function checkCorrectness(){
+        console.log("checkCorrectness clicked");
+    }
 
+    width: parent.width
+    height: 0.19375*Screen.height
+    color: Qt.rgba(1,1,1,0.6)
+    radius: 155
 
-        Rectangle {
-            anchors.fill: parent
-            //            border.width: 5
-            //            border.color: "white"
-            color: Qt.rgba(1,1,1,0.6)
-            //opacity: 0.6
-            radius:155
+    RowLayout {
+        anchors.margins: 20
+        anchors.fill: parent
+        spacing: parent.height/10
+
+        //Info button
+        Item{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Image{
+                id: infoButtonImg
+                anchors.verticalCenter: parent.verticalCenter
+                height: 0.15*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/help.svg"
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: showInfo()
+                }
+            }
         }
 
-        RowLayout {
-            anchors.fill: parent
-            //anchors.horizontalCenter: parent.horizontalCenter
-            //anchors.topMargin: parent.top
-            spacing: parent.height/10
+        //Pressure switch
+        Item{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
 
             Column {
-                Item {
-                    width: 150
-                    height: 150
-                    Rectangle{
-                        id: infobutton
-                        width: 150
-                        height: 150
-                        radius:width*0.5
-                        border.width:2
-                        border.color: "black"
-                        color:"transparent"
-                        Text {
-                            id: infoText
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.family: "Helvetica"
-                            font.pointSize: 40
-                            font.bold: true
-                            text: "?"
-                        }
-                        MouseArea {
-                            anchors.fill: infobutton
-                            onClicked:  showInfo()
+                id: pressureButton
+
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 20
+
+                property bool switchOn: false
+
+                Image{
+                    id: pressureButtonImg
+                    height: 0.08*Screen.height
+                    fillMode: Image.PreserveAspectFit
+                    source: "../assets/buttons/" + (pressureButton.switchOn ? "gradientOn.svg" : "gradientOff.svg")
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            pressureButton.switchOn = !pressureButton.switchOn;
+                            windfield.drawPressureGrid = pressureButton.switchOn;
+                            if(pressureButton.switchOn)
+                                updateSimulation();
                         }
                     }
                 }
-            }
 
-            Column {
-                Item {
-                    id: pressurebutton
-                    width: 150
-                    height: width/2
-                    Rectangle{
-                        id: pressureSwitch
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        width: 150
-                        height: width/2
-                        radius:width*0.5
-                        border.width:5
-                        border.color: "black"
-                        color:"gray"
-                        Rectangle{
-                            id: pressureBall
-                            width: parent.height -border.width
-                            height: width
-                            radius:width*0.5
-                            border.width: 5
-                            anchors.verticalCenter: parent.verticalCenter
-                            border.color: "black"
-                            color:"black"
-                            state:( windfield.drawPressureGrid ? "anchorRight" : "anchorLeft")
-                            states:[
-                                State {
-                                    name: "anchorRight"
-                                    AnchorChanges {
-                                        target: pressureBall
-                                        anchors.right: parent.right
-                                        anchors.left: undefined
-                                    }
-                                    PropertyChanges {
-                                        target: pressureSwitch;
-                                        color:"green"
-                                    }
-                                },
-                                State {
-                                    name: "anchorLeft"
-                                    AnchorChanges {
-                                        target: pressureBall
-                                        anchors.left: parent.left
-                                        anchors.right: undefined
-                                    }
-                                    PropertyChanges {
-                                        target: pressureSwitch;
-                                        color:"gray"
-                                    }
-                                }
-                            ]
-                        }
-                        MouseArea {
-                            anchors.fill: pressureSwitch
-                            onClicked: {
-                                windfield.drawPressureGrid = (windfield.drawPressureGrid ? false : true)
-                                pressureBall.state = ( windfield.drawPressureGrid ? "anchorRight" : "anchorLeft")
-                            }
-                        }
-                    }
-                    Text{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: pressureSwitch.bottom
-                        font.family: "Helvetica"
-                        font.pointSize: 12
-                        font.bold: true
-                        text:"Pressure gradient"
+                Text{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.family: "Helvetica"
+                    font.pointSize: 12
+                    font.bold: true
+                    text:"View pressure"
+                }
+            }
+        }
+
+        //Separator
+        Rectangle{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: 10
+            radius:width*0.5
+            border.width:4
+            border.color: "white"
+            color:"white"
+        }
+
+        //Play button
+        Item{
+            enabled: gameMode === 2
+            visible: enabled
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Image{
+                anchors.verticalCenter: parent.verticalCenter
+                height: 0.15*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/" + (windfield.paused ? "playOn.svg" : "playOff.svg")
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked:{
+                        updateSimulation();
+                        togglePaused();
                     }
                 }
             }
+        }
 
+        //Check button
+        Item{
+            enabled: gameMode === 1
+            visible: enabled
 
-            Column {
-                Rectangle{
-                    width: 4
-                    height: 150
-                    radius:width*0.5
-                    border.width:4
-                    border.color: "white"
-                    color:"white"
-                }
-            }
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
 
-            Column {
-                id:hiddenMenuView
-                spacing:0
-                RowLayout{
-                    Column {
-                        Item {
-                            id: button
-                            width: 100
-                            height: 100
-                            signal clicked
-                            enabled: windfield.paused
-                            Image {
-                                id: backgroundImage
-                                anchors.fill: parent
-                                source: (button.enabled ? "../assets/buttons/updateOn.png" : "../assets/buttons/updateOff.png")
+            Image{
+                anchors.verticalCenter: parent.verticalCenter
+                height: 0.15*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/go.svg"
 
-
-                                //Mouse area to react on click events
-                                MouseArea {
-                                    anchors.fill: backgroundImage
-                                    onClicked: { updateSimulation()
-                                        backgroundImage.source = (button.enabled ? "../assets/buttons/updateOn.png" : "../assets/buttons/updateOff.png")
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-
-                    Column {
-                        id:menu
-                        spacing:0
-                        Item {
-                            id: buttonPause
-                            width: 100
-                            height: 100
-                            Image {
-                                id: playImage
-                                anchors.fill: parent
-                                source: (windfield.paused ? "../assets/buttons/playOn.svg" : "../assets/buttons/playOff.svg")
-                            }
-
-                            MouseArea {
-                                anchors.fill: buttonPause
-                                onClicked: {togglePaused()
-                                   // playImage.source = (windfield.paused ? "assets/buttons/playOn.png" : "assets/buttons/playOff.png")
-                                }
-                            }
-                        }
-
-
-                        Button {
-                            id: reset
-                            text: qsTr("Reset")
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            onClicked: {
-                                startTime=0;
-                                pressurePointPanel.removeOwnedPressurePoints();
-                                pressurefield.resetWindField()
-                                //windfield.setInitialTestConfiguration()
-                                windfield.setInitialConfiguration()
-                                windfield.setPressureFieldTextureDirty()
-                                windfield.pauseSimulation()
-                                if(robot.robotComm.connected)
-                                robot.robotComm.reset();
-                                timer.restart()
-                            }
-                        }
-                    }
-
-                    Column {
-                        id:actionCol
-                        Text {
-                            text: " Action Menu: "
-                        }
-                        ComboBox {
-                            id: actionMenu
-                            currentIndex: 0
-
-                            style: ComboBoxStyle {
-                                background: Rectangle {
-                                    implicitWidth: 300
-                                    implicitHeight: 50
-                                    border.width: control.activeFocus ? 2 : 1
-                                    border.color: "#888"
-                                    radius: 4
-                                    gradient: Gradient {
-                                        GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
-                                        GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
-                                    }
-                                }
-                            }
-                            model: ListModel {
-                                id: cbItems
-                                ListElement { text: "Move Pressure"; color: "White" }
-                                ListElement { text: "Add Low Pressure (High)"; color: "White" }
-                                ListElement { text: "Add Low Pressure (Medium)"; color: "White" }
-                                ListElement { text: "Add Low Pressure (Low)"; color: "White" }
-                                ListElement { text: "Add High Pressure (Low)"; color: "White" }
-                                ListElement { text: "Add High Pressure (Medium)"; color: "White" }
-                                ListElement { text: "Add High Pressure (High)"; color: "White" }
-                                ListElement { text: "Remove Pressure"; color: "White" }
-                            }
-                            onCurrentIndexChanged: {
-                                windfield.currentAction = currentIndex;
-                                //windfield.currentAction = currentIndex;
-                            }
-                        }
-                        Button {
-                            id: removeAll
-                            text: qsTr("Clear All Pressure")
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            //style: pause.style
-                            onClicked: {
-                                pressurefield.resetWindField()
-                            }
-                        }
-                    }
-
-
-
-                    Column{
-                        id: itemsCol
-                        anchors.left:actionCol.right
-                        GroupBox {
-                            id: statusBox
-                            title: "Status"
-                            width: parent.height
-
-                            Column{
-                                spacing: 5
-
-                                Row{
-                                    spacing: 5
-
-                                    Text{
-                                        text: "Battery State: " + (robot.robotComm.connected? robot.robotComm.batteryState:"")
-                                    }
-                                }
-                                Row{
-                                    spacing: 5
-
-                                    Text{
-                                        text: "Kidnapped?"
-                                        color: robot.robotComm.kidnapped ? "red" : "green"
-                                    }
-                                    Text{
-                                        text: "X=" + parseInt(robot.robotComm.x) + "\n Y=" + parseInt(robot.robotComm.y) + " \nTheta=" + parseInt(robot.robotComm.theta)
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-
-
-
-            }
-
-            Column{
-                id:lifescol
-                Row {
-                    //anchors.horizontalCenter: parent.horizontalCenter
-                    //anchors.left: parent.left
-                    spacing: 5
-                    Repeater {
-                        model: numberOfLifes
-                        Image {
-
-                            source: "../assets/lifeOn.png"
-                        }
-                    }
-                    Repeater {
-                        model: (3 - numberOfLifes)
-                        Image {
-
-                            source: "../assets/lifeOff.png"
-                        }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked:{
+                        updateSimulation();
+                        checkCorrectness();
                     }
                 }
             }
+        }
 
+        //Lives
+        Row{
+            id: livesBox
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
 
+            spacing: 20
 
+            Item{
+                anchors.top: livesBox.top
+                anchors.bottom: livesBox.bottom
+                width: childrenRect.width
 
-            Column {
-                Rectangle{
-                    width: 4
-                    height: 150
-                    radius:width*0.5
-                    border.width:4
-                    border.color: "white"
-                    color:"white"
+                Image{
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: 0.15*Screen.height
+                    fillMode: Image.PreserveAspectFit
+                    source: "../assets/lifeOn.png"
                 }
             }
 
+            Text{
+                anchors.verticalCenter: parent.verticalCenter
+                font.family: "Helvetica"
+                font.pointSize: 36
+                font.bold: true
+                text:"x" + numberOfLifes
+            }
+        }
 
-           /* Column{
-                id:zoneMenu
-                //anchors.right: bonusMenu.left
-                Rectangle{
-                    width: 270
-                    height: 100
-                    radius:30
+        //Separator
+        Rectangle{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: 10
+            radius:width*0.5
+            border.width:4
+            border.color: "white"
+            color:"white"
+        }
 
-                    color:"transparent"
+        //Timer
+        Item{
+            enabled: gameMode === 2
+            visible: enabled
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Rectangle{
+                anchors.verticalCenter: parent.verticalCenter
+                width: 0.15*Screen.width
+                height: 0.1*Screen.height
+                radius: 30
+                border.width: 3
+                border.color: "black"
+                color: "transparent"
+
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 15
+
+                    Image{
+                        height: timeText.height
+                        fillMode: Image.PreserveAspectFit
+                        source: "../assets/time.svg"
+                    }
+
                     Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.family: "Helvetica"
-                        font.pointSize: 25
-                        font.bold: true
-                        text: cellulo1.checkZone()
-                    }
-                }
-               }*/
+                        id: timeText
 
-            Column{
-                id:timerMenu
-                //anchors.right: bonusMenu.left
-                Rectangle{
-                    width: 270
-                    height: 100
-                    radius:30
-                    border.width:3
-                    border.color: "black"
-                    color:"transparent"
-                    Text {
-                        id: timetext
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
                         font.family: "Helvetica"
                         font.pointSize: 25
                         font.bold: true
                         text: parseInt(secondsElapsed/1000) + '\''+parseInt(secondsElapsed/100) +"\""
                     }
                 }
-               }
-                Column{
-                    id:bonusMenu
-                    //anchors.right: parent.right
-                    Rectangle{
-                        width: 100
-                        height: 100
-                        radius:width*0.5
-                        border.width:2
-                        border.color: "black"
-                        color:"#00a4e3"
-
-                    Text {
-                        id: scoretext
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.family: "Helvetica"
-                        font.pointSize: 25
-                        font.bold: true
-                        color:"white"
-                        text: totalpoint
-                    }
-                    }
-
-
             }
-
         }
 
+        //Score in game 1
+        Item{
+            enabled: gameMode === 1
+            visible: enabled
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Rectangle{
+                anchors.verticalCenter: parent.verticalCenter
+                width: 0.2*Screen.width
+                height: 0.07*Screen.width
+                radius: width*0.25
+                border.width: 3
+                border.color: "black"
+                color:"#aaff794d"
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.family: "Helvetica"
+                    font.pointSize: 25
+                    font.bold: true
+                    color:"white"
+                    text: (totalpoint > 0 ? totalpoint : "-") + " km"
+                }
+            }
+        }
+
+        //Score in game 2
+        Item{
+            enabled: gameMode === 2
+            visible: enabled
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Rectangle{
+                anchors.verticalCenter: parent.verticalCenter
+                width: 0.07*Screen.width
+                height: width
+                radius: width*0.5
+                border.width: 3
+                border.color: "black"
+                color:"#aa14b4f0"
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.family: "Helvetica"
+                    font.pointSize: 25
+                    font.bold: true
+                    color:"white"
+                    text: totalpoint
+                }
+            }
+        }
     }
 }

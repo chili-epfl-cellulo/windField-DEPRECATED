@@ -33,7 +33,7 @@ function initializeGL(canvas, pressurefield, leaves, numLeaves) {
 /***INITIALIZATION HELPER METHODS***/
 function initCamera(pressurefield) {
     console.log("Initialize Camera")
-    camera = new THREE.OrthographicCamera(0, windField.width, windField.height, 0, 0.1, 5000);
+    camera = new THREE.OrthographicCamera(0, windfield.width, windfield.height, 0, 0.1, 5000);
     camera.position.z = pressurefield.height;
 }
 
@@ -41,7 +41,7 @@ function initScene(pressurefield, leaves, numLeaves) {
     console.log("Initialize Scene")
     scene = new THREE.Scene();
     //Initialize geometries and materials/shaders
-    var backgroundGeom = new THREE.PlaneBufferGeometry(windField.width, windField.height, 1, 1)
+    var backgroundGeom = new THREE.PlaneBufferGeometry(windfield.width, windfield.height, 1, 1)
     var pressureFieldGeom = new THREE.PlaneBufferGeometry(pressurefield.width, pressurefield.height, 1, 1)
     var leafGeom;
     if (numLeaves)
@@ -52,11 +52,11 @@ function initScene(pressurefield, leaves, numLeaves) {
 
     //Create meshes and add them to the scene
     backgroundObject = new THREE.Mesh(backgroundGeom, backgroundMaterial)
-    backgroundObject.position.x = windField.width/2
-    backgroundObject.position.y = windField.height/2
+    backgroundObject.position.x = windfield.width/2
+    backgroundObject.position.y = windfield.height/2
     pressureFieldObject = new THREE.Mesh(pressureFieldGeom, pressureFieldMaterial)
-    pressureFieldObject.position.x = pressurefield.width/2 + windField.robotMinX
-    pressureFieldObject.position.y = pressurefield.height/2 + windField.robotMinY
+    pressureFieldObject.position.x = pressurefield.width/2 + windfield.robotMinX
+    pressureFieldObject.position.y = pressurefield.height/2 + windfield.robotMinY
     pressureFieldObject.position.z = 200
 
     for (var i = 0; i < numLeaves; i++) {
@@ -241,8 +241,8 @@ function paintGL(pressurefield, leaves, numLeaves) {
 
     //Set leaf position
     for (var i = 0; i < numLeaves; i++) {
-        leafObjects[i].position.x = leaves[i].leafX + windField.robotMinX;
-        leafObjects[i].position.y = windField.height - leaves[i].leafY - windField.robotMinY;
+        leafObjects[i].position.x = leaves[i].leafX + windfield.robotMinX;
+        leafObjects[i].position.y = windfield.height - leaves[i].leafY - windfield.robotMinY;
         if (leaves[i].collided) {
             leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
             leafObjects[i].material.needsUpdate = true;
@@ -281,9 +281,9 @@ function paintGL(pressurefield, leaves, numLeaves) {
             leafVelocityVectors[i].setLength(leafVelocityDirection.length()*200);
         }
 
-        leafDragVectors[i].visible = windField.drawLeafForceVectors && (dragLength > 0);
-        leafForceVectors[i].visible = windField.drawLeafForceVectors && (forceLength > 0);
-        leafVelocityVectors[i].visible = windField.drawLeafVelocityVector && (velocityLength > 0);
+        leafDragVectors[i].visible = windfield.drawLeafForceVectors && (dragLength > 0);
+        leafForceVectors[i].visible = windfield.drawLeafForceVectors && (forceLength > 0);
+        leafVelocityVectors[i].visible = windfield.drawLeafVelocityVector && (velocityLength > 0);
     }
 
     //Update pressurefield texture as necessary given new pressurefield values
@@ -292,7 +292,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
         pressureFieldObject.material = pressureFieldMaterial;
     }
 
-    pressureFieldObject.material.visible = windField.drawPressureGrid;
+    pressureFieldObject.material.visible = windfield.drawPressureGrid;
     pressureFieldObject.material.needsUpdate = true;
 
     for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
@@ -319,8 +319,8 @@ function paintGL(pressurefield, leaves, numLeaves) {
         var yGridSpacing = pressurefield.yGridSpacing;
         var curRow = Math.floor(pressurefield.pressurePoints[i].position.y/yGridSpacing);
         var curCol = Math.floor(pressurefield.pressurePoints[i].position.x/xGridSpacing);
-        pressureInputCellObjects[i].position.x = curCol*xGridSpacing+xGridSpacing/2.0 + windField.robotMinX;
-        pressureInputCellObjects[i].position.y = (pressurefield.numRows - curRow)*yGridSpacing-yGridSpacing/2 + windField.robotMinY;
+        pressureInputCellObjects[i].position.x = curCol*xGridSpacing+xGridSpacing/2.0 + windfield.robotMinX;
+        pressureInputCellObjects[i].position.y = (pressurefield.numRows - curRow)*yGridSpacing-yGridSpacing/2 + windfield.robotMinY;
     }
 
     //Render the scene

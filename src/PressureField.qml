@@ -12,11 +12,11 @@ Item {
 
     readonly property int maxPressurePoints: 10
 
-    readonly property int numCols: windField.fieldWidth/12
-    readonly property int numRows: windField.fieldHeight/12
+    readonly property int numCols: windfield.fieldWidth/12
+    readonly property int numRows: windfield.fieldHeight/12
 
-    readonly property double xGridSpacing: (windField.fieldWidth/numCols)
-    readonly property double yGridSpacing: (windField.fieldHeight/numRows)
+    readonly property double xGridSpacing: (windfield.fieldWidth/numCols)
+    readonly property double yGridSpacing: (windfield.fieldHeight/numRows)
 
     //Controls how much force there is per unit of pressure difference
     readonly property double pressureToForceMultiplier: 1
@@ -47,7 +47,7 @@ Item {
     }
 
     /***PRESSURE FIELD INITIALIZATION***/
-    function resetWindField() {
+    function resetwindfield() {
         var rows = new Array(numRows)
         for (var i = 0; i < numRows; i++) {
             var column = new Array(numCols)
@@ -70,10 +70,10 @@ Item {
         for (var i = 0; i < maxPressurePoints; i++) {
             pressurePoints[i] = new pressurePointObject()
         }
-        //windField.setObstacles()
+        //windfield.setObstacles()
     }
 
-    function resetWindFieldBis() {
+    function resetwindfieldBis() {
         var rows = new Array(numRows)
         for (var i = 0; i < numRows; i++) {
             var column = new Array(numCols)
@@ -91,7 +91,7 @@ Item {
             rows[i]=column
         }
         pressureGrid = rows
-        //windField.setObstacles()
+        //windfield.setObstacles()
     }
 
     function resetPressureAtPressurePoints() {
@@ -108,13 +108,13 @@ Item {
     function updateField() {
         //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
         //resetPressureAtPressurePoints()
-        resetWindFieldBis()
+        resetwindfieldBis()
         updatePressureGridBis()
         //for (var i = 0; i < convergenceIterations; i++) {
 
         //resetPressureAtPressurePoints()
         //}
-        windField.setPressureFieldTextureDirty()
+        windfield.setPressureFieldTextureDirty()
         calculateForceVectors()
     }
 
@@ -201,7 +201,7 @@ Item {
     }
 
     function calculateForceVectors() {
-        if (!windField.drawForceGrid)
+        if (!windfield.drawForceGrid)
             return;
         for (var row = 0; row < numRows; row++) {
             for (var col = 0; col < numCols; col++) {
@@ -367,14 +367,14 @@ Item {
         id: touchArea
         anchors.fill: parent
         maximumTouchPoints: maxPressurePoints
-        enabled: windField.paused
+        enabled: windfield.paused
 
         onReleased: {
             var length = touchPoints.length
             for (var t = 0; t < length; t++) {
                 var row = Math.floor(touchPoints[t].y/yGridSpacing)
                 var col = Math.floor(touchPoints[t].x/xGridSpacing)
-                switch(windField.currentAction) {
+                switch(windfield.currentAction) {
                     //Note: For cases 1 and 2 gridIndex stores the starting touch point of the gesture so that we can identify which pressurepoint to remove
                 case 1:
                 case 2:
@@ -382,7 +382,7 @@ Item {
                 case 4:
                 case 5:
                 case 6:
-                    var pressureSetting = windField.currentAction - 3
+                    var pressureSetting = windfield.currentAction - 3
                     if (pressureSetting <= 0)
                         pressureSetting--
 
@@ -432,14 +432,14 @@ Item {
             for (var t = 0; t < length; t++) {
                 var startRow = Math.floor(touchPoints[t].startY/yGridSpacing)
                 var startCol = Math.floor(touchPoints[t].startX/xGridSpacing)
-                switch (windField.currentAction) {
+                switch (windfield.currentAction) {
                 case 1:
                 case 2:
                 case 3:
                 case 4:
                 case 5:
                 case 6:
-                    var pressureSetting = windField.currentAction - 3
+                    var pressureSetting = windfield.currentAction - 3
                     if (pressureSetting <= 0)
                         pressureSetting--
                     for (var i = 0; i < maxPressurePoints; i++) {
@@ -478,7 +478,7 @@ Item {
                 var col = Math.floor(touchPoints[t].x/xGridSpacing)
                 var prevRow = Math.floor(touchPoints[t].previousY/yGridSpacing)
                 var prevCol = Math.floor(touchPoints[t].previousX/xGridSpacing)
-                switch (windField.currentAction) {
+                switch (windfield.currentAction) {
                 case 1:
                 case 2:
                 case 3:
