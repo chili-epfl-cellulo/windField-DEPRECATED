@@ -78,12 +78,12 @@ Item{
         }
 
         function setInitialConfiguration(){
-         switch (gameMode){
-         case 1:
-             setInitialConfigurationGame1()
-         case 2:
-             setInitialConfigurationGame2()
-         }
+            switch (gameMode){
+            case 1:
+                setInitialConfigurationGame1()
+            case 2:
+                setInitialConfigurationGame2()
+            }
 
         }
 
@@ -121,7 +121,7 @@ Item{
             var center = getCenterFromPoly(startp)
             var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth)/pressurefield.numCols)
 
-             //var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
+            //var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
             console.log("startpoints")
             //startcoords =  Qt.point(50,50)
             console.log(startcoords.x, startcoords.y)
@@ -226,7 +226,7 @@ Item{
         function hidePressurePoint(){
             var nbLow = nbOfHiddenPPoint/2
 
-            pressurefield.addPressurePointHidden(50,15,-3,false) //todo remove this test
+            pressurefield.addPressurePointHidden(5,5,-3,false) //todo remove this test
             pressurefield.addPressurePointHidden(50,15,-3,true) //todo remove this test
             for(var i=0; i< nbLow; i++){
                 pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),-3, false)
@@ -315,8 +315,7 @@ Item{
             if (gameMode===1) {
                 for (var i = 0; i < numLeaves; i++)
                     if(leaves[i].tangible){
-                        console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
-                    leaves[i].updateLeaf()
+                        leaves[i].updateLeaf()
                     }
             }
             GLRender.paintGL(pressurefield, leaves, numLeaves)

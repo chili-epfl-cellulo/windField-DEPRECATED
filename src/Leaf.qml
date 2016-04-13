@@ -128,11 +128,10 @@ Item {
         if (collided) {
             return;
         }
-        if(tangible && robotkidnapped)
-            continue;
-        else if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
+        //if(tangible && robotkidnapped)
+        //    continue;
+        if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
             updateCellulo()
-            console.log("=============================================")
             var pressureGrid = field.pressureGrid
             var yGridSpacing = field.yGridSpacing
             var xGridSpacing = field.xGridSpacing
@@ -150,7 +149,9 @@ Item {
             leafY += deltaY
 
             if(robot.robotComm.connected)
-                robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
+                console.log(netForceX, netForceY)
+                robot.setGlobalSpeeds(netForceX/field.numRows *660, netForceY /field.numCols*1700, 0.0);
+
         }else{
             var pressureGrid = field.pressureGrid
             var yGridSpacing = field.yGridSpacing
@@ -169,7 +170,7 @@ Item {
             leafY += deltaY
 
             if(robot.robotComm.connected)
-                robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
+               robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
 
             if( currentZone!==''){
                 if(zoneNameList.indexOf(currentZone)>=0 && zoneHistory.indexOf(currentZone)<0){
