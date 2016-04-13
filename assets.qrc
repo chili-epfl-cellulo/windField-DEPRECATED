@@ -26,5 +26,6 @@
         <file>assets/buttons/gradientOff.svg</file>
         <file>assets/buttons/gradientOn.svg</file>
         <file>assets/buttons/help.svg</file>
+        <file>assets/time.svg</file>
     </qresource>
 </RCC>

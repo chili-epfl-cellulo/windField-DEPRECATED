@@ -137,7 +137,7 @@ Rectangle {
         Rectangle{
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width: 4
+            width: 10
             radius:width*0.5
             border.width:4
             border.color: "white"
@@ -240,34 +240,51 @@ Rectangle {
         Rectangle{
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width: 4
+            width: 10
             radius:width*0.5
             border.width:4
             border.color: "white"
             color:"white"
         }
 
-        Column{
-            id:timerMenu
-            //anchors.right: bonusMenu.left
+        //Timer
+        Item{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
             Rectangle{
-                width: 270
-                height: 100
-                radius:30
+                anchors.verticalCenter: parent.verticalCenter
+                width: 0.15*Screen.width
+                height: 0.1*Screen.height
+                radius: 30
                 border.width:3
                 border.color: "black"
-                color:"transparent"
-                Text {
-                    id: timetext
+                color: "transparent"
+
+                Row{
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
-                    font.family: "Helvetica"
-                    font.pointSize: 25
-                    font.bold: true
-                    text: parseInt(secondsElapsed/1000) + '\''+parseInt(secondsElapsed/100) +"\""
+                    spacing: 15
+
+                    Image{
+                        height: timeText.height
+                        fillMode: Image.PreserveAspectFit
+                        source: "../assets/time.svg"
+                    }
+
+                    Text {
+                        id: timeText
+
+                        font.family: "Helvetica"
+                        font.pointSize: 25
+                        font.bold: true
+                        text: parseInt(secondsElapsed/1000) + '\''+parseInt(secondsElapsed/100) +"\""
+                    }
                 }
             }
         }
+
         Column{
             id:bonusMenu
             //anchors.right: parent.right
