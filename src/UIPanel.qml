@@ -19,6 +19,7 @@ Rectangle {
     property double secondsElapsed: 0
     property int numberOfLifes: windfield.nblifes
     property int totalpoint: 0
+    property int gameMode: windfield.gameMode
 
     function togglePaused() {
         windfield.paused = !windfield.paused
@@ -58,6 +59,10 @@ Rectangle {
 
     function showInfo(){
         console.log("showInfo clicked");
+    }
+
+    function checkCorrectness(){
+        console.log("checkCorrectness clicked");
     }
 
     width: parent.width
@@ -144,6 +149,9 @@ Rectangle {
 
         //Play button
         Item{
+            enabled: gameMode === 2
+            visible: enabled
+
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
@@ -159,6 +167,31 @@ Rectangle {
                     onClicked:{
                         updateSimulation();
                         togglePaused();
+                    }
+                }
+            }
+        }
+
+        //Check button
+        Item{
+            enabled: gameMode === 1
+            visible: enabled
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Image{
+                anchors.verticalCenter: parent.verticalCenter
+                height: 0.15*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/go.svg"
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked:{
+                        updateSimulation();
+                        checkCorrectness();
                     }
                 }
             }
