@@ -57,7 +57,9 @@ Rectangle {
             windfield.leaves[i].calculateForcesAtLeaf()
     }
 
-    function showInfo(){}
+    function showInfo(){
+        console.log("showInfo clicked");
+    }
 
 
     x: 20
@@ -73,31 +75,21 @@ Rectangle {
         spacing: parent.height/10
 
         //Info button
-        Column {
-            Item {
-                width: 150
-                height: 150
-                Rectangle{
-                    id: infobutton
-                    width: 150
-                    height: 150
-                    radius:width*0.5
-                    border.width:2
-                    border.color: "black"
-                    color:"transparent"
-                    Text {
-                        id: infoText
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.family: "Helvetica"
-                        font.pointSize: 40
-                        font.bold: true
-                        text: "?"
-                    }
-                    MouseArea {
-                        anchors.fill: infobutton
-                        onClicked:  showInfo()
-                    }
+        Item{
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Image{
+                id: infoButtonImg
+                anchors.verticalCenter: parent.verticalCenter
+                height: 0.15*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/help.svg"
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: showInfo()
                 }
             }
         }

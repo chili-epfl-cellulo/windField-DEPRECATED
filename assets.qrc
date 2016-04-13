@@ -25,5 +25,6 @@
         <file>assets/lifeOff.png</file>
         <file>assets/buttons/gradientOff.svg</file>
         <file>assets/buttons/gradientOn.svg</file>
+        <file>assets/buttons/help.svg</file>
     </qresource>
 </RCC>
