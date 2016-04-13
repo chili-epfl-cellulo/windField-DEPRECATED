@@ -1,16 +1,71 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve">
 
-<g id="gradientOn">
-	<g>
-		<path fill="#00D25C" d="M75.9,173.6c-25.3,0-45.9-20.6-45.9-45.9s20.6-45.9,45.9-45.9h104.9c25.3,0,45.9,20.6,45.9,45.9
-			s-20.6,45.9-45.9,45.9H75.9z"/>
-		<path fill="none" stroke="#1C0030" stroke-width="4.6693" stroke-linejoin="round" stroke-miterlimit="10" d="M75.9,77.2h104.9
-			c27.9,0,50.5,22.6,50.5,50.5v0c0,27.9-22.6,50.5-50.5,50.5H75.9c-27.9,0-50.5-22.6-50.5-50.5v0C25.4,99.9,48,77.2,75.9,77.2z"/>
-		<circle fill="#FFFFFF" cx="180.2" cy="127.8" r="42.3"/>
-	</g>
-</g>
-
-</svg>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 210.5693 105.6693"
+   enable-background="new 0 0 256 256"
+   xml:space="preserve"
+   id="svg2"
+   inkscape:version="0.48.4 r9939"
+   width="100%"
+   height="100%"
+   sodipodi:docname="gradientOn.svg"><metadata
+     id="metadata17"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs15" /><sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="0.921875"
+     inkscape:cx="104.93465"
+     inkscape:cy="52.53465"
+     inkscape:window-x="0"
+     inkscape:window-y="35"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" /><g
+     id="gradientOn"
+     transform="translate(-23.06535,-74.86535)"><g
+       id="g5"><path
+         d="M 75.9,173.6 C 50.6,173.6 30,153 30,127.7 30,102.4 50.6,81.8 75.9,81.8 h 104.9 c 25.3,0 45.9,20.6 45.9,45.9 0,25.3 -20.6,45.9 -45.9,45.9 H 75.9 z"
+         id="path7"
+         inkscape:connector-curvature="0"
+         style="fill:#00d25c" /><path
+         stroke-miterlimit="10"
+         d="m 75.9,77.2 h 104.9 c 27.9,0 50.5,22.6 50.5,50.5 v 0 c 0,27.9 -22.6,50.5 -50.5,50.5 H 75.9 C 48,178.2 25.4,155.6 25.4,127.7 v 0 C 25.4,99.9 48,77.2 75.9,77.2 z"
+         id="path9"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#1c0030;stroke-width:4.66930008;stroke-linejoin:round;stroke-miterlimit:10" /><circle
+         cx="180.2"
+         cy="127.8"
+         r="42.299999"
+         id="circle11"
+         sodipodi:cx="180.2"
+         sodipodi:cy="127.8"
+         sodipodi:rx="42.299999"
+         sodipodi:ry="42.299999"
+         style="fill:#ffffff"
+         d="m 222.5,127.8 c 0,23.36165 -18.93836,42.3 -42.3,42.3 -23.36165,0 -42.3,-18.93835 -42.3,-42.3 0,-23.36164 18.93835,-42.299996 42.3,-42.299996 23.36164,0 42.3,18.938356 42.3,42.299996 z" /></g></g></svg>

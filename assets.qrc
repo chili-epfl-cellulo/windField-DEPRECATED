@@ -23,5 +23,7 @@
         <file>assets/buttons/cancelPDialog.svg</file>
         <file>assets/lifeOn.png</file>
         <file>assets/lifeOff.png</file>
+        <file>assets/buttons/gradientOff.svg</file>
+        <file>assets/buttons/gradientOn.svg</file>
     </qresource>
 </RCC>
