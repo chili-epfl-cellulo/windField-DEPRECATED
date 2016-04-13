@@ -73,10 +73,12 @@ Item {
             choosePointLevelDialog.showDialog(img.x, img.y - img.height);
             if(prevRow < 0 || prevCol < 0){
                 putInGame(row, col, ilevel);
-                pressurefield.addPressurePoint(row,col,ilevel);
+                if(windfield.gameMode==2 )
+                    pressurefield.addPressurePoint(row,col,ilevel);
             }
             else{
                 updated(prevRow, prevCol, row, col, ilevel);
+                if(windfield.gameMode==2 )
                 pressurefield.addOrUpdatePressurePoint(prevRow,prevCol,row,col,ilevel);
             }
         }

@@ -62,6 +62,7 @@ Rectangle {
     }
 
     function checkCorrectness(){
+        windfield.checkPPoint()
         console.log("checkCorrectness clicked");
     }
 

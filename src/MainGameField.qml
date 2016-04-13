@@ -370,10 +370,6 @@ Item{
                     if(leaves[i].tangible){
                         leaves[i].updateLeaf()
                     }
-                if (!paused) {
-                    checkPPoint()
-                    paused=true
-                }
             }
              GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
