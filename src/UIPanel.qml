@@ -240,6 +240,9 @@ Rectangle {
 
         //Timer
         Item{
+            enabled: gameMode === 2
+            visible: enabled
+
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
@@ -276,8 +279,41 @@ Rectangle {
             }
         }
 
-        //Score
+        //Score in game 1
         Item{
+            enabled: gameMode === 1
+            visible: enabled
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: childrenRect.width
+
+            Rectangle{
+                anchors.verticalCenter: parent.verticalCenter
+                width: 0.2*Screen.width
+                height: 0.07*Screen.width
+                radius: width*0.25
+                border.width: 3
+                border.color: "black"
+                color:"#aaff794d"
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.family: "Helvetica"
+                    font.pointSize: 25
+                    font.bold: true
+                    color:"white"
+                    text: (totalpoint > 0 ? totalpoint : "-") + " km"
+                }
+            }
+        }
+
+        //Score in game 2
+        Item{
+            enabled: gameMode === 2
+            visible: enabled
+
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
@@ -289,7 +325,7 @@ Rectangle {
                 radius: width*0.5
                 border.width: 3
                 border.color: "black"
-                color:"#14b4f0"
+                color:"#aa14b4f0"
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
