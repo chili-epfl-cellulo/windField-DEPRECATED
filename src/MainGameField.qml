@@ -78,6 +78,8 @@ Item{
             pressurefield.addPressurePoint(r,c,pressureLevel)
         }
 
+
+
         function setInitialConfiguration(){
             switch (gameMode){
             case 1:
@@ -224,20 +226,66 @@ Item{
         function initGame(){
             //todo
         }
+
+
+        ////////////////////// GAME LOGIC RELATED FUNCTIONS
+        function checkPPoint(){
+            for(var hp = 0; hp < nbOfHiddenPPoint;hp++){
+                console.log('hiddeen at ', hiddenPPointList[hp][0], hiddenPPointList[hp][1])
+                for(var up = 0; up < userPPoint.length;up++){
+                    console.log('found a ap point at ', userPPoint[up].row, userPPoint[up].col, userPPoint[up].ilevel)
+                    if(hiddenPPointList[hp][2]===userPPoint[up].ilevel){ // check if pressure level is the same
+                        var d = Math.sqrt((hiddenPPointList[hp][0]-userPPoint[up].row)*(hiddenPPointList[hp][0]-userPPoint[up].row) + (hiddenPPointList[hp][1]-userPPoint[up].col)*(hiddenPPointList[hp][1]-userPPoint[up].col))
+                        console.log('distance of ', d)
+                        if(d < 10){
+                            foundPPointList.push(userPPoint[up])
+
+
+                        }
+                        else
+                            userPPoint[up].putImageBack()
+                    }
+                }
+            }
+            showChecked()
+        }
+
+        function showChecked(){
+            for(var up = 0; up < userPPoint.length;up++){
+                if(foundPPointList.indexOf(userPPoint[up])>=0){
+                    userPPoint[up].state="correct"
+                    //userPPoint[up].lockPosition()
+                }
+                else{
+                    userPPoint[up].state="incorrect"
+                    //userPPoint[up].lockPosition()
+                }
+            }
+
+        }
+
         function hidePressurePoint(){
             var nbLow = nbOfHiddenPPoint/2
 
             pressurefield.addPressurePointHidden(5,5,-3,false) //todo remove this test
             pressurefield.addPressurePointHidden(50,15,-3,true) //todo remove this test
+            var row = 0
+            var col = 0
             for(var i=0; i< nbLow; i++){
-                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),-3, false)
+                row = getRandomInt(0,pressurefield.numRows)
+                col = getRandomInt(0,pressurefield.numCols)
+                pressurefield.addPressurePointHidden(row,col,-3, false)
+                hiddenPPointList.push([row,col,-3])
             }
             for(var i=0; i< (nbOfHiddenPPoint- nbLow); i++){
-                pressurefield.addPressurePointHidden(getRandomInt(0,pressurefield.numRows),getRandomInt(0,pressurefield.numCols),3, false)
+                row = getRandomInt(0,pressurefield.numRows)
+                col = getRandomInt(0,pressurefield.numCols)
+                pressurefield.addPressurePointHidden(row,col,3, false)
+                hiddenPPointList.push([row,col,3])
             }
         }
 
-        ////////////////////// GAME LOGIC RELATED FUNCTIONS
+
         function timeChanged(){
             if(!windfield.paused){
                 if(startTime == 0)
@@ -318,10 +366,12 @@ Item{
                     if(leaves[i].tangible){
                         leaves[i].updateLeaf()
                     }
+                if (!paused) {
+                    checkPPoint()
+                    paused=true
+                }
             }
-            GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
-
         function setPressureFieldTextureDirty() {
             GLRender.pressureFieldUpdated = true;
         }
@@ -362,7 +412,13 @@ Item{
                 name: "ready"
                 PropertyChanges {target: ontopPanel; visible:false}
                 PropertyChanges {target: windfield; nblifes:windfield.nblifes}
-            }
+            },
+            State{
+                           name: "checked" //game 1
+                           PropertyChanges {target: ontopPanel; visible:"playagain"}
+                           PropertyChanges {target: windField; nblifes:(windField.nblifes<=0 ? 0 : windField.nblifes-1)}
+                           //PropertyChanges {target: windField; foundPPointList.length: }
+                       }
         ]
 
 
