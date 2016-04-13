@@ -23,6 +23,32 @@ Item{
         }
     }
 
+    Rectangle{
+        width: 700
+        height: 300
+        y: 3*parent.height/4
+        anchors.horizontalCenter: parent.horizontalCenter
+        color: cellulo1.robotComm.connected ? "white" : "gray"
+        radius: width*0.5
+        opacity: 0.6
+
+        Text{
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            font.family: "Helvetica"
+            font.pointSize: 50
+            font.bold: true
+            text: cellulo1.robotComm.connected ? "GO!" : "Connecting..."
+        }
+
+        MouseArea{
+            enabled: cellulo1.robotComm.connected
+            anchors.fill: parent
+            onClicked: game2Clicked()
+        }
+    }
+
+    /*
     RowLayout{
         spacing: 200
         y: 3*parent.height/4
@@ -77,6 +103,6 @@ Item{
                 }
             }
         }
-    }
+    }*/
 }
 

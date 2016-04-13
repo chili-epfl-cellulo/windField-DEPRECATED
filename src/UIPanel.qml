@@ -76,7 +76,7 @@ Rectangle {
         spacing: parent.height/10
 
         //Info button
-        Item{
+        /*Item{
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
@@ -93,7 +93,7 @@ Rectangle {
                     onClicked: showInfo()
                 }
             }
-        }
+        }*/
 
         //Pressure switch
         Item{
