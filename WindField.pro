@@ -38,12 +38,12 @@ OTHER_FILES += \
     src/StateEngine.qml \
     src/PressurePointPanel.qml \
     src/PressurePointLevelDialog.qml \
-    src/PressurePoint.qml \
     src/PressureField.qml \
     src/MainMenu.qml \
     src/TutorialAnimation.qml \
     src/main.qml \
     src/Tutorial.qml \
     src/MainGameField.qml \
-    src/UIPanel.qml
+    src/UIPanel.qml \
+    src/DummyPressurePoint.qml
 

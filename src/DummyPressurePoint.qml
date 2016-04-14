@@ -25,12 +25,14 @@ Item {
 
 
     state:"inPlay"
+
+
     function removeForcefully(){
         choosePointLevelDialog.hideDialog();
         putImageBack();
         if(row >= 0 && col >= 0){
             removedFromGame(row, col);
-            pressurefield.removePressurePoint(row, col);
+            //pressurefield.removePressurePoint(row, col);
         }
         row = -1;
         col = -1;
@@ -58,113 +60,34 @@ Item {
 
         //Moved outside game area
         if(row < 0 || col < 0 || col >= pressurefield.numCols || row >= pressurefield.numRows){
-            choosePointLevelDialog.hideDialog();
+            //choosePointLevelDialog.hideDialog();
             putImageBack();
-            if(prevRow >= 0 && prevCol >= 0){
+            /*if(prevRow >= 0 && prevCol >= 0){
                 removedFromGame(prevRow, prevCol);
-                pressurefield.removePressurePoint(prevRow,prevCol);
-            }
+                //pressurefield.removePressurePoint(prevRow,prevCol);
+            }*/
             row = -1;
             col = -1;
         }
 
         //Moved inside game area
         else{
-            choosePointLevelDialog.showDialog(img.x, img.y - img.height);
             if(prevRow < 0 || prevCol < 0){
-                putInGame(row, col, ilevel);
-                if(windfield.gameMode==2 )
-                    pressurefield.addPressurePoint(row,col,ilevel);
+                putInGame(row, col, ilevel);                
             }
             else{
                 updated(prevRow, prevCol, row, col, ilevel);
-                if(windfield.gameMode==2 )
-                pressurefield.addOrUpdatePressurePoint(prevRow,prevCol,row,col,ilevel);
             }
         }
-    }
-
-    ListModel{
-        id: lowpressureModel
-
-        ListElement{
-            imagePath: "../assets/lowPressure3.png"
-            name: "lll"
-            plevel: -3
-        }
-        ListElement{
-            imagePath: "../assets/lowPressure2.png"
-            name: "ll"
-            plevel: -2
-        }
-        ListElement{
-            imagePath: "../assets/lowPressure1.png"
-            name: "l"
-            plevel: -1
-        }
-        ListElement{
-            imagePath: "../assets/buttons/cancelPDialog.svg"
-            name: "cancel"
-            plevel: 0
-        }
-    }
-
-    ListModel{
-        id: highpressureModel
-
-        ListElement{
-            imagePath: "../assets/highPressure3.png"
-            name: "hhh"
-            plevel: 3
-        }
-        ListElement{
-            imagePath: "../assets/highPressure2.png"
-            name: "hh"
-            plevel: 2
-        }
-        ListElement{
-            imagePath: "../assets/highPressure1.png"
-            name: "h"
-            plevel: 1
-        }
-        ListElement{
-            imagePath: "../assets/buttons/cancelPDialog.svg"
-            name: "cancel"
-            plevel: 0
-        }
-    }
-
-    PressurePointLevelDialog{
-        id: choosePointLevelDialog
-        dialogModel: ilevel < 0 ? lowpressureModel : highpressureModel
-        onClicked: {
-            updateProperties(plevel);
-            hideDialog();
-        }
-        onDialogShown: root.z = 100
-        onDialogHidden: root.z = 0
     }
 
     Image {
         id: img
-
         opacity: 1
         source:
             switch (ilevel){
-            case -1:
-                "../assets/lowPressure1.png"
-                break;
-            case -2:
-                "../assets/lowPressure2.png"
-                break;
             case -3:
                 "../assets/lowPressure3.png"
-                break;
-            case 1:
-                "../assets/highPressure1.png"
-                break;
-            case 2:
-                "../assets/highPressure2.png"
                 break;
             case 3:
                 "../assets/highPressure3.png"
@@ -188,15 +111,15 @@ Item {
                 id: checkImage
                 visible:false
                 opacity: 1
-                source:"../assets/buttons/right.png"
-                 /**   switch (root.state){
+                source: "../assets/buttons/right.png"
+                  /* switch (root.state){
                     case "correct":
-                        "../assets/buttons/right.png"
+
                         break;
                     case "incorrect":
                         "../assets/buttons/wrong.png"
                         break;
-                    }**/
+                    }*/
                 height: imageHeight
                 fillMode: Image.PreserveAspectFit
 

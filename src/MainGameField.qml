@@ -95,17 +95,7 @@ Item{
         }
 
         function setInitialConfigurationGame1(){
-            //setObstaclesfromZones()
-            //Set test leaf info
-
-            var startp = playground.zones[0]["path"]
-            var center = getCenterFromPoly(startp)
-            var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
-            console.log("startpoints")
-            //startcoords =  Qt.point(50,50)
-            console.log(startcoords.x, startcoords.y)
-            testLeaf.leafX = startcoords.x
-            testLeaf.leafY = startcoords.y
+            testLeaf.updateCellulo()
             testLeaf.leafXV = 0
             testLeaf.leafYV = 0
             testLeaf.leafMass = 2
@@ -115,7 +105,7 @@ Item{
             testLeaf.leafXFDrag = 0
             testLeaf.leafYFDrag = 0
             testLeaf.collided = false
-
+            testLeaf.resetRobotVelocity()
             pauseSimulation()
         }
 
@@ -149,40 +139,6 @@ Item{
             pauseSimulation()
         }
 
-        function setInitialTestConfiguration(){
-
-            //Set pressure point
-            pressurefield.addPressurePoint(0,0,3)
-            pressurefield.addPressurePoint(14,0,3)
-            pressurefield.addPressurePoint(0,25,3)
-            pressurefield.addPressurePoint(14,25,3)
-            pressurefield.addPressurePoint(7,12,-3)
-            pressurefield.addPressurePoint(8,12,-3)
-            pressurefield.addPressurePoint(7,13,-3)
-            pressurefield.addPressurePoint(8,13,-3)
-
-
-            //Set test leaf info
-            testLeaf.leafX = 10*pressurefield.xGridSpacing
-            testLeaf.leafY = pressurefield.height/2
-            testLeaf.leafXV = 0
-            testLeaf.leafYV = 0
-            testLeaf.leafMass = 1
-            testLeaf.leafSize = 150
-            testLeaf.leafXF = 0
-            testLeaf.leafYF = 0
-            testLeaf.leafXFDrag = 0
-            testLeaf.leafYFDrag = 0
-            testLeaf.collided = false
-
-            pauseSimulation()
-
-        }
-
-        // - Set obstacle spots
-        function setObstacles() {
-            pressurefield.pressureGrid[10][30][6] = 0
-        }
 
         // - Set the obstales from the obstaclezone list of ZonesF
         function setObstaclesfromZones(){
@@ -207,33 +163,21 @@ Item{
                         pressurefield.pressureGrid[coord.y][coord.x][6] = 0
 
                     }
-                    // - try to fill the zone with obstacle
-                    // TODO : NOT COVERING THE WHOLE ZONE
-                    /*for (var px = minPX ; px<maxPX; px++){
-                        for (var py = minPY ; py<maxPY ; py++){
-                            if(isPointInPoly(pathcoord, Qt.point(py,px)))
-                                pressurefield.pressureGrid[py][px][6] = 0
-                        }
-                    }*/
                 }
             }
         }
 
         function pauseSimulation() {
-            paused = false;
-            uicontrols.togglePaused()
+            paused = !paused;
         }
 
-        function initGame(){
-            //todo
-        }
+
 
 
         ////////////////////// GAME LOGIC RELATED FUNCTIONS
         function checkPPoint(){
 
             for(var hp = 0; hp < nbOfHiddenPPoint;hp++){
-                console.log('hiddeen at ', hiddenPPointList[hp][0], hiddenPPointList[hp][1])
                 for(var up = 0; up < userPPoint.length;up++){
                     console.log('found a ap point at ', userPPoint[up].row, userPPoint[up].col, userPPoint[up].ilevel)
                     if(hiddenPPointList[hp][2]===userPPoint[up].ilevel){ // check if pressure level is the same
@@ -241,15 +185,18 @@ Item{
                         console.log('distance of ', d)
                         sumDist+=d
                         if(d < 10){
+                            console.log( hiddenPPointList)
                             foundPPointList.push(userPPoint[up])
-
-
+                            console.log( userPPoint[up])
+                            hiddenPPointList.pop(hp)
+                            console.log( hiddenPPointList)
                         }
                         else
                             userPPoint[up].putImageBack()
                     }
                 }
             }
+            console.logs('==========================')
             showChecked()
             uicontrols.totalpoint  = 1/sumDist
         }
@@ -258,11 +205,9 @@ Item{
             for(var up = 0; up < userPPoint.length;up++){
                 if(foundPPointList.indexOf(userPPoint[up])>=0){
                     userPPoint[up].state="correct"
-                    //userPPoint[up].lockPosition()
                 }
                 else{
                     userPPoint[up].state="incorrect"
-                    //userPPoint[up].lockPosition()
                 }
             }
 
@@ -361,7 +306,7 @@ Item{
 
         //Since we do no update the pressure grid while the simulation is running, the only thing we have to update then are the leaves
         onPaintGL: {
-            if (!paused) {
+            if (!paused && gameMode!==1) {
                 for (var i = 0; i < numLeaves; i++)
                     leaves[i].updateLeaf()
             }
@@ -369,9 +314,11 @@ Item{
                 for (var i = 0; i < numLeaves; i++)
                     if(leaves[i].tangible){
                         leaves[i].updateLeaf()
+                    }else{
+                        leaves[i].updateCellulo()
                     }
             }
-             GLRender.paintGL(pressurefield, leaves, numLeaves)
+            GLRender.paintGL(pressurefield, leaves, numLeaves)
         }
         function setPressureFieldTextureDirty() {
             GLRender.pressureFieldUpdated = true;
@@ -396,29 +343,37 @@ Item{
                 PropertyChanges {target: ontopPanel; state:"playagain"}
                 PropertyChanges {target: ontopPanel; visible:true}
                 PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
+                PropertyChanges {target: windfield; startTime: 0}
+                PropertyChanges {target: windfield; secondsElapsed: 0}
             },
             State{
                 name: "over"
                 PropertyChanges {target: ontopPanel; state:"gameover"}
                 PropertyChanges {target: ontopPanel; visible:true}
                 PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
+                PropertyChanges {target: windfield; startTime: 0}
+                PropertyChanges {target: windfield; secondsElapsed: 0}
             },
             State{
                 name: "win"
                 PropertyChanges {target: ontopPanel; state:"winr"}
                 PropertyChanges {target: ontopPanel; visible:true}
                 PropertyChanges {target: windfield; nblifes:windfield.nblifes}
+                PropertyChanges {target: windfield; startTime: 0}
+                PropertyChanges {target: windfield; secondsElapsed: 0}
             },
             State{
                 name: "ready"
                 PropertyChanges {target: ontopPanel; visible:false}
-                PropertyChanges {target: windfield; nblifes:windfield.nblifes}
+            },
+            State{
+                name: "waitconnect"
+                PropertyChanges {target: ontopPanel; visible:true}
             },
             State{
                 name: "checked" //game 1
                 PropertyChanges {target: ontopPanel; visible:"playagain"}
                 PropertyChanges {target: windField; nblifes:(windField.nblifes<=0 ? 0 : windField.nblifes-1)}
-                //PropertyChanges {target: windField; foundPPointList.length: }
             }
         ]
 
@@ -538,44 +493,54 @@ Item{
                 name: "info"
                 PropertyChanges {target: thetext; text:"Here some infos"}
                 PropertyChanges {target: backgroundImage; source:  "../assets/buttons/info.png"}
+            },
+            State{
+                name: "waiting"
+                PropertyChanges {target: thetext; text:"Not Connected"}
+                //PropertyChanges {target: backgroundImage; source:  "../assets/buttons/info.png"}
             }
         ]
 
     }
+
     ////////////////////// BOTTOM PANEL
     PressurePointPanel{
         id: pressurePointPanel
 
-        PressurePoint{
+        DummyPressurePoint{
             ilevel: 3
             id:ppoint1
             onPutInGame: console.log("****1****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****1****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****1****removedFromGame****"+prevr+" "+prevc)
+            initialImgY:0
         }
 
-        PressurePoint{
+        DummyPressurePoint{
             ilevel: 3
             id:ppoint2
             onPutInGame: console.log("****2****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****2****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****2****removedFromGame****"+prevr+" "+prevc)
+            initialImgY:ppoint1.initialImgY+20
         }
 
-        PressurePoint{
+        DummyPressurePoint{
             ilevel: -3
             id:ppoint3
             onPutInGame: console.log("****3****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****3****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****3****removedFromGame****"+prevr+" "+prevc)
+            initialImgY:ppoint2.initialImgY+20
         }
 
-        PressurePoint{
+        DummyPressurePoint{
             ilevel: -3
             id:ppoint4
             onPutInGame: console.log("****4****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****4****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)
+            initialImgY:ppoint3.initialImgY+20
         }
     }
 }

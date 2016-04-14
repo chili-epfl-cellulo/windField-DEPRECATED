@@ -48,7 +48,6 @@ Item {
 
     function updateCellulo() {
         //TODO: fill this in with code that makes the robot synchronise with the leaf representation
-
         if(robot.robotComm.connected){
             //robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
             leafX = robot.coords.x* fieldWidth
@@ -67,7 +66,6 @@ Item {
         leafYFDrag = 0
         robot.setGlobalSpeeds(0,0,0);
     }
-
 
     function calculateForcesAtLeaf() {
         //Calculate force acting on the leaf at current pressure conditions
@@ -123,15 +121,14 @@ Item {
         }
     }
 
-
     function updateLeaf() {
         if (collided) {
             return;
         }
-
-        if(tangible && robotkidnapped){}
-            //continue;
-        else if(tangible && !robotkidnapped){// motors of cellulo are off the leaf updates according to cellulo
+        if(!tangible){
+             updateCellulo()
+        }
+        else if(tangible){// motors of cellulo are on the leaf updates according to cellulo
 
             updateCellulo()
             var pressureGrid = field.pressureGrid
@@ -154,32 +151,7 @@ Item {
                 console.log(netForceX, netForceY)
                 robot.setGlobalSpeeds(netForceX/field.numRows *660, netForceY /field.numCols*1700, 0.0);
 
-        }else{
-            var pressureGrid = field.pressureGrid
-            var yGridSpacing = field.yGridSpacing
-            var xGridSpacing = field.xGridSpacing
-            calculateForcesAtLeaf()
-            var netForceX = leafXF + leafXFDrag
-            var netForceY = leafYF + leafYFDrag
-
-            //update position from one time step given current velocity and current force
-            var deltaX = leafXV*timeStep+.5*netForceX/leafMass*timeStep*timeStep
-            var deltaY = leafYV*timeStep+.5*netForceY/leafMass*timeStep*timeStep
-
-            leafXV += netForceX/leafMass*timeStep
-            leafYV += netForceY/leafMass*timeStep
-            leafX += deltaX
-            leafY += deltaY
-
-            if(robot.robotComm.connected)
-               robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
-
-            if( currentZone!==''){
-                if(zoneNameList.indexOf(currentZone)>=0 && zoneHistory.indexOf(currentZone)<0){
-                    bonus = bonus  + zoneScoreList[currentZone]
-                    zoneHistory.push(currentZone)
-                }
-            }
+        }
 
             // Arrived at the end of the map: WINS
             if (leafX -leafSize/4> windfield.fieldWidth) {
@@ -224,6 +196,6 @@ Item {
                 robot.setGlobalSpeeds(0,0,0);
             }
         }
-    }
+
 }
 

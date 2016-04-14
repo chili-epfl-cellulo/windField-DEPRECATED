@@ -15,6 +15,7 @@ ApplicationWindow {
     title: qsTr("Wind Field Game")
     visibility: "FullScreen"
     contentOrientation: Screen.orientation
+    property int keytouched:0
 
     StateEngine{
         id: stateEngine
@@ -188,25 +189,40 @@ ApplicationWindow {
         playground: playground
         robotId: 1
         robotComm.macAddr : "00:06:66:74:43:00"
+        robotComm.onConnectedChanged:{
+           if(robotComm.connected){
+                mainGameField.windfield.state="ready"
+            }
+           else{
+               mainGameField.windfield.state="waitconnect"
+           }
+        }
         robotComm.onKidnappedChanged:{
-            //if(state == "game1")
-            mainGameField.windfield.leaves[0].robotkidnapped = robotComm.kidnapped
-            mainGameField.windfield.leaves[0].setSpeedNull()
+            if(state == "game1"){
+                mainGameField.windfield.leaves[0].robotkidnapped = robotComm.kidnapped
+                mainGameField.windfield.leaves[0].setSpeedNull()
+            }
         }
         robotComm.onTouchBegan:{
-            //if(state == "game1")
-            mainGameField.windfield.leaves[0].tangible = true
-            console.log(mainGameField.windfield.leaves[0].tangible)
+            if(state == "game1"){
+               keytouched+=1
+            if(keytouched>0)
+               mainGameField.windfield.leaves[0].tangible = true
+               console.log(mainGameField.windfield.leaves[0].tangible)
+}
         }
 
         robotComm.onTouchReleased:{
-            //if(state == "game1")
-            mainGameField.windfield.leaves[0].tangible = false
-            console.log(mainGameField.windfield.leaves[0].tangible)
+            if(state == "game1"){
+                keytouched-=1
+                 if(keytouched<=0){
+                    mainGameField.windfield.leaves[0].tangible = false
+                    mainGameField.pause = true
+            console.log(mainGameField.windfield.leaves[0].tangible)}}
         }
         robotComm.onPoseChanged: {
             mainGameField.windfield.leaves[0].updateCellulo()
-            mainGameField.windfield.leaves[0].currentZone = cellulo1.checkZone()
+            //mainGameField.windfield.leaves[0].currentZone = cellulo1.checkZone()
         }
     }
 }

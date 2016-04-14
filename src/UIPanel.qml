@@ -16,23 +16,14 @@ Rectangle {
     property variant robot: cellulo1
     property double startTime: 0
     property variant playground: playground
-    property double secondsElapsed: 0
+    property double secondsElapsed: windfield.secondsElapsed
     property int numberOfLifes: windfield.nblifes
     property int totalpoint: 0
     property int gameMode: windfield.gameMode
 
-    function togglePaused() {
-        windfield.paused = !windfield.paused
-        if (windfield.paused){
-            //timer.stop()
 
-        }
-        else{
-            timer.restart()
 
-        }
-        //pressureUpdate.enabled = windfield.paused
-    }
+
 
     function toggleDisplaySetting(setting) {
         switch(setting){

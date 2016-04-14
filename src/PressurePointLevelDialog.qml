@@ -69,7 +69,7 @@ Rectangle{
 
     function showDialog(targetX, targetY){
         x = Math.min(targetX, Screen.width - width);
-        y = targetY;
+        y= targetY ;
         showDialogAnim.start();
         dialogShown();
     }

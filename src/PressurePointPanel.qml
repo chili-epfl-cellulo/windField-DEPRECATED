@@ -16,12 +16,12 @@ Rectangle {
 
     radius: pressurePointPanelRadius
 
-    readonly property real spacing: 15
+    readonly property real spacing: pressurePointPanelHeight/2
 
     function arrangeOwnedPressurePoints(){
         var currentPressurePointStockX = 0;
         for(var i=0;i<children.length;i++)
-            if(children[i].objectName === "PressurePoint"){
+            if(children[i].objectName === "DummyPressurePoint"){
                 children[i].initialImgX = currentPressurePointStockX + spacing;
                 children[i].initialImgY = spacing;
                 children[i].putImageBack();
@@ -31,7 +31,7 @@ Rectangle {
 
     function removeOwnedPressurePoints(){
         for(var i=0;i<children.length;i++)
-            if(children[i].objectName === "PressurePoint")
+            if(children[i].objectName === "DummyPressurePoint")
                 children[i].removeForcefully();
     }
 
