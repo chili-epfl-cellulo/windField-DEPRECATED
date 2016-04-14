@@ -16,7 +16,7 @@ Rectangle {
 
     radius: pressurePointPanelRadius
 
-    readonly property real spacing: pressurePointPanelHeight/2
+    property real spacing: pressurePointPanelHeight/2
 
     function arrangeOwnedPressurePoints(){
         var currentPressurePointStockX = 0;

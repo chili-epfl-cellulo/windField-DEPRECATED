@@ -243,7 +243,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         leafObjects[i].position.x = leaves[i].leafX + windfield.robotMinX;
         leafObjects[i].position.y = windfield.height - leaves[i].leafY - windfield.robotMinY;
-        if (leaves[i].collided || leaves[i].robotkidnapped) {
+        if (leaves[i].collided || (leaves[i].robotkidnapped && leaves[i].robot.robotComm.connected)) {
             leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
             leafObjects[i].material.needsUpdate = true;
         } else {

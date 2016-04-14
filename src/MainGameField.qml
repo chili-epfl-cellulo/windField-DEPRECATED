@@ -176,25 +176,29 @@ Item{
 
         ////////////////////// GAME LOGIC RELATED FUNCTIONS
         function checkPPoint(){
-
-            for(var hp = 0; hp < nbOfHiddenPPoint;hp++){
+            console.log("start checking  ...")
+            for(var hp = 0; hp < nbOfHiddenPPoint*3;){
                 for(var up = 0; up < userPPoint.length;up++){
                     console.log('found a ap point at ', userPPoint[up].row, userPPoint[up].col, userPPoint[up].ilevel)
-                    if(hiddenPPointList[hp][2]===userPPoint[up].ilevel){ // check if pressure level is the same
-                        var d = Math.sqrt((hiddenPPointList[hp][0]-userPPoint[up].row)*(hiddenPPointList[hp][0]-userPPoint[up].row) + (hiddenPPointList[hp][1]-userPPoint[up].col)*(hiddenPPointList[hp][1]-userPPoint[up].col))
+                    console.log('hidden point at ', hiddenPPointList[hp], hiddenPPointList[hp+1],hiddenPPointList[hp+2])
+                    if(hiddenPPointList[hp+2]===userPPoint[up].ilevel){ // check if pressure level is the same
+                        var d = Math.sqrt((hiddenPPointList[hp][0]-userPPoint[up].row)*(hiddenPPointList[hp][0]-userPPoint[up].row) + (hiddenPPointList[hp+1]-userPPoint[up].col)*(hiddenPPointList[hp+1]-userPPoint[up].col))
                         console.log('distance of ', d)
                         sumDist+=d
+                        console.log('total distance ', sumDist)
                         if(d < 10){
                             console.log( hiddenPPointList)
                             foundPPointList.push(userPPoint[up])
-                            console.log( userPPoint[up])
-                            hiddenPPointList.pop(hp)
+                            //console.log( userPPoint[up])
+                            userPPoint.pop(up)
+                            hiddenPPointList.pop([hp,hp+1,hp+2])
                             console.log( hiddenPPointList)
                         }
-                        else
-                            userPPoint[up].putImageBack()
+                        //else
+                         //   userPPoint[up].putImageBack()
                     }
                 }
+                hp=+3
             }
             console.logs('==========================')
             showChecked()
@@ -215,9 +219,6 @@ Item{
 
         function hidePressurePoint(){
             var nbLow = nbOfHiddenPPoint/2
-
-            pressurefield.addPressurePointHidden(5,5,-3,false) //todo remove this test
-            pressurefield.addPressurePointHidden(50,15,-3,true) //todo remove this test
             var row = 0
             var col = 0
             for(var i=0; i< nbLow; i++){
@@ -232,6 +233,8 @@ Item{
                 pressurefield.addPressurePointHidden(row,col,3, false)
                 hiddenPPointList.push([row,col,3])
             }
+            console.log(hiddenPPointList)
+           // updateSimulation();
         }
 
 
@@ -251,7 +254,7 @@ Item{
             case 1:
                 setInitialConfigurationGame1()
                 leaves[0].resetRobotVelocity()
-                leaves[0].tangible = true
+                leaves[0].tangible = false
                 hidePressurePoint()
                 windfield.drawPressureGrid = false
                 uicontrols.updateSimulation()
@@ -299,6 +302,7 @@ Item{
         function getRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min)) + min;
         }
+
         ////////////////////// GL STUFFS
         onInitializeGL: {
             GLRender.initializeGL(windfield, pressurefield, leaves, numLeaves)
@@ -513,7 +517,7 @@ Item{
             onPutInGame: console.log("****1****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****1****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****1****removedFromGame****"+prevr+" "+prevc)
-            initialImgY:0
+            initialImgX:0
         }
 
         DummyPressurePoint{
@@ -522,7 +526,7 @@ Item{
             onPutInGame: console.log("****2****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****2****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****2****removedFromGame****"+prevr+" "+prevc)
-            initialImgY:ppoint1.initialImgY+20
+            initialImgX:ppoint1.initialImgX+20
         }
 
         DummyPressurePoint{
@@ -531,7 +535,7 @@ Item{
             onPutInGame: console.log("****3****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****3****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****3****removedFromGame****"+prevr+" "+prevc)
-            initialImgY:ppoint2.initialImgY+20
+            initialImgX:ppoint2.initialImgX+20
         }
 
         DummyPressurePoint{
@@ -540,7 +544,7 @@ Item{
             onPutInGame: console.log("****4****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****4****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)
-            initialImgY:ppoint3.initialImgY+20
+            initialImgX:ppoint3.initialImgX+20
         }
     }
 }

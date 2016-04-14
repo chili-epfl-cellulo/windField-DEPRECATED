@@ -13,7 +13,7 @@ Item {
 
     property int ilevel: -3
 
-    property real initialImgX: 0
+    property real initialImgX: null
     property real initialImgY: 0
 
     property int row: -1
@@ -112,14 +112,6 @@ Item {
                 visible:false
                 opacity: 1
                 source: "../assets/buttons/right.png"
-                  /* switch (root.state){
-                    case "correct":
-
-                        break;
-                    case "incorrect":
-                        "../assets/buttons/wrong.png"
-                        break;
-                    }*/
                 height: imageHeight
                 fillMode: Image.PreserveAspectFit
 
