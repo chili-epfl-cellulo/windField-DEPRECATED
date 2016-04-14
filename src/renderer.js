@@ -113,15 +113,15 @@ function initMaterials(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         var leaftexture =  THREE.ImageUtils.loadTexture('../assets/cellulo_balloon.png')
         leaftexture.minFilter = THREE.LinearFilter; //THREE.NearestFilter;
-       leafMaterials[i]  = new THREE.MeshBasicMaterial( { map:leaftexture ,transparent: true, opacity: 0.9});
+        leafMaterials[i]  = new THREE.MeshBasicMaterial( { map:leaftexture ,transparent: true, opacity: 0.9});
 
-        }
+    }
 
     for (var i = 0; i < pressurefield.maxPressurePoints; i++) {
         pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial({ color: Qt.rgba(1.0, 1.0, 1.0, 1.0),
-                                                                     ambient: 0x000000,
-                                                                     shading: THREE.SmoothShading})
-         //pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/highPressure.png')} );
+                                                                        ambient: 0x000000,
+                                                                        shading: THREE.SmoothShading})
+        //pressureInputCellMaterials[i] = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('assets/highPressure.png')} );
     }
 }
 
@@ -184,9 +184,9 @@ function getRGBA(intensity){
     } else if(intensity<4/7){
         return c3.lerp(c4,intensity);
     }else if(intensity<5/7){
-       return c4.lerp(c5,intensity);
+        return c4.lerp(c5,intensity);
     }else if(intensity<6/7){
-       return c5.lerp(c6,intensity);
+        return c5.lerp(c6,intensity);
     }else{
         return c6.lerp(c7,intensity);
     }
@@ -194,7 +194,7 @@ function getRGBA(intensity){
 
 
 
-  /**
+/**
    * Calculate the position of an object after a period of time.
    *
    * p = p0 + vt + at^2
@@ -205,15 +205,15 @@ function getRGBA(intensity){
    * @param  {Number}        t    time in seconds
    * @return {object}             {x, y} final position
    */
-  function calcPosition(p, v, a, t) {
+function calcPosition(p, v, a, t) {
     return {
-      x : p.x + (v.xComponent() * t + a.xComponent() * (t*t)),
-      y : p.y + (v.yComponent() * t + a.yComponent() * (t*t))
+        x : p.x + (v.xComponent() * t + a.xComponent() * (t*t)),
+        y : p.y + (v.yComponent() * t + a.yComponent() * (t*t))
     }
-  }
+}
 
 
-  /**
+/**
    * Calculates the velocity of an object after a period of time
    *
    * v = v0 + at
@@ -223,9 +223,9 @@ function getRGBA(intensity){
    * @param  {Number}       t    time passed in seconds
    * @return {EFH.Vector}        final velocity vector
    */
-  function calcVelocity(v, a, t) {
+function calcVelocity(v, a, t) {
     return v.add( a.mult(t) );
-  }
+}
 
 
 
@@ -243,13 +243,10 @@ function paintGL(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         leafObjects[i].position.x = leaves[i].leafX + windfield.robotMinX;
         leafObjects[i].position.y = windfield.height - leaves[i].leafY - windfield.robotMinY;
-        if (leaves[i].collided) {
-            leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
-            leafObjects[i].material.needsUpdate = true;
-        } else {
-            leafObjects[i].material.color = Qt.rgba(1,1,1,1);
-            leafObjects[i].material.needsUpdate = true;
-        }
+        //leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
+        //leafObjects[i].material.needsUpdate = true;
+        leafObjects[i].material.color = Qt.rgba(1,1,1,1);
+        leafObjects[i].material.needsUpdate = true;
 
         var leafDragDirection = new THREE.Vector3(leaves[i].leafXFDrag, -leaves[i].leafYFDrag, 0);
         var dragLength = leafDragDirection.length()

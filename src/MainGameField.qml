@@ -25,11 +25,15 @@ Item{
     property int fieldHeight: 950
 
     property alias windfield: windfield
+    property alias mainGameFieldStateEngine: mainGameFieldStateEngine
 
     visible: false
 
     StateEngine{
         id: mainGameFieldStateEngine
+
+        property bool canRun: currentState == 'ReadyToStart' || currentState == 'Running'
+        property bool isRunning: currentState == 'Running'
 
         states: [
             'OutsideStartArea',
@@ -40,32 +44,37 @@ Item{
         ]
 
         onCurrentStateChanged: {
-            console.log("*********state***********" + currentState)
+            console.log("********* Game state changed: " + currentState + " ************")
             switch(currentState){
             case 'OutsideStartArea':
                 cellulo1.robotComm.setGoalPose(startX, startY, startTheta, 150, 5);
-                cellulo1.alert(Qt.rgba(1,0,0,1),2);
+                cellulo1.fullColor = "red";
                 break;
             case 'ReadyToStart':
-                cellulo1.alert(Qt.rgba(0,1,0,1),2);
+                cellulo1.fullColor = "green";
                 break;
             case 'Running':
-
+                cellulo1.fullColor = "white";
                 break;
             case 'CollidedWithWall':
 
+                //LIFE DECREMENT
+
+                cellulo1.fullColor = "red";
+                cellulo1.robotComm.setGoalVelocity(0,0,1);
+                gameEndDialog.showCollided();
                 break;
             case 'Won':
 
+                //LIFE DECREMENT, SCORE DISPLAY
+
+                cellulo1.pulse(Qt.rgba(0,1,0,1));
+                cellulo1.robotComm.setGoalVelocity(0,0,1);
+                gameEndDialog.showWon();
                 break;
             default:
                 break;
             }
-        }
-
-        Component.onCompleted: {
-            cellulo1.robotComm.onKidnappedChanged.connect(robotKidnappedChanged);
-            cellulo1.robotComm.onPoseChanged.connect(robotPoseChanged);
         }
 
         function robotOnStart(){
@@ -74,7 +83,15 @@ Item{
             return Math.sqrt(xDiff*xDiff + yDiff*yDiff) < 20 && !cellulo1.robotComm.kidnapped;
         }
 
-        function robotPoseChanged(){
+        Component.onCompleted: {
+            cellulo1.robotComm.onPoseChanged.connect(cellulo1RobotCommPoseChanged);
+            cellulo1.robotComm.onKidnappedChanged.connect(cellulo1RobotCommKidnappedChanged);
+            gameEndDialog.resetClicked.connect(gameEndDialogresetClicked);
+            theLeaf.won.connect(leafWon);
+            theLeaf.collidedWithWall(leafCollidedWithWall);
+        }
+
+        function cellulo1RobotCommPoseChanged() {
             switch(currentState){
             case 'OutsideStartArea':
                 if(robotOnStart())
@@ -98,7 +115,7 @@ Item{
             }
         }
 
-        function robotKidnappedChanged(){
+        function cellulo1RobotCommKidnappedChanged() {
             switch(currentState){
             case 'OutsideStartArea':
                 break;
@@ -118,6 +135,21 @@ Item{
             default:
                 break;
             }
+        }
+
+        function leafCollidedWithWall() {
+            goToStateByName('CollidedWithWall');
+        }
+
+        function leafWon() {
+            goToStateByName('Won');
+        }
+
+        function gameEndDialogresetClicked() {
+            if(robotOnStart())
+                goToStateByName('ReadyToStart');
+            else
+                goToStateByName('OutsideStartArea');
         }
     }
 
@@ -176,12 +208,12 @@ Item{
         }
 
         function setInitialConfiguration(){
-         switch (gameMode){
-         case 1:
-             setInitialConfigurationGame1()
-         case 2:
-             setInitialConfigurationGame2()
-         }
+            switch (gameMode){
+            case 1:
+                setInitialConfigurationGame1()
+            case 2:
+                setInitialConfigurationGame2()
+            }
 
         }
 
@@ -205,9 +237,6 @@ Item{
             theLeaf.leafYF = 0
             theLeaf.leafXFDrag = 0
             theLeaf.leafYFDrag = 0
-            theLeaf.collided = false
-
-            pauseSimulation()
         }
 
 
@@ -219,7 +248,7 @@ Item{
             var center = getCenterFromPoly(startp)
             var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth)/pressurefield.numCols)
 
-             //var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
+            //var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
             console.log("startpoints")
             //startcoords =  Qt.point(50,50)
             console.log(startcoords.x, startcoords.y)
@@ -233,41 +262,9 @@ Item{
             theLeaf.leafYF = 0
             theLeaf.leafXFDrag = 0
             theLeaf.leafYFDrag = 0
-            theLeaf.collided = false
             //robot.coords.x = center.x
             //robot.coords.y = center.y
             //robot.setGobalPose(center.x, center.y, 0.0, 0.0, 0.0)
-            pauseSimulation()
-        }
-
-        function setInitialTestConfiguration(){
-
-            //Set pressure point
-            pressurefield.addPressurePoint(0,0,3)
-            pressurefield.addPressurePoint(14,0,3)
-            pressurefield.addPressurePoint(0,25,3)
-            pressurefield.addPressurePoint(14,25,3)
-            pressurefield.addPressurePoint(7,12,-3)
-            pressurefield.addPressurePoint(8,12,-3)
-            pressurefield.addPressurePoint(7,13,-3)
-            pressurefield.addPressurePoint(8,13,-3)
-
-
-            //Set test leaf info
-            theLeaf.leafX = 10*pressurefield.xGridSpacing
-            theLeaf.leafY = pressurefield.height/2
-            theLeaf.leafXV = 0
-            theLeaf.leafYV = 0
-            //theLeaf.leafMass = 1
-            theLeaf.leafSize = 150
-            theLeaf.leafXF = 0
-            theLeaf.leafYF = 0
-            theLeaf.leafXFDrag = 0
-            theLeaf.leafYFDrag = 0
-            theLeaf.collided = false
-
-            pauseSimulation()
-
         }
 
         // - Set obstacle spots
@@ -310,17 +307,6 @@ Item{
             }
         }
 
-        function pauseSimulation() {
-            paused = false;
-            uicontrols.togglePaused()
-            //timer.stop()
-            //secondsElapsed = 0
-            //startTime = 0
-        }
-
-        function initGame(){
-            //todo
-        }
         function hidePressurePoint(){
             var nbLow = nbOfHiddenPPoint/2
 
@@ -350,16 +336,13 @@ Item{
             switch(gameMode){
             case 1:
                 setInitialConfigurationGame1()
-                leaves[0].resetRobotVelocity()
                 leaves[0].tangible = true
                 hidePressurePoint()
                 windfield.drawPressureGrid = false
                 uicontrols.updateSimulation()
                 uicontrols.enabled = true //TODO CHnage in false
-                leaves[0].updateCellulo()
             case 2:
                 setInitialConfigurationGame2()
-                leaves[0].updateCellulo()
             }
         }
 
@@ -407,20 +390,14 @@ Item{
 
         //Since we do no update the pressure grid while the simulation is running, the only thing we have to update then are the leaves
         onPaintGL: {
-            if (!paused) {
-                for (var i = 0; i < numLeaves; i++)
-                    leaves[i].updateLeaf()
-            }
-            else{
-                for (var i = 0; i < numLeaves; i++)
-                    leaves[i].updateCellulo()
-            }
+            for (var i = 0; i < numLeaves; i++)
+                leaves[i].updateLeaf()
 
             if (gameMode===1) {
                 for (var i = 0; i < numLeaves; i++)
                     if(leaves[i].tangible){
                         console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
-                    leaves[i].updateLeaf()
+                        leaves[i].updateLeaf()
                     }
             }
             GLRender.paintGL(pressurefield, leaves, numLeaves)
@@ -439,37 +416,6 @@ Item{
             console.log('game mode')
             console.log(gameMode)
         }
-
-
-
-        ////////////////////// STATES
-        states:[
-            State{
-                name: "lost"
-                PropertyChanges {target: ontopPanel; state:"playagain"}
-                PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
-            },
-            State{
-                name: "over"
-                PropertyChanges {target: ontopPanel; state:"gameover"}
-                PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
-            },
-            State{
-                name: "win"
-                PropertyChanges {target: ontopPanel; state:"winr"}
-                PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windfield; nblifes:windfield.nblifes}
-            },
-            State{
-                name: "ready"
-                PropertyChanges {target: ontopPanel; visible:false}
-                PropertyChanges {target: windfield; nblifes:windfield.nblifes}
-            }
-        ]
-
-
 
         ////////////////////// EMBEDDED ITEMS
         PressureField {
@@ -515,80 +461,6 @@ Item{
         totalpoint:0
     }
 
-
-    Rectangle {
-        id: ontopPanel
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-        width: parent.width/2
-        height:  parent.height/2
-        color: Qt.rgba(1,1,1,0.6)
-        radius:110
-        visible:false
-        Text {
-            id:thetext
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: button.top
-            font.family: "Helvetica"
-            font.pointSize: 20
-            font.bold: true
-            text:""
-        }
-
-        Item {
-            id: button
-            width: 100
-            height: 100
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            Image {
-                id: backgroundImage
-                anchors.fill: parent
-                source:  "../assets/buttons/reset.svg"
-                MouseArea {
-                    anchors.fill: backgroundImage
-                    onClicked: { pressurefield.resetwindfield()
-                        windfield.setInitialConfiguration()
-                        windfield.setPressureFieldTextureDirty()
-                        windfield.pauseSimulation()
-                        windfield.state = "ready"
-                    }
-
-                }
-            }
-        }
-
-        states:[
-            State{
-                name: "playagain"
-                PropertyChanges {target: thetext; text:"Play again?"}
-                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/reset.svg"}
-            },
-            State{
-                name: "winr"
-                PropertyChanges {target: thetext; text:"You made it!"}
-                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/reset.svg"}
-                //todo add time and total points
-            },
-            State{
-                name: "wins"
-                PropertyChanges {target: thetext; text:"You made it!"}
-                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/gameover.png"}
-                //todo add time and total points
-            },
-            State{
-                name: "gameover"
-                PropertyChanges {target: thetext; text:"Game Over"}
-                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/gameover.png"}
-            },
-            State{
-                name: "info"
-                PropertyChanges {target: thetext; text:"Here some infos"}
-                PropertyChanges {target: backgroundImage; source:  "../assets/buttons/info.png"}
-            }
-        ]
-
-    }
     ////////////////////// BOTTOM PANEL
     PressurePointPanel{
         id: pressurePointPanel

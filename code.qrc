@@ -8,6 +8,7 @@
         <file>src/MainGameField.qml</file>
         <file>src/MainMenu.qml</file>
         <file>src/PressurePointPanel.qml</file>
+        <file>src/GameEndDialog.qml</file>
         <file>src/UIPanel.qml</file>
         <file>src/PressurePoint.qml</file>
         <file>src/PressurePointLevelDialog.qml</file>

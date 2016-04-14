@@ -11,8 +11,6 @@ Rectangle {
 
     function em(x){ return Math.round(x*TextSingleton.font.pixelSize); }
 
-    property bool mobile: Qt.platform.os === "android"
-    property real gWidth: mobile ? Screen.width : 640
     property variant robot: cellulo1
     property double startTime: 0
     property variant playground: playground
@@ -21,48 +19,14 @@ Rectangle {
     property int totalpoint: 0
     property int gameMode: windfield.gameMode
 
-    function togglePaused() {
-        windfield.paused = !windfield.paused
-        if (windfield.paused){
-            //timer.stop()
-
-        }
-        else{
-            timer.restart()
-
-        }
-        //pressureUpdate.enabled = windfield.paused
-    }
-
-    function toggleDisplaySetting(setting) {
-        switch(setting){
-        case 1:
-            windfield.drawPressureGrid = pressureGridCheck.checked
-            break;
-        case 2:
-            windfield.drawForceGrid = forceGridCheck.checked
-            break;
-        case 3:
-            windfield.drawLeafVelocityVector = leafVelocityCheck.checked
-            break;
-        case 4:
-            windfield.drawLeafForceVectors = leafForceCheck.checked
-            break;
-        }
+    function start() {
+        windfield.paused = false;
     }
 
     function updateSimulation() {
-        pressurefield.updateField()
+        pressurefield.updateField();
         for (var i = 0; i < windfield.numLeaves; i++)
-            windfield.leaves[i].calculateForcesAtLeaf()
-    }
-
-    function showInfo(){
-        console.log("showInfo clicked");
-    }
-
-    function checkCorrectness(){
-        console.log("checkCorrectness clicked");
+            windfield.leaves[i].calculateForcesAtLeaf();
     }
 
     width: parent.width
@@ -149,7 +113,7 @@ Rectangle {
 
         //Play button
         Item{
-            enabled: gameMode === 2
+            enabled: mainGameField.mainGameFieldStateEngine.canRun
             visible: enabled
 
             anchors.top: parent.top
@@ -160,13 +124,13 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 height: 0.15*Screen.height
                 fillMode: Image.PreserveAspectFit
-                source: "../assets/buttons/" + (windfield.paused ? "playOn.svg" : "playOff.svg")
+                source: "../assets/buttons/go.svg"
 
                 MouseArea {
                     anchors.fill: parent
                     onClicked:{
                         updateSimulation();
-                        togglePaused();
+                        start();
                     }
                 }
             }

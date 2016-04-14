@@ -81,12 +81,17 @@ ApplicationWindow {
     }
 
     MainGameField{
-        anchors.fill: parent
         id: mainGameField
+
+        anchors.fill: parent
         robot: cellulo1
         visible: false
         enabled: false
         playground: playground
+    }
+
+    GameEndDialog{
+        id: gameEndDialog
     }
 
     MouseArea {
