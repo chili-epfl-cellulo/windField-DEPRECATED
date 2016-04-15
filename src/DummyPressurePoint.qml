@@ -138,9 +138,8 @@ Item {
         State{
             name: "inPlay"
             PropertyChanges {target: checkImage; visible:false}
-            PropertyChanges {target: root; visible: true}
-            PropertyChanges {target: root; enabled: true}
         },
+
         State{
             name: "found"
             PropertyChanges {target: checkImage; visible: false}

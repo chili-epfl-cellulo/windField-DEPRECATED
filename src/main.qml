@@ -176,35 +176,7 @@ ApplicationWindow {
             }
         }
 
-        Row {
-            id: pressureButton
-            property bool switchOn: false
 
-            Image{
-                id: pressureButtonImg
-                height: 0.08*Screen.height
-                fillMode: Image.PreserveAspectFit
-                source: "../assets/buttons/" + (pressureButton.switchOn ? "gradientOn.svg" : "gradientOff.svg")
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        pressureButton.switchOn = !pressureButton.switchOn;
-                        mainGameField.drawPressureGrid = pressureButton.switchOn;
-                        //if(pressureButton.switchOn)
-                        //    updateSimulation();
-                    }
-                }
-            }
-
-            Text{
-                anchors.horizontalCenter: parent.horizontalCenter
-                font.family: "Helvetica"
-                font.pointSize: 12
-                font.bold: true
-                text:"View pressure"
-            }
-        }
 
     }
 

@@ -115,7 +115,8 @@ Item{
             //uicontrols.updateSimulation()
             uicontrols.enabled = true //TODO CHnage in false
             leaves[0].updateCellulo()
-
+            console.log("all set")
+            resetUserPPoint()
         }
 
 
@@ -236,6 +237,8 @@ Item{
         function resetUserPPoint(){
             for(var up = 0; up < userPPoint.length;up++){
                    userPPoint[up].state="inPlay"
+                userPPoint[up].visible = true
+                userPPoint[up].putImageBack()
              }
         }
 

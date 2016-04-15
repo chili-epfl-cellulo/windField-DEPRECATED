@@ -80,7 +80,7 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {windfield.setInitialConfigurationGame1()
-                    windfield.resetUserPPoint()
+
                     }
                 }
             }
