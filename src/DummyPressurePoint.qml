@@ -3,7 +3,7 @@ import QtQuick.Window 2.0
 
 Item {
     id: root
-    objectName: "PressurePoint"
+    objectName: "DummyPressurePoint"
 
     property real imageWidth: imageHeight
     property real imageHeight: Screen.height/6
@@ -13,7 +13,7 @@ Item {
 
     property int ilevel: -3
 
-    property real initialImgX: null
+    property real initialImgX: 0
     property real initialImgY: 0
 
     property int row: -1

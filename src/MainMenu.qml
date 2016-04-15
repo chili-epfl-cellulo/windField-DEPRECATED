@@ -59,7 +59,8 @@ Item{
             color: "green"
             radius: width*0.5
             opacity: 0.6
-
+            enabled:false
+            visible:false
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter

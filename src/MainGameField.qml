@@ -572,7 +572,7 @@ Item{
             onPutInGame: console.log("****1****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****1****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****1****removedFromGame****"+prevr+" "+prevc)
-            initialImgX:0
+
         }
 
         DummyPressurePoint{
@@ -581,7 +581,7 @@ Item{
             onPutInGame: console.log("****2****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****2****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****2****removedFromGame****"+prevr+" "+prevc)
-            initialImgX:ppoint1.initialImgX+20
+
         }
 
         DummyPressurePoint{
@@ -590,7 +590,7 @@ Item{
             onPutInGame: console.log("****3****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****3****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****3****removedFromGame****"+prevr+" "+prevc)
-            initialImgX:ppoint2.initialImgX+20
+
         }
 
         DummyPressurePoint{
@@ -599,7 +599,7 @@ Item{
             onPutInGame: console.log("****4****putInGame****"+r+" "+c+" "+level)
             onUpdated: console.log("****4****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
             onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)
-            initialImgX:ppoint3.initialImgX+20
+
         }
 
 

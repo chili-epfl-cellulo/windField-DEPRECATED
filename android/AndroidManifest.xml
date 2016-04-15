@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="1" android:versionName="1.0" package="org.epfl.cellulo.feelwindactivity">
     <application android:icon="@drawable/icon" android:hardwareAccelerated="true" android:label="Feel the Wind Activity" android:name="org.qtproject.qt5.android.bindings.QtApplication">
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:launchMode="singleTop" android:screenOrientation="landscape" android:label="-- %%INSERT_APP_NAME%% --" android:name="org.qtproject.qt5.android.bindings.QtActivity">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:launchMode="singleTop" android:screenOrientation="landscape" android:label="Feel The Wind" android:name="org.qtproject.qt5.android.bindings.QtActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
