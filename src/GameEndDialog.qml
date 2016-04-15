@@ -27,14 +27,17 @@ Rectangle {
         states: ['Hidden', 'CollidedWithWall', 'Won']
 
         onCurrentStateChanged: {
+            console.log("********* Game end dialog state changed: " + currentState + " ************");
             switch(currentState){
             case 'Hidden':
                 parent.visible = false;
                 break;
             case 'CollidedWithWall':
+                parent.visible = true;
                 theText.text = "Ouch, you collided with a wall. Play again?";
                 break;
             case 'Won':
+                parent.visible = true;
                 theText.text = "You won! Play again?";
                 break;
             }
@@ -64,7 +67,10 @@ Rectangle {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: resetClicked()
+            onClicked: {
+                gameEndDialogStateEngine.goToStateByName('hidden');
+                resetClicked();
+            }
         }
     }
 }

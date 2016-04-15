@@ -19,9 +19,7 @@ Rectangle {
     property int totalpoint: 0
     property int gameMode: windfield.gameMode
 
-    function start() {
-        windfield.paused = false;
-    }
+    signal start()
 
     function updateSimulation() {
         pressurefield.updateField();

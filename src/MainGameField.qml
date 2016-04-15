@@ -47,16 +47,20 @@ Item{
             console.log("********* Game state changed: " + currentState + " ************")
             switch(currentState){
             case 'OutsideStartArea':
+                windfield.paused = true;
                 cellulo1.robotComm.setGoalPose(startX, startY, startTheta, 150, 5);
                 cellulo1.fullColor = "red";
                 break;
             case 'ReadyToStart':
+                windfield.paused = true;
                 cellulo1.fullColor = "green";
                 break;
             case 'Running':
+                windfield.paused = false;
                 cellulo1.fullColor = "white";
                 break;
             case 'CollidedWithWall':
+                windfield.paused = true;
 
                 //LIFE DECREMENT
 
@@ -65,6 +69,7 @@ Item{
                 gameEndDialog.showCollided();
                 break;
             case 'Won':
+                windfield.paused = true;
 
                 //LIFE DECREMENT, SCORE DISPLAY
 
@@ -89,6 +94,7 @@ Item{
             gameEndDialog.resetClicked.connect(gameEndDialogresetClicked);
             theLeaf.won.connect(leafWon);
             theLeaf.collidedWithWall(leafCollidedWithWall);
+            uicontrols.start.connect(uipanelStartButtonClicked);
         }
 
         function cellulo1RobotCommPoseChanged() {
@@ -150,6 +156,16 @@ Item{
                 goToStateByName('ReadyToStart');
             else
                 goToStateByName('OutsideStartArea');
+        }
+
+        function uipanelStartButtonClicked(){
+            switch(currentState){
+            case 'ReadyToStart':
+                  goToStateByName('Running');
+                break;
+            default:
+                break;
+            }
         }
     }
 
