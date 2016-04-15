@@ -2,12 +2,6 @@
     <qresource prefix="/">
         <file>assets/buttons/updateOff.png</file>
         <file>assets/buttons/updateOn.png</file>
-        <file>assets/lowPressure3.png</file>
-        <file>assets/highPressure1.png</file>
-        <file>assets/highPressure3.png</file>
-        <file>assets/lowPressure1.png</file>
-        <file>assets/lowPressure2.png</file>
-        <file>assets/highPressure2.png</file>
         <file>assets/cellulo_balloon.png</file>
         <file>assets/backgrounds/MainGameBackground.png</file>
         <file>assets/backgrounds/MainMenuBackground.png</file>
@@ -28,5 +22,11 @@
         <file>assets/buttons/help.svg</file>
         <file>assets/time.svg</file>
         <file>assets/buttons/go.svg</file>
+        <file>assets/highPressure1.svg</file>
+        <file>assets/highPressure2.svg</file>
+        <file>assets/highPressure3.svg</file>
+        <file>assets/lowPressure1.svg</file>
+        <file>assets/lowPressure2.svg</file>
+        <file>assets/lowPressure3.svg</file>
     </qresource>
 </RCC>

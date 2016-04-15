@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve">
+<g>
+	<g>
+		<polygon fill="#F2442F" points="29.2,117.8 12.6,127.3 29.1,136.9 29.1,129.4 61.7,129.5 61.7,125.3 29.2,125.2 		"/>
+		<polygon fill="#F2442F" points="243.3,128.7 226.8,119.1 226.8,126.6 193.7,126.5 193.7,130.7 226.8,130.8 226.8,138.2 		"/>
+		<polygon fill="#F2442F" points="92.5,184 76.2,212.2 69.8,208.4 69.7,227.6 86.3,218.1 79.9,214.3 96.1,186.2 		"/>
+		<polygon fill="#F2442F" points="176.1,41.6 159.5,70.2 163.1,72.4 179.7,43.8 186.2,47.5 186.2,28.4 169.6,37.9 		"/>
+		<polygon fill="#F2442F" points="162.4,184.5 158.8,186.7 174.9,214.9 168.5,218.6 185.1,228.2 185.1,209.1 178.6,212.8 		"/>
+		<polygon fill="#F2442F" points="87.3,37.3 70.8,27.8 70.8,46.9 77.3,43.1 93.8,71.9 97.4,69.7 81,41 		"/>
+	</g>
+	
+		<radialGradient id="SVGID_1_" cx="295.6783" cy="529.4485" r="66.5006" gradientTransform="matrix(0.7071 0.7071 -0.7071 0.7071 293.1989 -454.0471)" gradientUnits="userSpaceOnUse">
+		<stop  offset="0" style="stop-color:#F2442F"/>
+		<stop  offset="0.373" style="stop-color:#E53E2D;stop-opacity:0.627"/>
+		<stop  offset="1" style="stop-color:#C53029;stop-opacity:0"/>
+	</radialGradient>
+	<circle fill="url(#SVGID_1_)" cx="127.9" cy="129.4" r="66.5"/>
+	
+		<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -53.8406 128.278)" fill="none" stroke="#F2442F" stroke-width="4.252" stroke-miterlimit="10" cx="127.9" cy="129.1" rx="49.9" ry="49.9"/>
+</g>
+</svg>

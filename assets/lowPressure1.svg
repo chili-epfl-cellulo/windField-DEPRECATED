@@ -1,37 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 290 269.8" enable-background="new 0 0 290 269.8" xml:space="preserve">
-<radialGradient id="SVGID_1_" cx="143.2867" cy="140.9784" r="66.5316" gradientUnits="userSpaceOnUse">
-	<stop  offset="0" style="stop-color:#92A2FF"/>
-	<stop  offset="0.897" style="stop-color:#92A2FF;stop-opacity:0.103"/>
-	<stop  offset="1" style="stop-color:#92A2FF;stop-opacity:0"/>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve">
+<radialGradient id="SVGID_1_" cx="128" cy="130" r="66.5" gradientTransform="matrix(1 0 0 -1 0 258)" gradientUnits="userSpaceOnUse">
+	<stop  offset="0" style="stop-color:#5E58FF"/>
+	<stop  offset="0.897" style="stop-color:#5E58FF;stop-opacity:0.103"/>
+	<stop  offset="1" style="stop-color:#5E58FF;stop-opacity:0"/>
 </radialGradient>
-<circle fill="url(#SVGID_1_)" cx="143.3" cy="141" r="66.5"/>
-<circle fill="none" stroke="#92A2FF" stroke-width="4.252" stroke-miterlimit="10" cx="143.3" cy="141" r="49.9"/>
+<circle fill="url(#SVGID_1_)" cx="128" cy="128" r="66.5"/>
+<circle fill="none" stroke="#5E58FF" stroke-width="4.252" stroke-miterlimit="10" cx="128" cy="128" r="49.9"/>
+<polygon fill="#5E58FF" points="129.7,14.6 125.4,14.7 125.9,47.6 118.5,47.8 128.2,64.2 137.5,47.5 130.1,47.6 "/>
 <g>
-	<g>
-		<line fill="none" stroke="#92A2FF" stroke-width="4.252" stroke-miterlimit="10" x1="42.2" y1="196.4" x2="73.7" y2="179.1"/>
-		<g>
-			<polygon fill="#92A2FF" points="75.8,188.8 85.8,172.5 66.7,172.1 			"/>
-		</g>
-	</g>
-</g>
-<g>
-	<g>
-		<line fill="none" stroke="#92A2FF" stroke-width="4.252" stroke-miterlimit="10" x1="144.8" y1="61.8" x2="144.3" y2="26"/>
-		<g>
-			<polygon fill="#92A2FF" points="154.3,58.8 145,75.5 135.2,59.1 			"/>
-		</g>
-	</g>
-</g>
-<g>
-	<g>
-		<line fill="none" stroke="#92A2FF" stroke-width="4.252" stroke-miterlimit="10" x1="242.3" y1="202.2" x2="212.2" y2="183.8"/>
-		<g>
-			<polygon fill="#92A2FF" points="219.6,177.1 200.5,176.7 209.6,193.4 			"/>
-		</g>
-	</g>
+	<polygon fill="#5E58FF" points="55.9,167.2 26.9,183.2 28.9,186.9 58,171 61.5,177.5 71.5,161.2 52.4,160.8 	"/>
+	<polygon fill="#5E58FF" points="229.1,189 201.4,172.1 205.3,165.8 186.2,165.4 195.3,182.1 199.2,175.7 226.9,192.7 	"/>
 </g>
 </svg>

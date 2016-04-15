@@ -84,17 +84,17 @@ Item {
         id: lowpressureModel
 
         ListElement{
-            imagePath: "../assets/lowPressure3.png"
+            imagePath: "../assets/lowPressure3.svg"
             name: "lll"
             plevel: -3
         }
         ListElement{
-            imagePath: "../assets/lowPressure2.png"
+            imagePath: "../assets/lowPressure2.svg"
             name: "ll"
             plevel: -2
         }
         ListElement{
-            imagePath: "../assets/lowPressure1.png"
+            imagePath: "../assets/lowPressure1.svg"
             name: "l"
             plevel: -1
         }
@@ -109,17 +109,17 @@ Item {
         id: highpressureModel
 
         ListElement{
-            imagePath: "../assets/highPressure3.png"
+            imagePath: "../assets/highPressure3.svg"
             name: "hhh"
             plevel: 3
         }
         ListElement{
-            imagePath: "../assets/highPressure2.png"
+            imagePath: "../assets/highPressure2.svg"
             name: "hh"
             plevel: 2
         }
         ListElement{
-            imagePath: "../assets/highPressure1.png"
+            imagePath: "../assets/highPressure1.svg"
             name: "h"
             plevel: 1
         }
@@ -148,22 +148,22 @@ Item {
         source:
             switch (ilevel){
             case -1:
-                "../assets/lowPressure1.png"
+                "../assets/lowPressure1.svg"
                 break;
             case -2:
-                "../assets/lowPressure2.png"
+                "../assets/lowPressure2.svg"
                 break;
             case -3:
-                "../assets/lowPressure3.png"
+                "../assets/lowPressure3.svg"
                 break;
             case 1:
-                "../assets/highPressure1.png"
+                "../assets/highPressure1.svg"
                 break;
             case 2:
-                "../assets/highPressure2.png"
+                "../assets/highPressure2.svg"
                 break;
             case 3:
-                "../assets/highPressure3.png"
+                "../assets/highPressure3.svg"
                 break;
             }
         height: imageHeight
