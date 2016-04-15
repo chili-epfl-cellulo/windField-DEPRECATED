@@ -23,6 +23,7 @@ Item {
 
     readonly property real leafXVInit: 30
     readonly property real leafYVInit: 0
+    //property bool startPositionResetRequired: false
 
     readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
@@ -108,6 +109,12 @@ Item {
         lastMillis = currentMillis;
 
         if(mainGameField.mainGameFieldStateEngine.isRunning){
+
+            /*if(startPositionResetRequired){
+                leafX = mainGameField.startX;
+                leafY = mainGameField.startY;
+                startPositionResetRequired = false;
+            }*/
 
             //Update leaf position
             var yGridSpacing = field.yGridSpacing

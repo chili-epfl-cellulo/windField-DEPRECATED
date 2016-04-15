@@ -57,6 +57,7 @@ Item{
                 break;
             case 'Running':
                 theLeaf.bonus = 0;
+                //theLeaf.startPositionResetRequired = true;
                 windfield.paused = false;
                 cellulo1.fullColor = "white";
                 break;
@@ -491,34 +492,26 @@ Item{
 
         PressurePoint{
             ilevel: 3
-
-            onPutInGame: console.log("****1****putInGame****"+r+" "+c+" "+level)
-            onUpdated: console.log("****1****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
-            onRemovedFromGame: console.log("****1****removedFromGame****"+prevr+" "+prevc)
         }
 
         PressurePoint{
             ilevel: 3
+        }
 
-            onPutInGame: console.log("****2****putInGame****"+r+" "+c+" "+level)
-            onUpdated: console.log("****2****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
-            onRemovedFromGame: console.log("****2****removedFromGame****"+prevr+" "+prevc)
+        PressurePoint{
+            ilevel: 3
         }
 
         PressurePoint{
             ilevel: -3
-
-            onPutInGame: console.log("****3****putInGame****"+r+" "+c+" "+level)
-            onUpdated: console.log("****3****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
-            onRemovedFromGame: console.log("****3****removedFromGame****"+prevr+" "+prevc)
         }
 
         PressurePoint{
             ilevel: -3
+        }
 
-            onPutInGame: console.log("****4****putInGame****"+r+" "+c+" "+level)
-            onUpdated: console.log("****4****updated****"+prevr+" "+prevc+" "+r+" "+c+" "+level)
-            onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)
+        PressurePoint{
+            ilevel: -3
         }
     }
 }
