@@ -10,8 +10,8 @@ Item {
     //Leaf Properties
     property double leafX: 0
     property double leafY: 0
-    property double leafXV: 0
-    property double leafYV: 0
+    property double leafXV: leafXVInit
+    property double leafYV: leafYVInit
     property double leafXF: 0
     property double leafYF: 0
     property double leafXFDrag: 0
@@ -20,6 +20,9 @@ Item {
     property double leafSize: 0
     property bool tangible: false
     property bool robotkidnapped: false
+
+    readonly property real leafXVInit: 30
+    readonly property real leafYVInit: 0
 
     readonly property double mountainDragMultiplier: 10 //to adjust for obstacle
     readonly property double dragCoefficient: .0 //air friction
@@ -36,10 +39,8 @@ Item {
     property variant currentZone: ''
     property variant zoneHistory : []
 
-    //****************ISTANBUL YOK
-
-    property variant zoneScoreList : {"madrid":1,"paris":4,"bern":5, "budapest":6, "kiev":8, "rome":3, "athens":2, "finish":2}
-    property variant zoneNameList : ["madrid","paris","bern", "budapest", "kiev", "rome", "athens", "finish"]
+    property variant zoneScoreList : {"madrid":1,"paris":4,"bern":5, "budapest":6, "kiev":8, "rome":3, "athens":2, "istanbul":2}
+    property variant zoneNameList : ["madrid","paris","bern", "budapest", "kiev", "rome", "athens", "istanbul"]
 
     signal collidedWithWall()
     signal won()
@@ -99,15 +100,14 @@ Item {
     }
 
     function updateLeaf() {
+        var currentMillis = (new Date).getTime();
+        if(lastMillis < 0)
+            timeStep = 0.025;
+        else
+            timeStep = (currentMillis - lastMillis)/1000;
+        lastMillis = currentMillis;
 
         if(mainGameField.mainGameFieldStateEngine.isRunning){
-
-            var currentMillis = (new Date).getTime();
-            if(lastMillis < 0)
-                timeStep = 0.025;
-            else
-                timeStep = (currentMillis - lastMillis)/1000;
-            lastMillis = currentMillis;
 
             //Update leaf position
             var yGridSpacing = field.yGridSpacing
@@ -149,8 +149,6 @@ Item {
                     else if(goalYSpeed < -150)
                         goalYSpeed = -150;
 
-                    console.info(goalXSpeed, goalYSpeed);
-
                     robot.robotComm.setGoalVelocityCompact(goalXSpeed, goalYSpeed);
 
                     lastPositionSendMillis = currentMillis;
@@ -177,6 +175,9 @@ Item {
             //Update from the robot
             leafX = robot.coords.x*fieldWidth
             leafY = robot.coords.y*fieldHeight
+            leafXV = leafXVInit;
+            leafYV = leafYVInit;
+            zoneHistory = [];
         }
     }
 }

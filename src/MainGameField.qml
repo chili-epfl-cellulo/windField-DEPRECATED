@@ -56,6 +56,7 @@ Item{
                 cellulo1.fullColor = "green";
                 break;
             case 'Running':
+                theLeaf.bonus = 0;
                 windfield.paused = false;
                 cellulo1.fullColor = "white";
                 break;
@@ -91,9 +92,10 @@ Item{
         Component.onCompleted: {
             cellulo1.robotComm.onPoseChanged.connect(cellulo1RobotCommPoseChanged);
             cellulo1.robotComm.onKidnappedChanged.connect(cellulo1RobotCommKidnappedChanged);
+            cellulo1.robotComm.onConnectedChanged.connect(cellulo1RobotCommConnectedChanged);
             gameEndDialog.resetClicked.connect(gameEndDialogresetClicked);
             theLeaf.won.connect(leafWon);
-            theLeaf.collidedWithWall(leafCollidedWithWall);
+            theLeaf.collidedWithWall.connect(leafCollidedWithWall);
             uicontrols.start.connect(uipanelStartButtonClicked);
         }
 
@@ -167,6 +169,13 @@ Item{
                 break;
             }
         }
+
+        function cellulo1RobotCommConnectedChanged(){
+            if(cellulo1.robotComm.connected){
+                if(currentState !== 'Running')
+                    goToStateByName('OutsideStartArea');
+            }
+        }
     }
 
     Canvas3D {
@@ -199,7 +208,6 @@ Item{
         //Game Logic stuff
         property int nblifes: 3
         property int gameMode: 2
-        property int bonus: 0
 
         // For Game 1
         property int nbOfHiddenPPoint:4
@@ -448,10 +456,10 @@ Item{
             robot: parent.parent.robot
             allzones: playground
             currentZone: ''
-            bonus:  0
             onBonusChanged:{
-                console.log('the bonus is',bonus)
-                uicontrols.totalpoint = bonus
+                console.log('the bonus is', bonus);
+                uicontrols.totalpoint = bonus;
+                gameEndDialog.bonus = bonus;
             }
         }
 

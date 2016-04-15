@@ -20,7 +20,6 @@ Item {
 
     function goToStateByName(stateName){
         var i = states.indexOf(stateName);
-        console.log(i);
         if(i >= 0)
             currentStateIndex = i;
     }

@@ -11,6 +11,8 @@ Rectangle {
     radius: 110
     visible: false
 
+    property real bonus: -1
+
     signal resetClicked()
 
     function showCollided(){
@@ -38,7 +40,7 @@ Rectangle {
                 break;
             case 'Won':
                 parent.visible = true;
-                theText.text = "You won! Play again?";
+                theText.text = "You won with a score of " + bonus + "! Play again?";
                 break;
             }
         }
@@ -49,6 +51,7 @@ Rectangle {
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: button.top
+        anchors.bottomMargin: 30
         font.family: "Helvetica"
         font.pointSize: 20
         font.bold: true
@@ -68,7 +71,7 @@ Rectangle {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                gameEndDialogStateEngine.goToStateByName('hidden');
+                gameEndDialogStateEngine.goToStateByName('Hidden');
                 resetClicked();
             }
         }
