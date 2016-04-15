@@ -122,10 +122,22 @@ Item {
         }
     }
 
+    function mapVel(value, forceMin, forceMax, velMin, velMax){
+           value = velMin + (value - forceMin) * (velMax - velMin) / (forceMax - forceMin)
+
+        return value
+    }
+
+
     function updateLeaf() {
-        if (collided) {
-            return;
+        if(tangible)
+        console.log('tttttttttttttttttttttttttt')
+        else{
+        console.log('')
         }
+
+
+
         if(!tangible && robot.robotComm.connected){
             updateCellulo()
         }
@@ -148,17 +160,25 @@ Item {
             leafX += deltaX
             leafY += deltaY
 
-            if(robot.robotComm.connected)
+            if(robot.robotComm.connected){
+                console.log("====================")
                 console.log(netForceX, netForceY)
-            robot.setGlobalSpeeds(netForceX/field.numRows *660, netForceY /field.numCols*1700, 0.0);
 
+            var forceMin = -50
+            var forceMax = 50
+            var velMin = -150
+            var velMax = 150
+            var velX = mapVel(netForceX/field.numRows *660,  forceMin, forceMax, velMin, velMax)
+            var velY = mapVel(netForceY /field.numCols*1700,  forceMin, forceMax, velMin, velMax)
+            robot.setGlobalSpeeds(velX,velY, 0.0);}
+            console.log(velX)
         }
 
         // Arrived at the end of the map: WINS
         if (leafX -leafSize/4> windfield.fieldWidth) {
             leafX = Math.max(Math.min(leafX, windfield.fieldWidth-leafSize/2), 0.0)
             collided = true;
-            windfield.state = (windfield.nblifes <=0) ?  "wins": "winr"
+
             if(robot.robotComm.connected){
                 robot.alert(Qt.rgba(0,0.8,0,1), 3);
                 robot.setGlobalSpeeds(0,0,4);
@@ -168,7 +188,7 @@ Item {
         else if (leafX-leafSize/4 < 0) {
             leafX = Math.max(Math.min(leafX, windfield.fieldWidth-leafSize/2), 0.0)
             collided = true;
-            windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
+
             if(robot.robotComm.connected){
                 robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
                 //robot.setGlobalSpeeds(0,0,4);
@@ -180,23 +200,14 @@ Item {
         else if (leafY+leafSize/4  > windfield.fieldHeight || leafY-leafSize/4 < 0) {
             leafY = Math.max(Math.min(leafY, windfield.fieldHeight-leafSize/2), 0.0)
             collided = true
-            windfield.state = (windfield.nblifes <=0) ?  "over": "lost"
-            if(robot.robotComm.connected){
-                robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
+
+            //if(robot.robotComm.connected){
+            //    robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
                 //robot.setGlobalSpeeds(0,0,4);
-            }
+            //}
             console.log("=========LEAF COLLIDED R2==========")
         }
-        if (collided) {
-            leafXV = 0
-            leafYV = 0
-            leafXF = 0
-            leafYF = 0
-            leafXFDrag = 0
-            leafYFDrag = 0
-            if(robot.robotComm.connected)
-            robot.setGlobalSpeeds(0,0,0);
-        }
+
     }
 
 }

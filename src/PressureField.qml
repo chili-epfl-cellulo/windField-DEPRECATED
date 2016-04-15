@@ -142,7 +142,7 @@ Item {
             //printPRESSAUROUND(row,col,10)
             pressureGrid[row][col][4] = pressurePoints[i].strength
 
-            var nnb = 200;
+            var nnb = 400;
             for(var rowOffset=row-nnb/2; rowOffset<row+nnb/2+1; rowOffset++){
                 if (rowOffset >= numRows || rowOffset < 0)
                     continue;
@@ -157,7 +157,7 @@ Item {
                         if(d==0)
                             pressureGrid[rowOffset][colOffset][4] = pressurePoints[i].strength
                         else
-                           pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/(d/3);
+                           pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/(d/6);
                         //console.info(rowOffset,colOffset,curPressure+(pressurePoints[i].strength)/Math.floor(d));
                     }
                     else if(curPressure==100){

@@ -16,6 +16,7 @@ ApplicationWindow {
     visibility: "FullScreen"
     contentOrientation: Screen.orientation
     property int keytouched:0
+    property int prevtouchlen: 0
 
     StateEngine{
         id: stateEngine
@@ -123,16 +124,23 @@ ApplicationWindow {
             debugStateSelector.currentIndex = stateEngine.currentStateIndex;
         }
 
+
+
+
+
+
         property variant addresses: [
             "00:06:66:74:40:D2",
             "00:06:66:74:40:D4",
             "00:06:66:74:40:D5",
             "00:06:66:74:40:DB",
             "00:06:66:74:40:DC",
+            "00:06:66:74:41:03",
             "00:06:66:74:40:E4",
             "00:06:66:74:40:EC",
             "00:06:66:74:40:EE",
             "00:06:66:74:41:04",
+            "00:06:66:74:43:01",
             "00:06:66:74:41:14",
             "00:06:66:74:41:4C",
             "00:06:66:74:43:00",
@@ -167,6 +175,37 @@ ApplicationWindow {
                 }
             }
         }
+
+        Row {
+            id: pressureButton
+            property bool switchOn: false
+
+            Image{
+                id: pressureButtonImg
+                height: 0.08*Screen.height
+                fillMode: Image.PreserveAspectFit
+                source: "../assets/buttons/" + (pressureButton.switchOn ? "gradientOn.svg" : "gradientOff.svg")
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        pressureButton.switchOn = !pressureButton.switchOn;
+                        mainGameField.drawPressureGrid = pressureButton.switchOn;
+                        //if(pressureButton.switchOn)
+                        //    updateSimulation();
+                    }
+                }
+            }
+
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.family: "Helvetica"
+                font.pointSize: 12
+                font.bold: true
+                text:"View pressure"
+            }
+        }
+
     }
 
     ZonesF{
@@ -188,38 +227,55 @@ ApplicationWindow {
         id: cellulo1
         playground: playground
         robotId: 1
-        robotComm.macAddr : "00:06:66:74:43:00"
+        //robotComm.macAddr : "00:06:66:74:43:00"
         robotComm.onConnectedChanged:{
-           if(robotComm.connected){
+            if(robotComm.connected){
                 mainGameField.windfield.state="ready"
             }
-           else{
-               mainGameField.windfield.state="waitconnect"
-           }
+            else{
+                mainGameField.windfield.state="waitconnect"
+            }
         }
         robotComm.onKidnappedChanged:{
-            if(state == "game1"){
-                mainGameField.windfield.leaves[0].robotkidnapped = robotComm.kidnapped
+            if(state === "game1"){
+                mainGameField.windfield.leaves[0].robotkidnapped = cellulo1.robotComm.kidnapped
                 mainGameField.windfield.leaves[0].setSpeedNull()
             }
         }
         robotComm.onTouchBegan:{
-            if(state == "game1"){
-               keytouched+=1
-            if(keytouched>0)
-               mainGameField.windfield.leaves[0].tangible = true
-               console.log(mainGameField.windfield.leaves[0].tangible)
-}
+            console.log(keytouched)
+            if(touches.length)
+            keytouched+=1
+            if(keytouched>0){
+                mainGameField.windfield.leaves[0].tangible = true
+                console.log(mainGameField.windfield.leaves[0].tangible)
+            }else{
+                mainGameField.windfield.leaves[0].tangible = false
+            }
+
         }
 
         robotComm.onTouchReleased:{
-            if(state == "game1"){
-                keytouched-=1
-                 if(keytouched<=0){
-                    mainGameField.windfield.leaves[0].tangible = false
-                    mainGameField.pause = true
-            console.log(mainGameField.windfield.leaves[0].tangible)}}
+            console.log(keytouched)
+            mainGameField.windfield.leaves[0].tangible = false
+            cellulo1.fullColor = 'white'
+            keytouched-=1
+            if(keytouched<=0){
+                mainGameField.windfield.leaves[0].tangible = false
+                console.log(mainGameField.windfield.leaves[0].tangible)
+            }else{
+                mainGameField.windfield.leaves[0].tangible = true
+            }
+
         }
+        robotComm.onLongTouch:{
+            console.log(keytouched)
+                mainGameField.windfield.leaves[0].tangible = true
+                cellulo1.fullColor = 'green'
+        }
+
+
+
         robotComm.onPoseChanged: {
             mainGameField.windfield.leaves[0].updateCellulo()
             //mainGameField.windfield.leaves[0].currentZone = cellulo1.checkZone()

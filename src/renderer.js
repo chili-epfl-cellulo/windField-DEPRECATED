@@ -243,7 +243,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
     for (var i = 0; i < numLeaves; i++) {
         leafObjects[i].position.x = leaves[i].leafX + windfield.robotMinX;
         leafObjects[i].position.y = windfield.height - leaves[i].leafY - windfield.robotMinY;
-        if (leaves[i].collided || (leaves[i].robotkidnapped && leaves[i].robot.robotComm.connected)) {
+        if ((leaves[i].robotkidnapped && leaves[i].robot.robotComm.connected)) {
             leafObjects[i].material.color = Qt.rgba(0.5,0.5,0.5,0.5);
             leafObjects[i].material.needsUpdate = true;
         } else {
@@ -268,7 +268,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
             leafForceVectors[i].position.x = leafObjects[i].position.x;
             leafForceVectors[i].position.y = leafObjects[i].position.y;
             leafForceVectors[i].position.z = leafObjects[i].position.z;
-            leafForceVectors[i].setLength(leafForceDirection.length()*1500/pressurefield.maxForce);
+            leafForceVectors[i].setLength(leafForceDirection.length()*2500/pressurefield.maxForce);
         }
 
         var leafVelocityDirection = new THREE.Vector3(leaves[i].leafXV, -leaves[i].leafYV, 0);
@@ -278,7 +278,7 @@ function paintGL(pressurefield, leaves, numLeaves) {
             leafVelocityVectors[i].position.x = leafObjects[i].position.x;
             leafVelocityVectors[i].position.y = leafObjects[i].position.y;
             leafVelocityVectors[i].position.z = leafObjects[i].position.z;
-            leafVelocityVectors[i].setLength(leafVelocityDirection.length()*200);
+            leafVelocityVectors[i].setLength(leafVelocityDirection.length()*50);
         }
 
         leafDragVectors[i].visible = windfield.drawLeafForceVectors && (dragLength > 0);

@@ -45,5 +45,6 @@ OTHER_FILES += \
     src/Tutorial.qml \
     src/MainGameField.qml \
     src/UIPanel.qml \
-    src/DummyPressurePoint.qml
+    src/DummyPressurePoint.qml \
+    android/AndroidManifest.xml
 

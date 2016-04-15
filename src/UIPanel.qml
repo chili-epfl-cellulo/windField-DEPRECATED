@@ -65,21 +65,23 @@ Rectangle {
         spacing: parent.height/10
 
         //Info button
-        Item{
+            Item{
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
-
+            visible:uicontrols.state==="bravo"
             Image{
                 id: infoButtonImg
                 anchors.verticalCenter: parent.verticalCenter
                 height: 0.15*Screen.height
                 fillMode: Image.PreserveAspectFit
-                source: "../assets/buttons/help.svg"
+                source: "../assets/buttons/reset.svg"
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: showInfo()
+                    onClicked: {windfield.setInitialConfigurationGame1()
+                    windfield.resetUserPPoint()
+                    }
                 }
             }
         }
@@ -191,53 +193,34 @@ Rectangle {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onClicked:{
-                        switch(uicontrols.state){
-                        case "check":
-                              windfield.checkPPoint()
-                              uicontrols.state = "tryagain"
-                        case "tryagain":
-                              windfield.resetNotfoundPoint()
-                              windfield.hidePressurePoint()
-                              windfield.state="ready"
-                        case "bravo":
-                              windfield.hidePressurePoint()
+                    onClicked:
+                        if(uicontrols.state == 'check'){
+                            console.log('chekc pressed')
+                            windfield.checkPPoint()
+                        }
+                        else if(uicontrols.state == 'tryagain'){
+                            console.log('////////////////tryagain....')
+                            windfield.resetNotfoundPoint()
+                            windfield.hidePressurePoint()
+                            //
 
                         }
+                    onPressed: {
+                        buttontext.color="gray"
+                        checkinbutton.opacity =0.5
                     }
+                    onReleased: {
+                        buttontext.color="white"
+                        checkinbutton.opacity =1
+                    }
+
+
                 }
+
             }
         }
 
-        //Lives
-        /*Row{
-            id: livesBox
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
 
-            spacing: 20
-
-            Item{
-                anchors.top: livesBox.top
-                anchors.bottom: livesBox.bottom
-                width: childrenRect.width
-
-                Image{
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: 0.15*Screen.height
-                    fillMode: Image.PreserveAspectFit
-                    source: "../assets/lifeOn.png"
-                }
-            }
-
-            Text{
-                anchors.verticalCenter: parent.verticalCenter
-                font.family: "Helvetica"
-                font.pointSize: 36
-                font.bold: true
-                text:"x" + numberOfLifes
-            }
-        }*/
 
         //Separator
         Rectangle{

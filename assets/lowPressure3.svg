@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve">
+<g>
+	
+		<radialGradient id="SVGID_1_" cx="129.1" cy="130.9" r="66.5" gradientTransform="matrix(1 0 0 -1 0 258)" gradientUnits="userSpaceOnUse">
+		<stop  offset="3.659120e-02" style="stop-color:#5100C0"/>
+		<stop  offset="1" style="stop-color:#4D3B8B;stop-opacity:0"/>
+	</radialGradient>
+	<circle fill="url(#SVGID_1_)" cx="129.1" cy="127.1" r="66.5"/>
+	<circle fill="none" stroke="#5100C0" stroke-width="4.252" stroke-miterlimit="10" cx="128.5" cy="127.2" r="49.9"/>
+	<g>
+		<polygon fill="#5100C0" points="243.4,126.5 210.9,126.4 210.9,119 194.3,128.5 210.8,138.1 210.8,130.6 243.4,130.7 		"/>
+		<polygon fill="#5100C0" points="45.8,136.9 62.3,127.4 45.8,117.8 45.8,125.3 12.7,125.2 12.7,129.4 45.8,129.5 		"/>
+		<polygon fill="#5100C0" points="188.5,71.3 211.6,48.4 208.6,45.3 185.5,68.3 180.3,63 175.3,81.5 193.7,76.6 		"/>
+		<polygon fill="#5100C0" points="68,184.2 44.5,207.5 47.5,210.6 71,187.2 76.2,192.4 81.2,174.1 62.7,178.9 		"/>
+		<polygon fill="#5100C0" points="130.8,12.6 126.6,12.6 126.5,45.1 119.1,45.1 128.6,61.7 138.2,45.2 130.7,45.2 		"/>
+		<polygon fill="#5100C0" points="127.5,193.7 117.9,210.2 125.4,210.2 125.3,243.3 129.5,243.3 129.6,210.2 137,210.2 		"/>
+		<polygon fill="#5100C0" points="71.4,67.5 48.5,44.4 45.4,47.4 68.4,70.5 63.1,75.7 81.6,80.7 76.7,62.3 		"/>
+		<polygon fill="#5100C0" points="192.5,179.8 174.2,174.8 179,193.3 184.3,188 207.6,211.5 210.7,208.5 187.3,185 		"/>
+	</g>
+</g>
+</svg>

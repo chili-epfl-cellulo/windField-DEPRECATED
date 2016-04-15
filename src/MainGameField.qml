@@ -108,6 +108,14 @@ Item{
             testLeaf.resetRobotVelocity()
             pauseSimulation()
             windfield.state ="ready"
+            leaves[0].resetRobotVelocity()
+            leaves[0].tangible = false
+            hidePressurePoint()
+            windfield.drawPressureGrid = false
+            //uicontrols.updateSimulation()
+            uicontrols.enabled = true //TODO CHnage in false
+            leaves[0].updateCellulo()
+
         }
 
 
@@ -177,15 +185,13 @@ Item{
 
         ////////////////////// GAME LOGIC RELATED FUNCTIONS
         function checkPPoint(){
+            sumDist=0
             console.log("start checking  ...")
             for(var hp = 0; hp < hiddenPPointList.length;hp++){
                 var hpoint = hiddenPPointList[hp]
                 console.log('hidden point at ', hiddenPPointList[hp])
                 for(var up = 0; up < userPPoint.length;up++){
-                    console.log('chekin point at ', userPPoint[up].row, userPPoint[up].col, userPPoint[up].ilevel)
-
-
-                    if(hpoint[2]===userPPoint[up].ilevel && foundPPointList.indexOf(userPPoint[up])<0){ // check if pressure level is the same
+                    if(hpoint[2]===userPPoint[up].ilevel && foundPPointList.indexOf(userPPoint[up])<0){
                         var d = Math.sqrt((hpoint[0]-userPPoint[up].row)*(hpoint[0]-userPPoint[up].row) + (hpoint[1]-userPPoint[up].col)*(hpoint[1]-userPPoint[up].col))
                         console.log('distance of ', d)
                         sumDist+=d
@@ -202,31 +208,41 @@ Item{
             console.log('==========================')
             console.log(foundPPointList.length)
             showChecked()
-            console.log('=====summmmm=====')
             console.log(1/sumDist)
             uicontrols.totalpoint  = sumDist
-            if (foundPPointList.length < hiddenPPointList.length){
-                windfield.state ="checked"
-            }else{
-                windfield.state ="win"
-            }
 
+            //
         }
 
         function showChecked(){
+            var count_incorrect = 0
             for(var up = 0; up < userPPoint.length;up++){
                 if(foundPPointList.indexOf(userPPoint[up])>=0){
-                    userPPoint[up].state="correct"
+                   userPPoint[up].state="correct"
                 }
                 else{
                     userPPoint[up].state="incorrect"
+                    count_incorrect+=1
                 }
             }
+            if(count_incorrect>0){
+                uicontrols.state = "tryagain"
+            }else if(count_incorrect==0)
+                uicontrols.state = 'bravo'
 
         }
 
+
+        function resetUserPPoint(){
+            for(var up = 0; up < userPPoint.length;up++){
+                   userPPoint[up].state="inPlay"
+             }
+        }
+
         function hidePressurePoint(){
+            pressurefield.removeAllPressurePoint()
             if(foundPPointList.length == hiddenPPointList.length){
+
                 var nbLow = nbOfHiddenPPoint/2
                 var row = 0
                 var col = 0
@@ -244,7 +260,7 @@ Item{
                 }
             }else{
                 for(var i=0; i< hiddenPPointList.length; i++){
-                    if( hiddenPPointList[i][3]){
+                    if(hiddenPPointList[i][3]){
                         pressurefield.addPressurePointHidden(hiddenPPointList[i][0],hiddenPPointList[i][1],hiddenPPointList[i][2], false)
                     }
                     else{
@@ -254,10 +270,18 @@ Item{
             }
             console.log(hiddenPPointList)
             uicontrols.updateSimulation();
+            console.log('pressure point RESTED!!')
+             uicontrols.state='check'
+            windfield.state="ready"
+            for(var up = 0; up < userPPoint.length;up++){
+                if(foundPPointList.indexOf(userPPoint[up])>=0)
+                    userPPoint[up].state="found"
+            }
         }
 
         //resets the ppoint not found and disbale the other also disable the view of ppoint coorect set ppoint back to in play and call remove from game for the others
         function resetNotfoundPoint(){
+            var atleastone = false
             for(var i=0; i< userPPoint.length; i++){
                 if( userPPoint[i].found){
                     userPPoint[i].putImageBack()
@@ -267,8 +291,12 @@ Item{
                 else{
                     userPPoint[i].putImageBack()
                     userPPoint[i].state="inPlay"
+                    atleastone=true
                 }
             }
+
+
+            //uicontrols.state= "check?"
         }
 
         function timeChanged(){
@@ -286,13 +314,7 @@ Item{
             switch(gameMode){
             case 1:
                 setInitialConfigurationGame1()
-                leaves[0].resetRobotVelocity()
-                leaves[0].tangible = false
-                hidePressurePoint()
-                windfield.drawPressureGrid = false
-                //uicontrols.updateSimulation()
-                uicontrols.enabled = true //TODO CHnage in false
-                leaves[0].updateCellulo()
+
             case 2:
                 setInitialConfigurationGame2()
             }
@@ -407,7 +429,7 @@ Item{
             },
             State{
                 name: "checked" //game 1
-                PropertyChanges {target: uicontrols; state:"playagain"}
+                PropertyChanges {target: uicontrols; state:"tryagain"}
             }
         ]
 

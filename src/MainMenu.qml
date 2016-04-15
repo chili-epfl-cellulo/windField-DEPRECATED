@@ -53,7 +53,7 @@ Item{
             }
         }
 
-        Rectangle{
+       /* Rectangle{
             width: 700
             height: 300
             color: "green"
@@ -77,6 +77,8 @@ Item{
                 }
             }
         }
+
+         */
     }
 }
 

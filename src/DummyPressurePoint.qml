@@ -25,7 +25,8 @@ Item {
     signal updated(int prevr, int prevc, int r, int c, int level)
     signal removedFromGame(int prevr, int prevc)
 
-
+    enabled:true
+    visible: true
     state:"inPlay"
 
 
@@ -85,14 +86,16 @@ Item {
 
     Image {
         id: img
-        opacity: 1
+        enabled:parent.enabled
+        visible: parent.visible
+        opacity: parent.visible? 1:0
         source:
             switch (ilevel){
             case -3:
-                "../assets/lowPressure3.png"
+                "../assets/lowPressure3.svg"
                 break;
             case 3:
-                "../assets/highPressure3.png"
+                "../assets/highPressure3.svg"
                 break;
             }
         height: imageHeight
@@ -135,6 +138,14 @@ Item {
         State{
             name: "inPlay"
             PropertyChanges {target: checkImage; visible:false}
+            PropertyChanges {target: root; visible: true}
+            PropertyChanges {target: root; enabled: true}
+        },
+        State{
+            name: "found"
+            PropertyChanges {target: checkImage; visible: false}
+            PropertyChanges {target: root; visible: false}
+            PropertyChanges {target: root; enabled: false}
         }
     ]
 }

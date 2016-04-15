@@ -30,5 +30,7 @@
         <file>assets/buttons/go.svg</file>
         <file>assets/buttons/right.png</file>
         <file>assets/buttons/wrong.png</file>
+        <file>assets/highPressure3.svg</file>
+        <file>assets/lowPressure3.svg</file>
     </qresource>
 </RCC>
