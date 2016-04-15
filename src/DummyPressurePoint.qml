@@ -19,6 +19,8 @@ Item {
     property int row: -1
     property int col: -1
 
+    property bool found: false
+
     signal putInGame(int r, int c, int level)
     signal updated(int prevr, int prevc, int r, int c, int level)
     signal removedFromGame(int prevr, int prevc)

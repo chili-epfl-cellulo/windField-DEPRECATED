@@ -52,10 +52,7 @@ Rectangle {
         console.log("showInfo clicked");
     }
 
-    function checkCorrectness(){
-        windfield.checkPPoint()
-        console.log("checkCorrectness clicked");
-    }
+
 
     width: parent.width
     height: 0.19375*Screen.height
@@ -112,8 +109,8 @@ Rectangle {
                         onClicked: {
                             pressureButton.switchOn = !pressureButton.switchOn;
                             windfield.drawPressureGrid = pressureButton.switchOn;
-                            if(pressureButton.switchOn)
-                                updateSimulation();
+                            //if(pressureButton.switchOn)
+                            //    updateSimulation();
                         }
                     }
                 }
@@ -172,18 +169,41 @@ Rectangle {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
-
-            Image{
+            Rectangle{
+                id:checkinbutton
                 anchors.verticalCenter: parent.verticalCenter
-                height: 0.15*Screen.height
-                fillMode: Image.PreserveAspectFit
-                source: "../assets/buttons/go.svg"
+                width: 0.2*Screen.width
+                height: 0.07*Screen.width
+                radius: width*0.25
+                border.width: 3
+                border.color: "black"
+                color:"yellow"
 
+                Text {
+                    id:buttontext
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.family: "Helvetica"
+                    font.pointSize: 25
+                    font.bold: true
+                    color:"white"
+                    text: "Check ?"
+                }
                 MouseArea {
                     anchors.fill: parent
                     onClicked:{
-                        //updateSimulation();
-                        checkCorrectness();
+                        switch(uicontrols.state){
+                        case "check":
+                              windfield.checkPPoint()
+                              uicontrols.state = "tryagain"
+                        case "tryagain":
+                              windfield.resetNotfoundPoint()
+                              windfield.hidePressurePoint()
+                              windfield.state="ready"
+                        case "bravo":
+                              windfield.hidePressurePoint()
+
+                        }
                     }
                 }
             }
@@ -296,7 +316,7 @@ Rectangle {
                     font.pointSize: 25
                     font.bold: true
                     color:"white"
-                    text: (totalpoint > 0 ? totalpoint : "-") + " km"
+                    text: (totalpoint > 0 ? -totalpoint : "-") + " km"
                 }
             }
         }
@@ -331,4 +351,23 @@ Rectangle {
             }
         }
     }
+    states:[
+        State{
+            name:"check"
+            PropertyChanges{target:checkinbutton;color:"yellow"}
+            PropertyChanges{target:buttontext;text:"Check ?"}
+        },
+        State{
+            name:"tryagain"
+            PropertyChanges{target:checkinbutton;color:"red"}
+            PropertyChanges{target:buttontext;text:"Try again?"}
+
+        },
+        State{
+            name:"bravo"
+            PropertyChanges{target:checkinbutton;color:"blue"}
+            PropertyChanges{target:buttontext;text:"Bravo !"}
+
+        }
+    ]
 }

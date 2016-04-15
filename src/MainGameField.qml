@@ -107,6 +107,7 @@ Item{
             testLeaf.collided = false
             testLeaf.resetRobotVelocity()
             pauseSimulation()
+            windfield.state ="ready"
         }
 
 
@@ -177,32 +178,39 @@ Item{
         ////////////////////// GAME LOGIC RELATED FUNCTIONS
         function checkPPoint(){
             console.log("start checking  ...")
-            for(var hp = 0; hp < nbOfHiddenPPoint*3;){
+            for(var hp = 0; hp < hiddenPPointList.length;hp++){
+                var hpoint = hiddenPPointList[hp]
+                console.log('hidden point at ', hiddenPPointList[hp])
                 for(var up = 0; up < userPPoint.length;up++){
-                    console.log('found a ap point at ', userPPoint[up].row, userPPoint[up].col, userPPoint[up].ilevel)
-                    console.log('hidden point at ', hiddenPPointList[hp], hiddenPPointList[hp+1],hiddenPPointList[hp+2])
-                    if(hiddenPPointList[hp+2]===userPPoint[up].ilevel){ // check if pressure level is the same
-                        var d = Math.sqrt((hiddenPPointList[hp][0]-userPPoint[up].row)*(hiddenPPointList[hp][0]-userPPoint[up].row) + (hiddenPPointList[hp+1]-userPPoint[up].col)*(hiddenPPointList[hp+1]-userPPoint[up].col))
+                    console.log('chekin point at ', userPPoint[up].row, userPPoint[up].col, userPPoint[up].ilevel)
+
+
+                    if(hpoint[2]===userPPoint[up].ilevel && foundPPointList.indexOf(userPPoint[up])<0){ // check if pressure level is the same
+                        var d = Math.sqrt((hpoint[0]-userPPoint[up].row)*(hpoint[0]-userPPoint[up].row) + (hpoint[1]-userPPoint[up].col)*(hpoint[1]-userPPoint[up].col))
                         console.log('distance of ', d)
                         sumDist+=d
                         console.log('total distance ', sumDist)
                         if(d < 10){
                             console.log( hiddenPPointList)
+                            hiddenPPointList[hp][3]=false
                             foundPPointList.push(userPPoint[up])
-                            //console.log( userPPoint[up])
-                            userPPoint.pop(up)
-                            hiddenPPointList.pop([hp,hp+1,hp+2])
-                            console.log( hiddenPPointList)
+
                         }
-                        //else
-                         //   userPPoint[up].putImageBack()
                     }
                 }
-                hp=+3
             }
-            console.logs('==========================')
+            console.log('==========================')
+            console.log(foundPPointList.length)
             showChecked()
-            uicontrols.totalpoint  = 1/sumDist
+            console.log('=====summmmm=====')
+            console.log(1/sumDist)
+            uicontrols.totalpoint  = sumDist
+            if (foundPPointList.length < hiddenPPointList.length){
+                windfield.state ="checked"
+            }else{
+                windfield.state ="win"
+            }
+
         }
 
         function showChecked(){
@@ -218,25 +226,50 @@ Item{
         }
 
         function hidePressurePoint(){
-            var nbLow = nbOfHiddenPPoint/2
-            var row = 0
-            var col = 0
-            for(var i=0; i< nbLow; i++){
-                row = getRandomInt(0,pressurefield.numRows)
-                col = getRandomInt(0,pressurefield.numCols)
-                pressurefield.addPressurePointHidden(row,col,-3, false)
-                hiddenPPointList.push([row,col,-3])
-            }
-            for(var i=0; i< (nbOfHiddenPPoint- nbLow); i++){
-                row = getRandomInt(0,pressurefield.numRows)
-                col = getRandomInt(0,pressurefield.numCols)
-                pressurefield.addPressurePointHidden(row,col,3, false)
-                hiddenPPointList.push([row,col,3])
+            if(foundPPointList.length == hiddenPPointList.length){
+                var nbLow = nbOfHiddenPPoint/2
+                var row = 0
+                var col = 0
+                for(var i=0; i< nbLow; i++){
+                    row = getRandomInt(0,pressurefield.numRows)
+                    col = getRandomInt(0,pressurefield.numCols)
+                    pressurefield.addPressurePointHidden(row,col,-3, false)
+                    hiddenPPointList.push([row,col,-3, true])
+                }
+                for(var i=0; i< (nbOfHiddenPPoint- nbLow); i++){
+                    row = getRandomInt(0,pressurefield.numRows)
+                    col = getRandomInt(0,pressurefield.numCols)
+                    pressurefield.addPressurePointHidden(row,col,3, false)
+                    hiddenPPointList.push([row,col,3,true])
+                }
+            }else{
+                for(var i=0; i< hiddenPPointList.length; i++){
+                    if( hiddenPPointList[i][3]){
+                        pressurefield.addPressurePointHidden(hiddenPPointList[i][0],hiddenPPointList[i][1],hiddenPPointList[i][2], false)
+                    }
+                    else{
+                        pressurefield.removePressurePoint(hiddenPPointList[i][0],hiddenPPointList[i][1])
+                    }
+                }
             }
             console.log(hiddenPPointList)
-           // updateSimulation();
+            uicontrols.updateSimulation();
         }
 
+        //resets the ppoint not found and disbale the other also disable the view of ppoint coorect set ppoint back to in play and call remove from game for the others
+        function resetNotfoundPoint(){
+            for(var i=0; i< userPPoint.length; i++){
+                if( userPPoint[i].found){
+                    userPPoint[i].putImageBack()
+                    userPPoint[i].enabled= false
+                    userPPoint[i].visible= false
+                }
+                else{
+                    userPPoint[i].putImageBack()
+                    userPPoint[i].state="inPlay"
+                }
+            }
+        }
 
         function timeChanged(){
             if(!windfield.paused){
@@ -257,7 +290,7 @@ Item{
                 leaves[0].tangible = false
                 hidePressurePoint()
                 windfield.drawPressureGrid = false
-                uicontrols.updateSimulation()
+                //uicontrols.updateSimulation()
                 uicontrols.enabled = true //TODO CHnage in false
                 leaves[0].updateCellulo()
             case 2:
@@ -346,7 +379,6 @@ Item{
                 name: "lost"
                 PropertyChanges {target: ontopPanel; state:"playagain"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
                 PropertyChanges {target: windfield; startTime: 0}
                 PropertyChanges {target: windfield; secondsElapsed: 0}
             },
@@ -354,7 +386,6 @@ Item{
                 name: "over"
                 PropertyChanges {target: ontopPanel; state:"gameover"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windfield; nblifes: (windfield.nblifes<=0 ? 0 : windfield.nblifes-1)}
                 PropertyChanges {target: windfield; startTime: 0}
                 PropertyChanges {target: windfield; secondsElapsed: 0}
             },
@@ -362,13 +393,13 @@ Item{
                 name: "win"
                 PropertyChanges {target: ontopPanel; state:"winr"}
                 PropertyChanges {target: ontopPanel; visible:true}
-                PropertyChanges {target: windfield; nblifes:windfield.nblifes}
-                PropertyChanges {target: windfield; startTime: 0}
-                PropertyChanges {target: windfield; secondsElapsed: 0}
+                PropertyChanges {target: uicontrols; state:"bravo"}
+                PropertyChanges {target: uicontrols; enabled:false}
             },
             State{
                 name: "ready"
                 PropertyChanges {target: ontopPanel; visible:false}
+                PropertyChanges {target: uicontrols; state:"check"}
             },
             State{
                 name: "waitconnect"
@@ -376,8 +407,7 @@ Item{
             },
             State{
                 name: "checked" //game 1
-                PropertyChanges {target: ontopPanel; visible:"playagain"}
-                PropertyChanges {target: windField; nblifes:(windField.nblifes<=0 ? 0 : windField.nblifes-1)}
+                PropertyChanges {target: uicontrols; state:"playagain"}
             }
         ]
 
@@ -546,6 +576,8 @@ Item{
             onRemovedFromGame: console.log("****4****removedFromGame****"+prevr+" "+prevc)
             initialImgX:ppoint3.initialImgX+20
         }
-    }
-}
+
+
+            }
+            }
 
