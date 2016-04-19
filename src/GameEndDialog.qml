@@ -29,7 +29,7 @@ Rectangle {
         states: ['Hidden', 'CollidedWithWall', 'Won']
 
         onCurrentStateChanged: {
-            console.log("********* Game end dialog state changed: " + currentState + " ************");
+            console.log("Game end dialog state changed: " + currentState);
             switch(currentState){
             case 'Hidden':
                 parent.visible = false;

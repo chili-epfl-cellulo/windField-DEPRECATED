@@ -203,13 +203,11 @@ ApplicationWindow {
         robotComm.onTouchBegan:{
             //if(state == "game1")
             mainGameField.windfield.leaves[0].tangible = true
-            console.log(mainGameField.windfield.leaves[0].tangible)
         }
 
         robotComm.onTouchReleased:{
             //if(state == "game1")
             mainGameField.windfield.leaves[0].tangible = false
-            console.log(mainGameField.windfield.leaves[0].tangible)
         }
         robotComm.onPoseChanged: {
             //mainGameField.windfield.leaves[0].updateCellulo()

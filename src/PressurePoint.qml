@@ -48,8 +48,6 @@ Item {
         row = Math.floor((p.y + imageHeight/2 - yOffset)/Screen.height*1600/pressurefield.yGridSpacing);
         col = Math.floor((p.x + imageWidth/2 - xOffset)/Screen.width*2560/pressurefield.xGridSpacing);
 
-        console.log((p.x + imageWidth/2 - xOffset)/Screen.width*2560/pressurefield.xGridSpacing);
-
         //Set the new level
         if(plevel !== 0)
             ilevel = plevel;

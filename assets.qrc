@@ -28,5 +28,6 @@
         <file>assets/lowPressure1.svg</file>
         <file>assets/lowPressure2.svg</file>
         <file>assets/lowPressure3.svg</file>
+        <file>assets/buttons/goGrey.svg</file>
     </qresource>
 </RCC>

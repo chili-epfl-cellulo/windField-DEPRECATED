@@ -114,21 +114,38 @@ Rectangle {
             enabled: mainGameField.mainGameFieldStateEngine.canRun
             visible: enabled
 
+            onVisibleChanged: {
+                if(visible)
+                    goButtonImg.opacity = 1;
+            }
+
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: childrenRect.width
 
             Image{
+                id: goButtonImg
                 anchors.verticalCenter: parent.verticalCenter
                 height: 0.15*Screen.height
                 fillMode: Image.PreserveAspectFit
                 source: "../assets/buttons/go.svg"
 
                 MouseArea {
+                    Timer {
+                        id: goPushDelayTimer
+                        interval: 250
+                        running: false
+                        repeat: false
+                        onTriggered: {
+                            updateSimulation();
+                            uicontrols.start();
+                        }
+                    }
+
                     anchors.fill: parent
                     onClicked:{
-                        updateSimulation();
-                        start();
+                        parent.opacity = 0.3;
+                        goPushDelayTimer.running = true;
                     }
                 }
             }

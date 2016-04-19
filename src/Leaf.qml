@@ -77,8 +77,6 @@ Item {
                                    pressureGrid[Math.min(numRows-1,rowIndex+1)][colIndex][4] +
                                    pressureGrid[Math.min(numRows-1,rowIndex+1)][Math.min(numCols-1, colIndex+1)][4])/4
 
-        //console.log( 'pressures' ,topLeftPressure, topRightPressure ,bottomLeftPressure,bottomRightPressure)
-
         //Now interpolate between the points to find the force (which we will just call the
         var xRatio = (leafX-colIndex*xGridSpacing)/xGridSpacing
         var topPressure = topLeftPressure+(topRightPressure-topLeftPressure)*xRatio
@@ -94,7 +92,6 @@ Item {
         leafXFDrag = -leafXV * dragCoefficient
         leafYFDrag = -leafYV * dragCoefficient
         if(currentZone.indexOf('obstacle')>=0 || currentZone.indexOf('clouds')>=0){
-            console.log(currentZone)
             leafXFDrag *= mountainDragMultiplier;
             leafYFDrag *= mountainDragMultiplier;
         }
@@ -186,5 +183,7 @@ Item {
             leafYV = leafYVInit;
             zoneHistory = [];
         }
+
+        console.log("Leaf position, velocity, forces updated: " + leafX + " " + leafY + " " + leafXV + " " + leafYV + " " + leafXF + " " + leafYF);
     }
 }

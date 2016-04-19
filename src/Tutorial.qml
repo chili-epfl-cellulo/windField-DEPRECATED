@@ -29,8 +29,6 @@ Image {
             reset();
             finished();
         }
-
-        console.log(animNumImages);
     }
 
     function prevScreen(){

@@ -32,13 +32,11 @@ function initializeGL(canvas, pressurefield, leaves, numLeaves) {
 
 /***INITIALIZATION HELPER METHODS***/
 function initCamera(pressurefield) {
-    console.log("Initialize Camera")
     camera = new THREE.OrthographicCamera(0, windfield.width, windfield.height, 0, 0.1, 5000);
     camera.position.z = pressurefield.height;
 }
 
 function initScene(pressurefield, leaves, numLeaves) {
-    console.log("Initialize Scene")
     scene = new THREE.Scene();
     //Initialize geometries and materials/shaders
     var backgroundGeom = new THREE.PlaneBufferGeometry(windfield.width, windfield.height, 1, 1)

@@ -68,7 +68,6 @@ function Image () {
     });
 
     this.__defineSetter__("width", function(url){
-        console.log("TODO: Implement image resize");
     });
 
     this.__defineGetter__("height", function(){
@@ -76,7 +75,6 @@ function Image () {
     });
 
     this.__defineSetter__("height", function(url){
-        console.log("TODO: Implement image resize");
     });
 };
 
@@ -116,7 +114,6 @@ Image.prototype = {
     },
 
     data: function() {
-        console.error("Image.data not implemented!");
     }
 };
 
@@ -197,12 +194,9 @@ function HtmlDiv() {
 
 THREE.Canvas3DRenderer = function ( parameters ) {
 
-	console.log( 'THREE.Canvas3DRenderer', THREE.REVISION );
-
 	parameters = parameters || {};
 
     if (parameters.canvas === undefined) {
-        console.error("parameter.canvas must be set when using THREE.Canvas3DRenderer");
         return;
     }
 
@@ -3360,7 +3354,6 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 			if ( influences.length > morphTargets.length ) {
 
-				console.warn( 'THREE.Canvas3DRenderer: Influences array is bigger than morphTargets array.' );
 				influences.length = morphTargets.length;
 
 			}
@@ -4165,7 +4158,6 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 					} else if ( attribute.updateRange.count === 0 ) {
 
-						console.error( 'THREE.Canvas3DRenderer.updateObject: using updateRange for THREE.DynamicBufferAttribute and marked as needsUpdate but count is 0, ensure you are using set methods or updating manually.' );
 
 					} else {
 
@@ -6175,7 +6167,6 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 		if ( ! ( renderTarget instanceof THREE.WebGLRenderTarget ) ) {
 
-			console.error( 'THREE.Canvas3DRenderer.readRenderTargetPixels: renderTarget is not THREE.WebGLRenderTarget.' );
 			return;
 
 		}
@@ -6184,7 +6175,6 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 			if ( renderTarget.format !== THREE.RGBAFormat ) {
 
-				console.error( 'THREE.Canvas3DRenderer.readRenderTargetPixels: renderTarget is not in RGBA format. readPixels can read only RGBA format.' );
 				return;
 
 			}
@@ -6205,7 +6195,6 @@ THREE.Canvas3DRenderer = function ( parameters ) {
 
 			} else {
 
-				console.error( 'THREE.Canvas3DRenderer.readRenderTargetPixels: readPixels from renderTarget failed. Framebuffer not complete.' );
 
 			}
 
@@ -6492,9 +6481,9 @@ if ( Math.sign === undefined ) {
 
 
 // set the default log handlers
-THREE.log = function() { console.log.apply( console, arguments ); }
-THREE.warn = function() { console.warn.apply( console, arguments ); }
-THREE.error = function() { console.error.apply( console, arguments ); }
+THREE.log = function() {}
+THREE.warn = function() {}
+THREE.error = function() {}
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
@@ -15591,12 +15580,6 @@ THREE.BufferGeometry.prototype = {
 
 		var facesCount = ( indices.length / 3 );
 
-		/*
-		console.log("Computing buffers in offsets of "+size+" -> indices:"+indices.length+" vertices:"+vertices.length);
-		console.log("Faces to process: "+(indices.length/3));
-		console.log("Reordering "+verticesCount+" vertices.");
-		*/
-
 		var sortedIndices = new Uint16Array( indices.length ); //16-bit buffers
 		var indexPtr = 0;
 		var vertexPtr = 0;
@@ -15670,14 +15653,6 @@ THREE.BufferGeometry.prototype = {
 		this.reorderBuffers( sortedIndices, revVertexMap, vertexPtr );
 		this.offsets = offsets; // TODO: Deprecate
 		this.drawcalls = offsets;
-
-		/*
-		var orderTime = Date.now();
-		console.log("Reorder time: "+(orderTime-s)+"ms");
-		console.log("Duplicated "+duplicatedVertices+" vertices.");
-		console.log("Compute Buffers time: "+(Date.now()-s)+"ms");
-		console.log("Draw offsets: "+offsets.length);
-		*/
 
 		return offsets;
 
@@ -16616,8 +16591,6 @@ THREE.Geometry.prototype = {
 				changes[ i ] = unique.length - 1;
 
 			} else {
-
-				//console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
 				changes[ i ] = changes[ verticesMap[ key ] ];
 
 			}
@@ -17667,17 +17640,13 @@ THREE.Cache = {
 
 	files: {},
 
-	add: function ( key, file ) {
-
-		// console.log( 'THREE.Cache', 'Adding key:', key );
+    add: function ( key, file ) {
 
 		this.files[ key ] = file;
 
 	},
 
 	get: function ( key ) {
-
-		// console.log( 'THREE.Cache', 'Checking key:', key );
 
 		return this.files[ key ];
 
@@ -18011,7 +17980,6 @@ THREE.Loader.prototype = {
 
 		if ( m.transparency !== undefined ) {
 
-			console.warn( 'THREE.Loader: transparency has been renamed to opacity' );
 			m.opacity = m.transparency;
 
 		}
@@ -18491,8 +18459,6 @@ THREE.JSONLoader.prototype.parse = function ( json, texturePath ) {
 			hasFaceVertexNormal = isBitSet( type, 5 );
 			hasFaceColor	     = isBitSet( type, 6 );
 			hasFaceVertexColor  = isBitSet( type, 7 );
-
-			// console.log("type", type, "bits", isQuad, hasMaterial, hasFaceVertexUv, hasFaceNormal, hasFaceVertexNormal, hasFaceColor, hasFaceVertexColor);
 
 			if ( isQuad ) {
 
@@ -24513,8 +24479,6 @@ THREE.WebGLProgram = ( function () {
 
 		var gammaFactorDefine = ( renderer.gammaFactor > 0 ) ? renderer.gammaFactor : 1.0;
 
-		// console.log( 'building new program ' );
-
 		//
 
 		var customDefines = generateDefines( defines );
@@ -24872,7 +24836,6 @@ THREE.WebGLShader = ( function () {
 		}
 
 		// --enable-privileged-webgl-extension
-		// console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
 
 		return shader;
 
@@ -25774,7 +25737,6 @@ THREE.ShadowMapPlugin = function ( _renderer, _lights, _webglObjects, _webglObje
 
 						light.shadowCascadeArray[ n ] = virtualLight;
 
-						//console.log( "Created virtualLight", virtualLight );
 
 					} else {
 
@@ -26983,8 +26945,6 @@ THREE.FontUtils = {
 
 				action = outline[ i ++ ];
 
-				//console.log( action );
-
 				switch ( action ) {
 
 				case 'm':
@@ -27624,7 +27584,6 @@ THREE.Curve.prototype.getLengths = function ( divisions ) {
 		&& ( this.cacheArcLengths.length == divisions + 1 )
 		&& ! this.needsUpdate) {
 
-		//console.log( "cached", this.cacheArcLengths );
 		return this.cacheArcLengths;
 
 	}
@@ -27711,7 +27670,6 @@ THREE.Curve.prototype.getUtoTmapping = function ( u, distance ) {
 
 	i = high;
 
-	//console.log('b' , i, low, high, Date.now()- time);
 
 	if ( arcLengths[ i ] == targetArcLength ) {
 
@@ -28452,7 +28410,6 @@ THREE.Path.prototype.getSpacedPoints = function ( divisions, closedPath ) {
 THREE.Path.prototype.getPoints = function( divisions, closedPath ) {
 
 	if (this.useSpacedPoints) {
-		console.log('tata');
 		return this.getSpacedPoints( divisions, closedPath );
 	}
 
@@ -28611,13 +28568,11 @@ THREE.Path.prototype.getPoints = function( divisions, closedPath ) {
 				tx = aX + aRadius * Math.cos( angle );
 				ty = aY + aRadius * Math.sin( angle );
 
-				//console.log('t', t, 'angle', angle, 'tx', tx, 'ty', ty);
 
 				points.push( new THREE.Vector2( tx, ty ) );
 
 			}
 
-			//console.log(points);
 
 			break;
 		  
@@ -28649,13 +28604,11 @@ THREE.Path.prototype.getPoints = function( divisions, closedPath ) {
 				tx = aX + xRadius * Math.cos( angle );
 				ty = aY + yRadius * Math.sin( angle );
 
-				//console.log('t', t, 'angle', angle, 'tx', tx, 'ty', ty);
 
 				points.push( new THREE.Vector2( tx, ty ) );
 
 			}
 
-			//console.log(points);
 
 			break;
 
@@ -28729,7 +28682,6 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 
 		}
 
-		// console.log(subPaths);
 
 		return	subPaths;
 	}
@@ -28749,7 +28701,6 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 			shapes.push( tmpShape );
 		}
 
-		//console.log("shape", shapes);
 
 		return shapes;
 	};
@@ -28822,7 +28773,6 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 	var holesFirst = ! THREE.Shape.Utils.isClockWise( subPaths[ 0 ].getPoints() );
 	holesFirst = isCCW ? ! holesFirst : holesFirst;
 
-	// console.log("Holes first", holesFirst);
 	
 	var betterShapeHoles = [];
 	var newShapes = [];
@@ -28853,13 +28803,11 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 			if ( holesFirst )	mainIdx ++;
 			newShapeHoles[mainIdx] = [];
 
-			//console.log('cw', i);
 
 		} else {
 
 			newShapeHoles[mainIdx].push( { h: tmpPath, p: tmpPoints[0] } );
 
-			//console.log('ccw', i);
 
 		}
 
@@ -28895,9 +28843,7 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 				if ( hole_unassigned ) { betterShapeHoles[sIdx].push( ho ); }
 			}
 		}
-		// console.log("ambigious: ", ambigious);
 		if ( toChange.length > 0 ) {
-			// console.log("to change: ", toChange);
 			if (! ambigious)	newShapeHoles = betterShapeHoles;
 		}
 	}
@@ -28912,7 +28858,6 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 		}
 	}
 
-	//console.log("shape", shapes);
 
 	return shapes;
 
@@ -29206,7 +29151,6 @@ THREE.Shape.Utils = {
 			if ( Math.abs(from2toAngle) > EPSILON ) {			// angle != 180 deg.
 
 				var other2toAngle		= otherPtX * legToPtY - otherPtY * legToPtX;
-				// console.log( "from2to: " + from2toAngle + ", from2other: " + from2otherAngle + ", other2to: " + other2toAngle );
 
 				if ( from2toAngle > 0 ) {				// main angle < 180 deg.
 					return	( ( from2otherAngle >= 0 ) && ( other2toAngle >= 0 ) );
@@ -29214,7 +29158,6 @@ THREE.Shape.Utils = {
 					return	( ( from2otherAngle >= 0 ) || ( other2toAngle >= 0 ) );
 				}
 			} else {										// angle == 180 deg.
-				// console.log( "from2to: 180 deg., from2other: " + from2otherAngle  );
 				return	( from2otherAngle > 0 );
 			}
 		}
@@ -29237,7 +29180,6 @@ THREE.Shape.Utils = {
 
 				var insideAngle = isPointInsideAngle( shape[inShapeIdx], shape[ prevShapeIdx ], shape[ nextShapeIdx ], hole[inHoleIdx] );
 				if (! insideAngle ) {
-					// console.log( "Vertex (Shape): " + inShapeIdx + ", Point: " + hole[inHoleIdx].x + "/" + hole[inHoleIdx].y );
 					return	false;
 				}
 
@@ -29252,7 +29194,6 @@ THREE.Shape.Utils = {
 
 				insideAngle = isPointInsideAngle( hole[inHoleIdx], hole[ prevHoleIdx ], hole[ nextHoleIdx ], shape[inShapeIdx] );
 				if (! insideAngle ) {
-					// console.log( "Vertex (Hole): " + inHoleIdx + ", Point: " + shape[inShapeIdx].x + "/" + shape[inShapeIdx].y );
 					return	false;
 				}
 
@@ -29305,7 +29246,6 @@ THREE.Shape.Utils = {
 			while ( indepHoles.length > 0 ) {
 				counter --;
 				if ( counter < 0 ) {
-					console.log( "Infinite Loop! Holes left:" + indepHoles.length + ", Probably Hole outside Shape!" );
 					break;
 				}
 
@@ -29374,7 +29314,6 @@ THREE.Shape.Utils = {
 
 		}
 
-		//console.log( "allpoints",allpoints, allpoints.length );
 
 		// prepare all points map
 
@@ -29396,7 +29335,6 @@ THREE.Shape.Utils = {
 		var shapeWithoutHoles = removeHoles( contour, holes );
 
 		var triangles = THREE.FontUtils.Triangulate( shapeWithoutHoles, false ); // True returns indices for points of spooled shape
-		//console.log( "triangles",triangles, triangles.length );
 
 		// check all face vertices against all points map
 
@@ -31271,7 +31209,6 @@ THREE.ExtrudeGeometry = function ( shapes, options ) {
 
 	//this.computeVertexNormals();
 
-	//console.log( "took", ( Date.now() - startTime ) );
 
 };
 
@@ -31325,7 +31262,6 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 
 		splineTube = options.frames !== undefined ? options.frames : new THREE.TubeGeometry.FrenetFrames(extrudePath, steps, false);
 
-		// console.log(splineTube, 'splineTube', splineTube.normals.length, 'steps', steps, 'extrudePts', extrudePts.length);
 
 		binormal = new THREE.Vector3();
 		normal = new THREE.Vector3();
@@ -31484,12 +31420,10 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 			}
 
 			if ( direction_eq ) {
-				// console.log("Warning: lines are a straight sequence");
 				v_trans_x = - v_prev_y;
 				v_trans_y =  v_prev_x;
 				shrink_by = Math.sqrt( v_prev_lensq );
 			} else {
-				// console.log("Warning: lines are a straight spike");
 				v_trans_x = v_prev_x;
 				v_trans_y = v_prev_y;
 				shrink_by = Math.sqrt( v_prev_lensq / 2 );
@@ -31510,7 +31444,6 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 		if ( k === il ) k = 0;
 
 		//  (j)---(i)---(k)
-		// console.log('i,j,k', i, j , k)
 
 		contourMovements[ i ] = getBevelVec( contour[ i ], contour[ j ], contour[ k ] );
 
@@ -31782,7 +31715,6 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 			k = i - 1;
 			if ( k < 0 ) k = contour.length - 1;
 
-			//console.log('b', i,j, i-1, k,vertices.length);
 
 			var s = 0, sl = steps  + bevelSegments * 2;
 
@@ -32143,7 +32075,6 @@ THREE.LatheGeometry.prototype.constructor = THREE.LatheGeometry;
 
 THREE.PlaneGeometry = function ( width, height, widthSegments, heightSegments ) {
 
-	console.info( 'THREE.PlaneGeometry: Consider using THREE.PlaneBufferGeometry for lower memory footprint.' );
 
 	THREE.Geometry.call( this );
 
@@ -33494,11 +33425,9 @@ THREE.ParametricGeometry = function ( func, slices, stacks ) {
 
 	}
 
-	// console.log(this);
 
 	// magic bullet
 	// var diff = this.mergeVertices();
-	// console.log('removed ', diff, ' vertices by merging');
 
 	this.computeFaceNormals();
 	this.computeVertexNormals();

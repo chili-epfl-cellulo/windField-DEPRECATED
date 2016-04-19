@@ -44,7 +44,7 @@ Item{
         ]
 
         onCurrentStateChanged: {
-            console.log("********* Game state changed: " + currentState + " ************")
+            console.log("Game state changed: " + currentState)
             switch(currentState){
             case 'OutsideStartArea':
                 windfield.paused = true;
@@ -221,12 +221,10 @@ Item{
 
         ////////////////////// FIELD RELATED FUNCTIONS
         function addPressurePoint(r,c,pressureLevel) {
-            console.log('called here')
             pressurefield.addPressurePoint(r,c,pressureLevel)
         }
 
         function addPressurePointCoord(y,x,pressureLevel) {
-            console.log('called here')
             var r = y
             var c = x
             pressurefield.addPressurePoint(r,c,pressureLevel)
@@ -249,9 +247,7 @@ Item{
             var startp = playground.zones[0]["path"]
             var center = getCenterFromPoly(startp)
             var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
-            console.log("startpoints")
             //startcoords =  Qt.point(50,50)
-            console.log(startcoords.x, startcoords.y)
             theLeaf.leafX = startcoords.x
             theLeaf.leafY = startcoords.y
             theLeaf.leafXV = 0
@@ -274,9 +270,7 @@ Item{
             var startcoords = fromPointToCoords((center.x*fieldHeight-20)/pressurefield.numRows,(center.y*fieldWidth)/pressurefield.numCols)
 
             //var startcoords = fromPointToCoords((parent.robot.x*fieldHeight)/pressurefield.numRows,(parent.robot.t*fieldWidth)/pressurefield.numCols)
-            console.log("startpoints")
             //startcoords =  Qt.point(50,50)
-            console.log(startcoords.x, startcoords.y)
             theLeaf.leafX = startcoords.x
             theLeaf.leafY = startcoords.y
             theLeaf.leafXV = 0
@@ -300,12 +294,10 @@ Item{
         // - Set the obstales from the obstaclezone list of ZonesF
         function setObstaclesfromZones(){
             // TODO : PLACEMENT NOT ACCURATE OF THE ZONES
-            //console.log("start zoning")
             var zones = playground.zones
             for (var i = 0; i < zones.length; i++) {
 
                 if(zones[i]["name"].indexOf("obstacle")===0 ||zones[i]["name"].indexOf("cloud")===0){
-                    console.log(zones[i]["name"])
                     var pathcoord = []
                     var minPX = pressurefield.numCols;var minPY = pressurefield.numRows;var maxPX = 0;var maxPY = 0;
                     for( var j =0 ; j< zones[i]["path"].length; j++){
@@ -381,21 +373,17 @@ Item{
                 miny= Math.min(miny, poly[i].y);
                 maxx= Math.max(maxx, poly[i].x);
                 maxy= Math.max(maxy, poly[i].y);
-                console.log(poly[i].x, poly[i].y)
             }
-            console.log(maxy, miny ,maxx, minx)
             return Qt.point((maxx+minx)/2,(maxy+miny)/2)
         }
 
         // - return true if the point is in the polygone poly
         function isPointInPoly(poly, pt){
             for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i){
-                //console.log(poly[i].x,poly[i].y )
                 if(
                         ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
                         && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
                         && (c = !c));
-                //console.log(c)
                 return c;
             }
         }
@@ -421,7 +409,6 @@ Item{
             if (gameMode===1) {
                 for (var i = 0; i < numLeaves; i++)
                     if(leaves[i].tangible){
-                        console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
                         leaves[i].updateLeaf()
                     }
             }
@@ -438,8 +425,6 @@ Item{
 
         onGameModeChanged: {
             setGameMode()
-            console.log('game mode')
-            console.log(gameMode)
         }
 
         ////////////////////// EMBEDDED ITEMS
@@ -458,7 +443,7 @@ Item{
             allzones: playground
             currentZone: ''
             onBonusChanged:{
-                console.log('the bonus is', bonus);
+                console.log('The score changed: ', bonus);
                 uicontrols.totalpoint = bonus;
                 gameEndDialog.bonus = bonus;
             }
@@ -492,26 +477,50 @@ Item{
 
         PressurePoint{
             ilevel: 3
+
+            onPutInGame: console.log("PressurePoint put in game: " + row + " " + col + " " + ilevel)
+            onUpdated: console.log("PressurePoint updated: " + row + " " + col + " " + ilevel)
+            onRemovedFromGame: console.log("PressurePoint removed from game: " + row + " " + col + " " + ilevel)
         }
 
         PressurePoint{
             ilevel: 3
+
+            onPutInGame: console.log("PressurePoint put in game: " + row + " " + col + " " + ilevel)
+            onUpdated: console.log("PressurePoint updated: " + row + " " + col + " " + ilevel)
+            onRemovedFromGame: console.log("PressurePoint removed from game: " + row + " " + col + " " + ilevel)
         }
 
         PressurePoint{
             ilevel: 3
+
+            onPutInGame: console.log("PressurePoint put in game: " + row + " " + col + " " + ilevel)
+            onUpdated: console.log("PressurePoint updated: " + row + " " + col + " " + ilevel)
+            onRemovedFromGame: console.log("PressurePoint removed from game: " + row + " " + col + " " + ilevel)
         }
 
         PressurePoint{
             ilevel: -3
+
+            onPutInGame: console.log("PressurePoint put in game: " + row + " " + col + " " + ilevel)
+            onUpdated: console.log("PressurePoint updated: " + row + " " + col + " " + ilevel)
+            onRemovedFromGame: console.log("PressurePoint removed from game: " + row + " " + col + " " + ilevel)
         }
 
         PressurePoint{
             ilevel: -3
+
+            onPutInGame: console.log("PressurePoint put in game: " + row + " " + col + " " + ilevel)
+            onUpdated: console.log("PressurePoint updated: " + row + " " + col + " " + ilevel)
+            onRemovedFromGame: console.log("PressurePoint removed from game: " + row + " " + col + " " + ilevel)
         }
 
         PressurePoint{
             ilevel: -3
+
+            onPutInGame: console.log("PressurePoint put in game: " + row + " " + col + " " + ilevel)
+            onUpdated: console.log("PressurePoint updated: " + row + " " + col + " " + ilevel)
+            onRemovedFromGame: console.log("PressurePoint removed from game: " + row + " " + col + " " + ilevel)
         }
     }
 }

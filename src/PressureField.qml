@@ -106,7 +106,6 @@ Item {
 
     /***PRESSURE GRID STATE UPDATE METHODS***/
     function updateField() {
-        //console.log("Robot Position X: ", robotComm.x, "Robot Position Y: ", robotComm.y)
         //resetPressureAtPressurePoints()
         resetwindfieldBis()
         updatePressureGridBis()
@@ -133,7 +132,6 @@ Item {
     }
 
     function updatePressureGridBis(){
-        console.info("start updating")
         for(var i = 0; i < maxPressurePoints; i++){
             if (!pressurePoints[i].state)
                 continue
@@ -150,15 +148,12 @@ Item {
                     if (colOffset >= numCols || colOffset < 0)
                         continue;
                     var curPressure = pressureGrid[rowOffset][colOffset][4];
-                    //console.info(rowOffset,colOffset,curPressure);
                     if(curPressure < 100 || curPressure >0){
                         var d = Math.sqrt((rowOffset - row)*(rowOffset - row)+(colOffset - col)*(colOffset - col));
-                        //console.info(d);
                         if(d==0)
                             pressureGrid[rowOffset][colOffset][4] = pressurePoints[i].strength
                         else
                            pressureGrid[rowOffset][colOffset][4]=curPressure+(pressurePoints[i].strength-50)/(d/3);
-                        //console.info(rowOffset,colOffset,curPressure+(pressurePoints[i].strength)/Math.floor(d));
                     }
                     else if(curPressure==100){
                         pressureGrid[rowOffset][colOffset][4] =100;
@@ -177,7 +172,6 @@ Item {
 
         //printPRESSAUROUND(row,col,10)
         }
-        console.info("updating over")
     }
 
 
@@ -196,7 +190,6 @@ Item {
             str+='\n'
 
         }
-        console.log(str);
 
     }
 
@@ -283,7 +276,6 @@ Item {
     }
 
     function addOrUpdatePressurePointHidden(prevr, prevc, r, c, pressureLevel, visible){
-        console.info("===================adding pressure point========================")
         if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6])
             return false;
 
@@ -304,7 +296,6 @@ Item {
     }
 
     function addPressurePointHidden(r,c,pressureLevel, visible) {
-        console.info("===================adding pressure point========================")
         if (r < 0 || r >= numRows || c < 0 || c >= numCols || !pressureGrid[r][c][6] )
             return;
 
@@ -318,8 +309,6 @@ Item {
             }
         }
 
-        console.info(r,c,pressureLevel)
-        console.info("===================pressure added========================")
         //Actually add the pressure cell
         for (var p = 0; p < maxPressurePoints; p++) {
             if (!pressurePoints[p].state) {
