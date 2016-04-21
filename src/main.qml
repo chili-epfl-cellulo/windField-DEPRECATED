@@ -202,6 +202,7 @@ ApplicationWindow {
         //robotComm.macAddr : "00:06:66:74:43:00"
         robotComm.onConnectedChanged:{
             if(robotComm.connected){
+                //robotComm.reset()
                 mainGameField.windfield.state="ready"
             }
             else{
@@ -209,11 +210,12 @@ ApplicationWindow {
             }
         }
         robotComm.onKidnappedChanged:{
-            if(state === "game1"){
+            //if(state === "game1"){
                 mainGameField.windfield.leaves[0].robotkidnapped = cellulo1.robotComm.kidnapped
+                if(cellulo1.robotComm.kidnapped)
                 mainGameField.windfield.leaves[0].setSpeedNull()
             }
-        }
+
         robotComm.onTouchBegan:{
             console.log(keytouched)
             if(touches.length)
@@ -245,8 +247,6 @@ ApplicationWindow {
                 mainGameField.windfield.leaves[0].tangible = true
                 cellulo1.fullColor = 'green'
         }
-
-
 
         robotComm.onPoseChanged: {
             mainGameField.windfield.leaves[0].updateCellulo()

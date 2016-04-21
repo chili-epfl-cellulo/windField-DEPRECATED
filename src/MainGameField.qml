@@ -112,10 +112,12 @@ Item{
             leaves[0].tangible = false
             hidePressurePoint()
             windfield.drawPressureGrid = false
+            windfield.sumDist =0
             //uicontrols.updateSimulation()
             uicontrols.enabled = true //TODO CHnage in false
+
             leaves[0].updateCellulo()
-            console.log("all set")
+            console.log("set at INITIAL")
             resetUserPPoint()
         }
 
@@ -207,9 +209,9 @@ Item{
                 }
             }
             console.log('==========================')
-            console.log(foundPPointList.length)
+            console.log('found point list ',foundPPointList.length)
             showChecked()
-            console.log(1/sumDist)
+            console.log('sum distance',sumDist)
             uicontrols.totalpoint  = sumDist
 
             //
@@ -218,18 +220,23 @@ Item{
         function showChecked(){
             var count_incorrect = 0
             for(var up = 0; up < userPPoint.length;up++){
+
                 if(foundPPointList.indexOf(userPPoint[up])>=0){
                    userPPoint[up].state="correct"
+
                 }
                 else{
                     userPPoint[up].state="incorrect"
                     count_incorrect+=1
                 }
+                 console.log('userpoint correct:', userPPoint[up].state)
             }
             if(count_incorrect>0){
                 uicontrols.state = "tryagain"
             }else if(count_incorrect==0)
                 uicontrols.state = 'bravo'
+
+            console.log('game engine state :',  uicontrols.state)
 
         }
 
@@ -271,7 +278,7 @@ Item{
                     }
                 }
             }
-            console.log(hiddenPPointList)
+            console.log('hide ppoint list ', hiddenPPointList)
             uicontrols.updateSimulation();
             console.log('pressure point RESTED!!')
              uicontrols.state='check'

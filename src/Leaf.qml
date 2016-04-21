@@ -52,12 +52,16 @@ Item {
             //robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
             leafX = robot.coords.x* fieldWidth
             leafY = robot.coords.y *fieldHeight
+            console.log("robot at ",robot.coords.x,robot.coords.y)
+            console.log("leaf at ",leafX, leafY)
+
         }
 
     }
 
     /***LEAF STATE UPDATE METHODS***/
     function setSpeedNull(){
+        console.log("reste speed to null")
         leafXV = 0
         leafYV = 0
         leafXF = 0
@@ -123,20 +127,13 @@ Item {
     }
 
     function mapVel(value, forceMin, forceMax, velMin, velMax){
-           value = velMin + (value - forceMin) * (velMax - velMin) / (forceMax - forceMin)
-
+        value = velMin + (value - forceMin) * (velMax - velMin) / (forceMax - forceMin)
         return value
     }
 
 
     function updateLeaf() {
-        if(tangible)
-        console.log('tttttttttttttttttttttttttt')
-        else{
-        console.log('')
-        }
-
-
+        console.log(tangible? "grasped": "nonegraspred")
 
         if(!tangible && robot.robotComm.connected){
             updateCellulo()
@@ -161,24 +158,25 @@ Item {
             leafY += deltaY
 
             if(robot.robotComm.connected){
-                console.log("====================")
-                console.log(netForceX, netForceY)
+                console.log("net forces on leaf ",netForceX, netForceY)
 
-            var forceMin = -50
-            var forceMax = 50
-            var velMin = -150
-            var velMax = 150
-            var velX = mapVel(netForceX/field.numRows *660,  forceMin, forceMax, velMin, velMax)
-            var velY = mapVel(netForceY /field.numCols*1700,  forceMin, forceMax, velMin, velMax)
-            robot.setGlobalSpeeds(velX,velY, 0.0);}
-            console.log(velX)
+                var forceMin = -50
+                var forceMax = 50
+                var velMin = -150
+                var velMax = 150
+                var velX = mapVel(netForceX/field.numRows *660,  forceMin, forceMax, velMin, velMax)
+                var velY = mapVel(netForceY /field.numCols*1700,  forceMin, forceMax, velMin, velMax)
+                robot.setGlobalSpeeds(velX,velY, 0.0);
+                console.log("robot velocity ", velX, velY)
+            }
+
         }
 
         // Arrived at the end of the map: WINS
         if (leafX -leafSize/4> windfield.fieldWidth) {
             leafX = Math.max(Math.min(leafX, windfield.fieldWidth-leafSize/2), 0.0)
             collided = true;
-
+            console.log("collided at ", leafX)
             if(robot.robotComm.connected){
                 robot.alert(Qt.rgba(0,0.8,0,1), 3);
                 robot.setGlobalSpeeds(0,0,4);
@@ -188,24 +186,22 @@ Item {
         else if (leafX-leafSize/4 < 0) {
             leafX = Math.max(Math.min(leafX, windfield.fieldWidth-leafSize/2), 0.0)
             collided = true;
-
+            console.log("collided at ", leafX)
             if(robot.robotComm.connected){
                 robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
                 //robot.setGlobalSpeeds(0,0,4);
             }
-            console.log("=========LEAF COLLIDED R1==========")
-
         }
         // Collide to the top or bottom
         else if (leafY+leafSize/4  > windfield.fieldHeight || leafY-leafSize/4 < 0) {
             leafY = Math.max(Math.min(leafY, windfield.fieldHeight-leafSize/2), 0.0)
             collided = true
-
+            console.log("collided at ", leafY)
             //if(robot.robotComm.connected){
             //    robot.alert(Qt.rgba(0.7,0.7,0,0.5), 2);
-                //robot.setGlobalSpeeds(0,0,4);
+            //robot.setGlobalSpeeds(0,0,4);
             //}
-            console.log("=========LEAF COLLIDED R2==========")
+
         }
 
     }
