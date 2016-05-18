@@ -52,8 +52,8 @@ Item {
             //robot.setGlobalSpeeds(leafXV/field.numRows *660*0.508, leafYV /field.numCols*1700*0.508, 0.0);
             leafX = robot.coords.x* fieldWidth
             leafY = robot.coords.y *fieldHeight
-            console.log("robot at ",robot.coords.x,robot.coords.y)
-            console.log("leaf at ",leafX, leafY)
+            //console.log("robot at ",robot.coords.x,robot.coords.y)
+            //console.log("leaf at ",leafX, leafY)
 
         }
 

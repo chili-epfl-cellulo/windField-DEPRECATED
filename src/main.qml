@@ -43,11 +43,13 @@ ApplicationWindow {
             case 'Tutorial1':
                 tutorial1.visible = true;
                 tutorial1.enabled = true;
+                console.log('tuto started')
                 break;
             case 'Game1':
                 mainGameField.visible = true;
                 mainGameField.enabled = true;
                 mainGameField.windfield.gameMode = 1;
+                console.log('game1 started')
                 break;
             case 'Game2':
                 mainGameField.visible = true;
@@ -62,7 +64,7 @@ ApplicationWindow {
 
     MainMenu{
         id: mainMenu
-
+        onTutorialClicked: stateEngine.goToStateByName('Tutorial1')
         onGame1Clicked: stateEngine.goToStateByName('Game1')
         onGame2Clicked: stateEngine.goToStateByName('Game2')
     }
@@ -72,12 +74,12 @@ ApplicationWindow {
         visible: false
         enabled: false
         baseName: 'Tutorial1'
-        numScreens: 5
-        animBaseNames:          ['ballon',  '',         '',             'wind1',        'feel']
-        animNumImages:          [120,       80,         51,             80,             36]
-        animDurations:          [2400,      2000,       2000,           2000,           1400]
-        animSizeCoeffs:         [0.5,       0.5,        0.5,            0.7,            0.35]
-        animBottomMarginCoeffs: [0.07,      0.07,       0.07,           0.15,           0.07]
+        numScreens: 7
+        animBaseNames:          ['ballon',  'high',    'low',        'wind1',     'feel',       'interface',    'drag']
+        animNumImages:          [120,       1,          1,           80,          36,           0,             50]
+        animDurations:          [2400,      1,          1,           2000,        1400,         0,             1500]
+        animSizeCoeffs:         [0.5,       0.7,        0.7,         0.7,         0.35,         0.5,           0.5]
+        animBottomMarginCoeffs: [0.07,      0.25,       0.25,        0.15,        0.07,         0.07,          0.07]
         onFinished: stateEngine.goToStateByName('Game1')
         onWentBack: stateEngine.goToStateByName('MainMenu')
     }
@@ -199,7 +201,7 @@ ApplicationWindow {
         id: cellulo1
         playground: playground
         robotId: 1
-        //robotComm.macAddr : "00:06:66:74:43:00"
+        robotComm.macAddr : "00:06:66:74:48:A7"
         robotComm.onConnectedChanged:{
             if(robotComm.connected){
                 //robotComm.reset()
@@ -216,34 +218,40 @@ ApplicationWindow {
                 mainGameField.windfield.leaves[0].setSpeedNull()
             }
 
-        robotComm.onTouchBegan:{
-            console.log(keytouched)
-            if(touches.length)
-            keytouched+=1
-            if(keytouched>0){
-                mainGameField.windfield.leaves[0].tangible = true
-                console.log(mainGameField.windfield.leaves[0].tangible)
-            }else{
-                mainGameField.windfield.leaves[0].tangible = false
-            }
+        onTouchesChanged:{
+            console.log(cellulo1.touches)
+                  if(cellulo1.touches.length >0){
+                     mainGameField.windfield.leaves[0].tangible = true
+                       cellulo1.fullColor = 'green'
+                  }else{
+                       mainGameField.windfield.leaves[0].tangible = false
+                       cellulo1.fullColor = 'white'
+                  }
 
-        }
+               }
 
-        robotComm.onTouchReleased:{
-            console.log(keytouched)
-            mainGameField.windfield.leaves[0].tangible = false
-            cellulo1.fullColor = 'white'
-            keytouched-=1
-            if(keytouched<=0){
-                mainGameField.windfield.leaves[0].tangible = false
-                console.log(mainGameField.windfield.leaves[0].tangible)
-            }else{
-                mainGameField.windfield.leaves[0].tangible = true
-            }
+//        robotComm.onTouchBegan:{
+//            if(cellulo1.touches.length >0){
+//                mainGameField.windfield.leaves[0].tangible = true
+//                cellulo1.fullColor = 'green'
+//            }else{
+//                mainGameField.windfield.leaves[0].tangible = false
+//                cellulo1.fullColor = 'red'
+//            }
 
-        }
+//        }
+
+//        robotComm.onTouchReleased:{
+//            if(cellulo1.touches.length === 0){
+//                cellulo1.fullColor = 'red'
+//                mainGameField.windfield.leaves[0].tangible = false
+//            }else{
+//                cellulo1.fullColor = 'green'
+//                mainGameField.windfield.leaves[0].tangible = true
+//            }
+
+//        }
         robotComm.onLongTouch:{
-            console.log(keytouched)
                 mainGameField.windfield.leaves[0].tangible = true
                 cellulo1.fullColor = 'green'
         }

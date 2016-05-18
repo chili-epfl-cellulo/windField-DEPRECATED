@@ -6,7 +6,7 @@ Item{
     focus: true
     width: parent.width
     height: parent.height
-
+    signal tutorialClicked()
     signal game1Clicked()
     signal game2Clicked()
 
@@ -27,6 +27,31 @@ Item{
         spacing: 200
         y: 3*parent.height/4
         anchors.horizontalCenter: parent.horizontalCenter
+
+        Rectangle{
+            width: 700
+            height: 300
+            color: "blue"
+            radius: width*0.5
+            opacity: 0.6
+
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                font.family: "Helvetica"
+                font.pointSize: 25
+                font.bold: true
+                text: "Tutorial"
+            }
+
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    parent.color = 'red';
+                    tutorialClicked();
+                }
+            }
+        }
 
         Rectangle{
             width: 700
@@ -59,8 +84,8 @@ Item{
             color: "green"
             radius: width*0.5
             opacity: 0.6
-            enabled:false
-            visible:false
+            enabled:true
+            visible:true
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter

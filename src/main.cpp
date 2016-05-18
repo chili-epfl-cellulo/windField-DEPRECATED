@@ -9,7 +9,7 @@
 #include <QDebug>
 #include <QDir>
 
-static bool LOGGING_TO_FILE=true;
+static bool LOGGING_TO_FILE=false;
 
 QFile logFile;
 

@@ -29,7 +29,7 @@ Image {
             reset();
             finished();
         }
-
+        console.log(currentScreen)
         console.log(animNumImages);
     }
 
